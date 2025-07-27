@@ -7,6 +7,7 @@ import { Usuarios } from '../components/screens/Usuarios/Usuarios';
 import { Beneficiarios } from '../components/screens/Beneficiarios/Beneficiarios';
 import { Areas } from '../components/screens/RolesAreas/Areas';
 import { Roles } from '../components/screens/Roles/Roles';
+import { Medico } from '../components/screens/Medico/Medico';
 
 
 export const AppRouter = () => {
@@ -26,6 +27,7 @@ export const AppRouter = () => {
         <Route path="/beneficiarios" element={<Beneficiarios/>} />
         <Route path="/areas" element={<Areas/>} />
         <Route path="/roles" element={<Roles/>} />
+        <Route path="/medicos" element={<Medico/>} />
 
         
         {/* Rutas privadas */}

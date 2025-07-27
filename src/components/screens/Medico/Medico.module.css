@@ -1,0 +1,81 @@
+.container {
+  padding: 20px;
+  max-width: 1000px;
+  margin: auto;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.title {
+  font-size: 24px;
+  margin-bottom: 20px;
+  color: #333333;
+}
+
+.addButton {
+  background-color: #4caf50;
+  color: white;
+  padding: 10px 14px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.addButton:hover {
+  background-color: #45a049;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th,
+.table td {
+  border: 1px solid #dddddd;
+  padding: 12px;
+  text-align: left;
+}
+
+.table th {
+  background-color: #f2f2f2;
+  color: #333333;
+}
+
+.table tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.table tr:hover {
+  background-color: #f1f1f1;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+}
+
+.editIcon {
+  color: #1976d2;
+  cursor: pointer;
+}
+
+.editIcon:hover {
+  color: #1259a3;
+}
+
+.deleteIcon {
+  color: red;
+  cursor: pointer;
+}
+
+.deleteIcon:hover {
+  color: darkred;
+}
