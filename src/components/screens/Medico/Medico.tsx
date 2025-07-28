@@ -3,13 +3,15 @@ import axios from 'axios';
 import { FaEdit, FaTrash, FaPlus } from 'react-icons/fa';
 import styles from './Medico.module.css';
 import { useAuthStore } from '../../../auth/store/authStore';
-import ModalMedico from '../../ui/ModalMedico/ModalMedico'; // Import the modal for adding/editing Medico
+import ModalMedico from '../../ui/ModalMedico/ModalMedico';
 
 interface Medico {
   id: number;
-  usuario_id: number;
   matricula: string;
-  area_id: number;
+  area: {
+    id: number;
+    nombre: string;
+  };
 }
 
 export const Medico: React.FC = () => {
@@ -23,11 +25,8 @@ export const Medico: React.FC = () => {
 
   const obtenerMedicos = async () => {
     try {
-      const response = await axios.get('http://localhost:9000/api/medicos', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await axios.get('http://localhost:9000/api/medicos');
+      console.log(response.data);
       setMedicos(response.data);
     } catch (error) {
       console.error('Error al obtener medicos:', error);
@@ -49,7 +48,7 @@ export const Medico: React.FC = () => {
 
   const editarMedico = (id: number) => {
     console.log('Editar medico con ID:', id);
-    // Open modal for editing in the future
+    // Implementar edición en el futuro
   };
 
   const agregarMedico = () => {
@@ -75,9 +74,8 @@ export const Medico: React.FC = () => {
         <thead>
           <tr>
             <th>ID</th>
-            <th>Usuario ID</th>
             <th>Matrícula</th>
-            <th>Área ID</th>
+            <th>Área</th>
             <th>Acciones</th>
           </tr>
         </thead>
@@ -85,9 +83,8 @@ export const Medico: React.FC = () => {
           {medicos.map((m) => (
             <tr key={m.id}>
               <td>{m.id}</td>
-              <td>{m.usuario_id}</td>
               <td>{m.matricula}</td>
-              <td>{m.area_id}</td>
+              <td>{m.area?.nombre}</td> 
               <td className={styles.actions}>
                 <FaEdit
                   className={styles.editIcon}

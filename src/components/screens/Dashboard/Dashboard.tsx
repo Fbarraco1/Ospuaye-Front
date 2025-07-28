@@ -30,7 +30,7 @@ const dashboardItems = [
   {
     title: 'Grupos Familiares',
     description: 'Administrar vínculos familiares de los beneficiarios.',
-    route: '/grupos-familiares',
+    route: '/grupoFamiliar',
   },
   {
     title: 'Áreas',

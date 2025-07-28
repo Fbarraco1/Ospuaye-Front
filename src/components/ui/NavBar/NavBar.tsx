@@ -19,14 +19,12 @@ export const NavBar = () => {
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="me-auto">
             <Nav.Link href="/">Home</Nav.Link>
-            {isAuthenticated && <Nav.Link href="/dashboard">Dashboard</Nav.Link>}
           </Nav>
 
           <Nav>
             {!isAuthenticated ? (
               <>
                 <Nav.Link onClick={() => navigate("/login")}>Iniciar sesión</Nav.Link>
-                <Nav.Link onClick={() => navigate("/register")}>Registrarse</Nav.Link>
               </>
             ) : (
               <NavDropdown title="👤" align="end" id="user-dropdown">

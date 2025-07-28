@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useAuthStore } from '../../../auth/store/authStore'; 
 import styles from './modalBeneficiario.module.css';
 import axios from 'axios';
 
@@ -11,27 +10,29 @@ interface ModalBeneficiarioProps {
 
 const ModalBeneficiario: React.FC<ModalBeneficiarioProps> = ({ isOpen, onClose, onBeneficiarioAdded }) => {
   const [nombre, setNombre] = useState('');
+  const [email, setEmail] = useState('');
+  const [contrasena, setContrasena] = useState('');
   const [apellido, setApellido] = useState('');
   const [dni, setDni] = useState('');
   const [cuil, setCuil] = useState('');
   const [telefono, setTelefono] = useState('');
-  const token = useAuthStore((state) => state.token); 
 
   const createBene = async (
     nombre: string,
     apellido: string,
+    email: string,
+    contrasena: string,
     dni: string,
     cuil: string,
     telefono: string
   ) => {
     try {
       const response = await axios.post(
-        'http://localhost:9000/api/beneficiarios',
-        { nombre, apellido, dni, cuil, telefono },
+        'http://localhost:9000/api/auth/register/beneficiario',
+        { nombre, apellido, email, contrasena, dni, cuil, telefono },
         {
           headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
           },
         }
       );
@@ -46,7 +47,7 @@ const ModalBeneficiario: React.FC<ModalBeneficiarioProps> = ({ isOpen, onClose, 
     e.preventDefault();
 
     try {
-      await createBene(nombre, apellido, dni, cuil, telefono);
+      await createBene(nombre, apellido, email, contrasena, dni, cuil, telefono);
     
       if (onBeneficiarioAdded) onBeneficiarioAdded();
       onClose();
@@ -62,6 +63,8 @@ const ModalBeneficiario: React.FC<ModalBeneficiarioProps> = ({ isOpen, onClose, 
     setDni('');
     setCuil('');
     setTelefono('');
+    setEmail('');
+    setContrasena('');
     onClose();
   };
 
@@ -85,6 +88,20 @@ const ModalBeneficiario: React.FC<ModalBeneficiarioProps> = ({ isOpen, onClose, 
             type="text"
             value={apellido}
             onChange={(e) => setApellido(e.target.value)}
+            required
+          />
+          <label>Email:</label>
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+          <label>Contraseña:</label>
+          <input
+            type="password"
+            value={contrasena}
+            onChange={(e) => setContrasena(e.target.value)}
             required
           />
 

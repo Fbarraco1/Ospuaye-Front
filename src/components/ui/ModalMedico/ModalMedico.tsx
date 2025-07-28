@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { useAuthStore } from '../../../auth/store/authStore';
 import styles from './ModalMedico.module.css';
 import axios from 'axios';
 
@@ -9,48 +8,27 @@ interface ModalMedicoProps {
   onMedicoAdded?: () => void;
 }
 
-interface Usuario {
-  id: number;
-  nombre: string;
-  apellido: string;
-}
-
 interface Area {
   id: number;
   nombre: string;
 }
 
 const ModalMedico: React.FC<ModalMedicoProps> = ({ isOpen, onClose, onMedicoAdded }) => {
-  const [usuarioId, setUsuarioId] = useState('');
+  const [email, setEmail] = useState('');
+  const [contrasena, setContrasena] = useState('');
   const [matricula, setMatricula] = useState('');
   const [areaId, setAreaId] = useState('');
-  const [usuarios, setUsuarios] = useState<Usuario[]>([]);
   const [areas, setAreas] = useState<Area[]>([]);
-  const token = useAuthStore((state) => state.token);
 
   useEffect(() => {
     if (isOpen) {
-      fetchUsuarios();
       fetchAreas();
     }
   }, [isOpen]);
 
-  const fetchUsuarios = async () => {
-    try {
-      const res = await axios.get('http://localhost:9000/api/usuarios', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      setUsuarios(res.data);
-    } catch (e) {
-      setUsuarios([]);
-    }
-  };
-
   const fetchAreas = async () => {
     try {
-      const res = await axios.get('http://localhost:9000/api/areas', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const res = await axios.get('http://localhost:9000/api/areas',);
       setAreas(res.data);
     } catch (e) {
       setAreas([]);
@@ -61,18 +39,13 @@ const ModalMedico: React.FC<ModalMedicoProps> = ({ isOpen, onClose, onMedicoAdde
     e.preventDefault();
     try {
       await axios.post(
-        'http://localhost:9000/api/medicos',
+        'http://localhost:9000/api/auth/register/medico',
         {
-          usuario_id: usuarioId,
+          email,
+          contrasena,
           matricula,
-          area_id: areaId
+          areaId: areaId
         },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-        }
       );
       if (onMedicoAdded) onMedicoAdded();
       handleClose();
@@ -82,7 +55,8 @@ const ModalMedico: React.FC<ModalMedicoProps> = ({ isOpen, onClose, onMedicoAdde
   };
 
   const handleClose = () => {
-    setUsuarioId('');
+    setEmail('');
+    setContrasena('');
     setMatricula('');
     setAreaId('');
     onClose();
@@ -95,19 +69,20 @@ const ModalMedico: React.FC<ModalMedicoProps> = ({ isOpen, onClose, onMedicoAdde
       <div className={styles.modal}>
         <h2>Agregar Médico</h2>
         <form onSubmit={handleSubmit}>
-          <label>Usuario:</label>
-          <select
-            value={usuarioId}
-            onChange={e => setUsuarioId(e.target.value)}
+          <label>Email:</label>
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             required
-          >
-            <option value="">Seleccione un usuario</option>
-            {usuarios.map(u => (
-              <option key={u.id} value={u.id}>
-                {u.nombre} {u.apellido}
-              </option>
-            ))}
-          </select>
+          />
+          <label>Contraseña:</label>
+          <input
+            type="password"
+            value={contrasena}
+            onChange={(e) => setContrasena(e.target.value)}
+            required
+          />
 
           <label>Matrícula:</label>
           <input

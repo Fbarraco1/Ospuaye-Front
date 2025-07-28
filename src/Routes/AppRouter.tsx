@@ -8,6 +8,8 @@ import { Beneficiarios } from '../components/screens/Beneficiarios/Beneficiarios
 import { Areas } from '../components/screens/RolesAreas/Areas';
 import { Roles } from '../components/screens/Roles/Roles';
 import { Medico } from '../components/screens/Medico/Medico';
+import { GrupoFamiliar } from '../components/screens/GrupoFamiliar/GrupoFamiliar';
+import { Pedido } from '../components/Pedido/Pedido';
 
 
 export const AppRouter = () => {
@@ -28,6 +30,10 @@ export const AppRouter = () => {
         <Route path="/areas" element={<Areas/>} />
         <Route path="/roles" element={<Roles/>} />
         <Route path="/medicos" element={<Medico/>} />
+        <Route path="/grupoFamiliar" element={<GrupoFamiliar/>} />
+        <Route path="/pedidos" element={<Pedido/>} />
+
+
 
         
         {/* Rutas privadas */}
