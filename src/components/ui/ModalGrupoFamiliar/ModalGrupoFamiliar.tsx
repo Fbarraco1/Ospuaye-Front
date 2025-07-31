@@ -1,90 +1,130 @@
-import React, { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useAuthStore } from '../../../auth/store/authStore';
 import styles from './ModalGrupoFamiliar.module.css';
-
-interface GrupoFamiliar {
-  id?: number;
-  nombre: string;
-  apellido: string;
-  dni: string;
-  parentesco: string;
-}
+import axios from 'axios';
 
 interface ModalGrupoFamiliarProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (grupoFamiliar: GrupoFamiliar) => void;
-  initialData?: GrupoFamiliar;
+  onGrupoFamiliarAdded?: () => void;
+}
+
+interface Beneficiario {
+  id: number;
+  nombre: string;
+  apellido: string;
 }
 
 const ModalGrupoFamiliar: React.FC<ModalGrupoFamiliarProps> = ({
   isOpen,
   onClose,
-  onSave,
-  initialData
+  onGrupoFamiliarAdded,
 }) => {
-  const [grupoFamiliar, setGrupoFamiliar] = useState<GrupoFamiliar>(
-    initialData || { nombre: '', apellido: '', dni: '', parentesco: '' }
-  );
+  const [nombreGrupo, setNombreGrupo] = useState('');
+  const [beneficiarios, setBeneficiarios] = useState<Beneficiario[]>([]);
+  const [titular, setTitular] = useState<number>(0);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setGrupoFamiliar(prev => ({ ...prev, [name]: value }));
+  const token = useAuthStore((state) => state.token);
+
+  useEffect(() => {
+    if (isOpen) obtenerBeneficiarios();
+  }, [isOpen]);
+
+  const obtenerBeneficiarios = async () => {
+    try {
+      const response = await axios.get('http://localhost:9000/api/beneficiarios', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setBeneficiarios(response.data);
+    } catch (error) {
+      console.error('Error al obtener Beneficiarios:', error);
+    }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const createGrupoFamiliar = async (
+    nombreGrupo: string,
+    titularId: number
+  ) => {
+    try {
+      const response = await axios.post(
+        'http://localhost:9000/api/grupoFamiliar',
+        {
+          nombreGrupo,
+          titular: { id: titularId },
+          fechaAlta: new Date(),
+          activo: true,
+          familiares: [],
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (response.status < 200 || response.status >= 300)
+        throw new Error('Error al crear Grupo Familiar');
+    } catch (error) {
+      console.error('error:', error);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onSave(grupoFamiliar);
+
+    try {
+      await createGrupoFamiliar(nombreGrupo, titular);
+
+      if (onGrupoFamiliarAdded) onGrupoFamiliarAdded();
+      handleClose();
+    } catch (error) {
+      console.error('Error al crear Grupo Familiar:', error);
+    }
+  };
+
+  const handleClose = () => {
+    setNombreGrupo('');
+    setTitular(0);
     onClose();
   };
 
   if (!isOpen) return null;
 
   return (
-    <div className={styles.modalOverlay}>
-      <div className={styles.modalContent}>
-        <h2>{grupoFamiliar.id ? 'Editar Miembro' : 'Agregar Miembro'}</h2>
-        <form onSubmit={handleSubmit} className={styles.form}>
+    <div className={styles.overlay}>
+      <div className={styles.modal}>
+        <h2>Agregar Grupo Familiar</h2>
+        <form onSubmit={handleSubmit}>
+          <label>Nombre del Grupo:</label>
           <input
             type="text"
-            name="nombre"
-            value={grupoFamiliar.nombre}
-            onChange={handleChange}
-            placeholder="Nombre"
+            value={nombreGrupo}
+            onChange={(e) => setNombreGrupo(e.target.value)}
             required
           />
-          <input
-            type="text"
-            name="apellido"
-            value={grupoFamiliar.apellido}
-            onChange={handleChange}
-            placeholder="Apellido"
-            required
-          />
-          <input
-            type="text"
-            name="dni"
-            value={grupoFamiliar.dni}
-            onChange={handleChange}
-            placeholder="DNI"
-            required
-          />
+          <label>Titular:</label>
           <select
-            name="parentesco"
-            value={grupoFamiliar.parentesco}
-            onChange={handleChange}
+            value={titular}
+            onChange={(e) => setTitular(Number(e.target.value))}
             required
           >
-            <option value="">Seleccione parentesco</option>
-            <option value="Hijo">Hijo</option>
-            <option value="Hija">Hija</option>
-            <option value="Esposo">Esposo</option>
-            <option value="Esposa">Esposa</option>
-            <option value="Otro">Otro</option>
+            <option value={0} disabled>
+              Seleccione un titular
+            </option>
+            {beneficiarios.map((b) => (
+              <option key={b.id} value={b.id}>
+                {b.nombre} {b.apellido}
+              </option>
+            ))}
           </select>
-
           <div className={styles.actions}>
-            <button type="submit" className={styles.saveButton}>Guardar</button>
-            <button type="button" onClick={onClose} className={styles.cancelButton}>Cancelar</button>
+            <button type="submit">Agregar</button>
+            <button type="button" onClick={handleClose}>
+              Cancelar
+            </button>
           </div>
         </form>
       </div>
