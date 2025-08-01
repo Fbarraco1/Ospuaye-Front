@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { FaEdit, FaTrash, FaPlus } from 'react-icons/fa';
-import styles from './Pedido.module.css';
-import { useAuthStore } from '../../auth/store/authStore';
-import ModalPedido from '../ui/ModalPedido/ModalPedido';
-import ModalDocumento from '../ui/ModalDocumento/ModalDocumento';
-import HistorialMovimiento from '../ui/HistorialMovimiento/HistorialMovimiento';
+import styles from './PedidoOrtopedia.module.css';
+import { useAuthStore } from '../../../auth/store/authStore';
+import ModalPedidoOrtopedia from '../../ui/ModalPedidoOrtopedia/ModalPedidoOrtopedia';
+import HistorialMovimiento from '../../ui/HistorialMovimiento/HistorialMovimiento';
 
 interface Beneficiario {
   id: number;
@@ -18,7 +17,7 @@ interface Medico {
   matricula: string;
 }
 
-interface Pedido {
+interface PedidoOrtopedia {
   id: number;
   nombre: string;
   beneficiario: Beneficiario;
@@ -31,11 +30,9 @@ interface Pedido {
   medico: Medico;
 }
 
-export const Pedido: React.FC = () => {
-  const [pedidos, setPedidos] = useState<Pedido[]>([]);
+export const PedidoOrtopedia: React.FC = () => {
+  const [pedidos, setPedidos] = useState<PedidoOrtopedia[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isDocumentoModalOpen, setIsDocumentoModalOpen] = useState(false);
-  const [selectedPedido, setSelectedPedido] = useState<Pedido | null>(null);
   const token = useAuthStore((state) => state.token);
 
   useEffect(() => {
@@ -44,58 +41,46 @@ export const Pedido: React.FC = () => {
 
   const obtenerPedidos = async () => {
     try {
-      const response = await axios.get('http://localhost:9000/api/pedidos');
+      const response = await axios.get('http://localhost:9000/api/pedidos/ortopedia');
       setPedidos(response.data);
     } catch (error) {
-      console.error('Error al obtener pedidos:', error);
+      console.error('Error al obtener pedidos de ortopedia:', error);
     }
   };
 
   const eliminarPedido = async (id: number) => {
     try {
-      await axios.delete(`http://localhost:9000/api/pedidos/${id}`, {
+      await axios.delete(`http://localhost:9000/api/pedidos/ortopedia/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
       setPedidos((prev) => prev.filter((p) => p.id !== id));
     } catch (error) {
-      console.error('Error al eliminar pedido:', error);
+      console.error('Error al eliminar pedido de ortopedia:', error);
     }
   };
 
-  const editarPedido = (pedido: Pedido) => {
-    setSelectedPedido(pedido);
-    setIsModalOpen(true);
+  const editarPedido = (id: number) => {
+    console.log('Editar pedido de ortopedia con ID:', id);
+    // Lógica futura para edición
   };
 
   const agregarPedido = () => {
-    setSelectedPedido(null);
     setIsModalOpen(true);
   };
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
-    setSelectedPedido(null);
-  };
-
-  const handleCloseDocumentoModal = () => {
-    setIsDocumentoModalOpen(false);
-    setSelectedPedido(null);
   };
 
   const handlePedidoAdded = () => {
     obtenerPedidos();
   };
 
-  const handleOpenDocumentoModal = (pedido: Pedido) => {
-    setSelectedPedido(pedido);
-    setIsDocumentoModalOpen(true);
-  };
-
   return (
     <div className={styles.container}>
-      <h2 className={styles.title}>Pedidos</h2>
+      <h2 className={styles.title}>Pedidos de Ortopedia</h2>
       <button className={styles.addButton} onClick={agregarPedido}>
         <FaPlus /> Agregar Pedido
       </button>
@@ -130,27 +115,21 @@ export const Pedido: React.FC = () => {
               <td>{p.estado}</td>
               <td>{p.medico?.matricula}</td>
               <td className={styles.actions}>
-                <FaEdit className={styles.editIcon} onClick={() => editarPedido(p)} />
+                <FaEdit className={styles.editIcon} onClick={() => editarPedido(p.id)} />
                 <FaTrash className={styles.deleteIcon} onClick={() => eliminarPedido(p.id)} />
-                <button onClick={() => handleOpenDocumentoModal(p)}>Ver Documentos</button>
               </td>
             </tr>
           ))}
         </tbody>
       </table>
 
-      <ModalPedido
+      <ModalPedidoOrtopedia
         isOpen={isModalOpen}
         onClose={handleCloseModal}
         onPedidoAdded={handlePedidoAdded}
       />
-      <ModalDocumento
-        isOpen={isDocumentoModalOpen}
-        onClose={handleCloseDocumentoModal}
-        onDocumentoAdded={handlePedidoAdded}
-        pedido={selectedPedido ? { id: selectedPedido.id } : undefined}
-      />
-      {selectedPedido && <HistorialMovimiento pedidoId={selectedPedido.id} />}
+
+      {pedidos.length > 0 && <HistorialMovimiento pedidoId={pedidos[0].id} />}
     </div>
   );
 };
