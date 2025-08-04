@@ -13,6 +13,7 @@ interface Area {
 export const Areas = () => {
   const [areas, setAreas] = useState<Area[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [search, setSearch] = useState('');
   const token = useAuthStore((state) => state.token);
   
   useEffect(() => {
@@ -59,10 +60,27 @@ export const Areas = () => {
     obtenerAreas();
   };
 
+  // Barra de búsqueda por cualquier campo
+  const areasFiltradas = areas.filter((a) =>
+    [
+      a.id,
+      a.nombre
+    ]
+      .join(' ')
+      .toLowerCase()
+      .includes(search.toLowerCase())
+  );
 
   return (
     <div className={styles.container}>
       <h2 className={styles.title}>Areas</h2>
+      <input
+        type="text"
+        placeholder="Buscar por cualquier campo..."
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        style={{ marginBottom: '10px', padding: '5px', width: '250px' }}
+      />
       <button className={styles.addButton} onClick={agregarArea}>
         <FaPlus /> Agregar Areas
       </button>
@@ -75,7 +93,7 @@ export const Areas = () => {
           </tr>
         </thead>
         <tbody>
-          {areas.map((b) => (
+          {areasFiltradas.map((b) => (
             <tr key={b.id}>
               <td>{b.nombre}</td>
               <td className={styles.actions}>

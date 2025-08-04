@@ -16,6 +16,7 @@ interface PedidoOftalmologia {
 export const PedidoOftalmologia: React.FC = () => {
   const [pedidos, setPedidos] = useState<PedidoOftalmologia[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [search, setSearch] = useState('');
 
   useEffect(() => {
     obtenerPedidos();
@@ -56,9 +57,31 @@ export const PedidoOftalmologia: React.FC = () => {
     obtenerPedidos();
   };
 
+  // Barra de búsqueda por cualquier campo
+  const pedidosFiltrados = pedidos.filter((p) =>
+    [
+      p.id,
+      p.nombre,
+      p.dni,
+      p.telefono,
+      p.fechaIngreso,
+      p.estado
+    ]
+      .join(' ')
+      .toLowerCase()
+      .includes(search.toLowerCase())
+  );
+
   return (
     <div className={styles.container}>
       <h2 className={styles.title}>Pedidos de Oftalmología</h2>
+      <input
+        type="text"
+        placeholder="Buscar por cualquier campo..."
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        style={{ marginBottom: '10px', padding: '5px', width: '250px' }}
+      />
       <button className={styles.addButton} onClick={agregarPedido}>
         <FaPlus /> Agregar Pedido
       </button>
@@ -76,7 +99,7 @@ export const PedidoOftalmologia: React.FC = () => {
           </tr>
         </thead>
         <tbody>
-          {pedidos.map((p) => (
+          {pedidosFiltrados.map((p) => (
             <tr key={p.id}>
               <td>{p.id}</td>
               <td>{p.nombre}</td>

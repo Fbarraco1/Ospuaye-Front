@@ -85,6 +85,7 @@ export const Usuarios: React.FC = () => {
           <tr>
             <th>Email</th>
             <th>Rol</th>
+            <th>Acciones</th>
           </tr>
         </thead>
         <tbody>

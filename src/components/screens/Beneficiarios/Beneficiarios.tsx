@@ -17,6 +17,7 @@ interface Beneficiario {
 export const Beneficiarios: React.FC = () => {
   const [beneficiarios, setBeneficiarios] = useState<Beneficiario[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [search, setSearch] = useState('');
   const token = useAuthStore((state) => state.token);
 
   useEffect(() => {
@@ -63,9 +64,24 @@ export const Beneficiarios: React.FC = () => {
     obtenerBeneficiarios();
   };
 
+  // Barra de búsqueda por cualquier campo
+  const beneficiariosFiltrados = beneficiarios.filter((b) =>
+    Object.values(b)
+      .join(' ')
+      .toLowerCase()
+      .includes(search.toLowerCase())
+  );
+
   return (
     <div className={styles.container}>
       <h2 className={styles.title}>Beneficiarios</h2>
+      <input
+        type="text"
+        placeholder="Buscar por cualquier campo..."
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        style={{ marginBottom: '10px', padding: '5px', width: '250px' }}
+      />
       <button className={styles.addButton} onClick={agregarBeneficiario}>
         <FaPlus /> Agregar Beneficiario
       </button>
@@ -82,7 +98,7 @@ export const Beneficiarios: React.FC = () => {
           </tr>
         </thead>
         <tbody>
-          {beneficiarios.map((b) => (
+          {beneficiariosFiltrados.map((b) => (
             <tr key={b.id}>
               <td>{b.nombre}</td>
               <td>{b.apellido}</td>

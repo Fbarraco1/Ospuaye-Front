@@ -33,6 +33,7 @@ interface PedidoOrtopedia {
 export const PedidoOrtopedia: React.FC = () => {
   const [pedidos, setPedidos] = useState<PedidoOrtopedia[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [search, setSearch] = useState('');
   const token = useAuthStore((state) => state.token);
 
   useEffect(() => {
@@ -78,9 +79,36 @@ export const PedidoOrtopedia: React.FC = () => {
     obtenerPedidos();
   };
 
+  // Barra de búsqueda por cualquier campo
+  const pedidosFiltrados = pedidos.filter((p) =>
+    [
+      p.id,
+      p.nombre,
+      p.beneficiario?.nombre,
+      p.beneficiario?.apellido,
+      p.dni,
+      p.telefono,
+      p.empresa,
+      p.delegacion,
+      p.fechaIngreso,
+      p.estado,
+      p.medico?.matricula
+    ]
+      .join(' ')
+      .toLowerCase()
+      .includes(search.toLowerCase())
+  );
+
   return (
     <div className={styles.container}>
       <h2 className={styles.title}>Pedidos de Ortopedia</h2>
+      <input
+        type="text"
+        placeholder="Buscar por cualquier campo..."
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        style={{ marginBottom: '10px', padding: '5px', width: '250px' }}
+      />
       <button className={styles.addButton} onClick={agregarPedido}>
         <FaPlus /> Agregar Pedido
       </button>
@@ -102,7 +130,7 @@ export const PedidoOrtopedia: React.FC = () => {
           </tr>
         </thead>
         <tbody>
-          {pedidos.map((p) => (
+          {pedidosFiltrados.map((p) => (
             <tr key={p.id}>
               <td>{p.id}</td>
               <td>{p.nombre}</td>

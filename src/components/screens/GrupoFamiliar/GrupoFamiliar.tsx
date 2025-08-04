@@ -37,6 +37,7 @@ export const GrupoFamiliar: React.FC = () => {
   const [expandedRows, setExpandedRows] = useState<number[]>([]);
   const [grupoFamiliarId, setGrupoFamiliarId] = useState<number | null>(null);
   const [beneficiarioId, setBeneficiarioId] = useState<number | null>(null);
+  const [search, setSearch] = useState('');
   const token = useAuthStore((state) => state.token);
 
   useEffect(() => {
@@ -100,12 +101,35 @@ export const GrupoFamiliar: React.FC = () => {
     handleCloseModalFamiliar();
   };
 
+  // Barra de búsqueda por cualquier campo del grupo
+  const gruposFiltrados = grupos.filter((g) =>
+    [
+      g.id,
+      g.nombreGrupo,
+      g.titular?.nombre,
+      g.titular?.apellido,
+      g.titular?.dni,
+      g.fechaAlta,
+      g.activo ? 'Sí' : 'No'
+    ]
+      .join(' ')
+      .toLowerCase()
+      .includes(search.toLowerCase())
+  );
+
   return (
     <div className={styles.container}>
       <h2 className={styles.title}>Grupos Familiares</h2>
-        <button className={styles.addButton} onClick={handleOpenModalGrupoFamiliar}>
-          <FaPlus /> Agregar Grupo Familiar
-        </button>
+      <input
+        type="text"
+        placeholder="Buscar por cualquier campo..."
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        style={{ marginBottom: '10px', padding: '5px', width: '250px' }}
+      />
+      <button className={styles.addButton} onClick={handleOpenModalGrupoFamiliar}>
+        <FaPlus /> Agregar Grupo Familiar
+      </button>
       <table className={styles.table}>
         <thead>
           <tr>
@@ -119,7 +143,7 @@ export const GrupoFamiliar: React.FC = () => {
           </tr>
         </thead>
         <tbody>
-          {grupos.map((g) => (
+          {gruposFiltrados.map((g) => (
             <React.Fragment key={g.id}>
               <tr
                 className={styles.clickableRow}

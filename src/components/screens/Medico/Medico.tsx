@@ -17,6 +17,7 @@ interface Medico {
 export const Medico: React.FC = () => {
   const [medicos, setMedicos] = useState<Medico[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [search, setSearch] = useState('');
   const token = useAuthStore((state) => state.token);
 
   useEffect(() => {
@@ -63,9 +64,29 @@ export const Medico: React.FC = () => {
     obtenerMedicos();
   };
 
+  // Barra de búsqueda por cualquier campo
+  const medicosFiltrados = medicos.filter((m) =>
+    [
+      m.id,
+      m.matricula,
+      m.area?.id,
+      m.area?.nombre
+    ]
+      .join(' ')
+      .toLowerCase()
+      .includes(search.toLowerCase())
+  );
+
   return (
     <div className={styles.container}>
       <h2 className={styles.title}>Médicos</h2>
+      <input
+        type="text"
+        placeholder="Buscar por cualquier campo..."
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        style={{ marginBottom: '10px', padding: '5px', width: '250px' }}
+      />
       <button className={styles.addButton} onClick={agregarMedico}>
         <FaPlus /> Agregar Médico
       </button>
@@ -80,7 +101,7 @@ export const Medico: React.FC = () => {
           </tr>
         </thead>
         <tbody>
-          {medicos.map((m) => (
+          {medicosFiltrados.map((m) => (
             <tr key={m.id}>
               <td>{m.id}</td>
               <td>{m.matricula}</td>

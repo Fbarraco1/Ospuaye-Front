@@ -14,6 +14,7 @@ interface Rol {
 export const Roles = () => {
   const [roles, setRoles] = useState<Rol[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [search, setSearch] = useState('');
   const token = useAuthStore((state) => state.token);
   
   useEffect(() => {
@@ -60,10 +61,28 @@ export const Roles = () => {
     obtenerRoles();
   };
 
+  // Barra de búsqueda por cualquier campo
+  const rolesFiltrados = roles.filter((r) =>
+    [
+      r.id,
+      r.nombre,
+      r.area
+    ]
+      .join(' ')
+      .toLowerCase()
+      .includes(search.toLowerCase())
+  );
 
   return (
     <div className={styles.container}>
       <h2 className={styles.title}>Roles</h2>
+      <input
+        type="text"
+        placeholder="Buscar por cualquier campo..."
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        style={{ marginBottom: '10px', padding: '5px', width: '250px' }}
+      />
       <button className={styles.addButton} onClick={agregarRol}>
         <FaPlus /> Agregar Roles
       </button>
@@ -77,7 +96,7 @@ export const Roles = () => {
           </tr>
         </thead>
         <tbody>
-          {roles.map((b) => (
+          {rolesFiltrados.map((b) => (
             <tr key={b.id}>
               <td>{b.nombre}</td>
               <td>{b.area.nombre}</td>
