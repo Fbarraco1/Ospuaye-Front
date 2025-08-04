@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { FaEdit, FaTrash, FaPlus } from 'react-icons/fa';
-import './Usuarios.module.css';
+import styles from './Usuarios.module.css';
 import ModalUsuario from '../../ui/ModalUsuario/ModalUsuario';
 import { useAuthStore } from '../../../auth/store/authStore';
 
@@ -67,20 +67,20 @@ export const Usuarios: React.FC = () => {
   );
 
   return (
-    <div>
-      <h2>Usuarios</h2>
+    <div className={styles.container}>
+      <h2 className={styles.title}>Usuarios</h2>
       <input
         type="text"
         placeholder="Buscar por cualquier campo..."
         value={search}
         onChange={(e) => setSearch(e.target.value)}
-        style={{ marginBottom: '10px', padding: '5px', width: '250px' }}
+        className={styles.searchBar}
       />
-      <button onClick={agregarUsuario} style={{ marginLeft: '10px', marginBottom: '10px' }}>
+      <button className={styles.addButton} onClick={agregarUsuario}>
         <FaPlus /> Agregar Usuario
       </button>
 
-      <table>
+      <table className={styles.table}>
         <thead>
           <tr>
             <th>Email</th>
@@ -93,7 +93,7 @@ export const Usuarios: React.FC = () => {
             <tr key={usuario.id}>
               <td>{usuario.email}</td>
               <td>{usuario.rol?.nombre}</td>
-              <td>
+              <td className={styles.actions}>
                 <FaEdit
                   style={{ cursor: 'pointer', marginRight: '10px' }}
                   onClick={() => editarUsuario(usuario.id)}

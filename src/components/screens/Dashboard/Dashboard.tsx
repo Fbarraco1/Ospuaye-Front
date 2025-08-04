@@ -1,6 +1,7 @@
 import { Container, Row, Col, Card } from 'react-bootstrap';
 import { useAuthStore } from '../../../auth/store/authStore';
 import { useNavigate } from 'react-router-dom';
+import styles from './Dashboard.module.css';
 
 const dashboardItems = [
   {
@@ -58,21 +59,21 @@ export const Dashboard = () => {
   const navigate = useNavigate();
 
   return (
-    <Container className="mt-4">
+    <Container className={`mt-4 ${styles['dashboard-bg']}`}>
       <h2>Bienvenido/a al Sistema de Ospuaye</h2>
       <p className="text-muted">Sesión iniciada como: <strong>{user?.email}</strong></p>
 
       <Row className="mt-4">
         {dashboardItems.map((item, index) => (
           <Col md={4} className="mb-4" key={index}>
-            <Card className="shadow-sm h-100">
+            <Card className={`shadow-sm h-100 ${styles['card-custom']}`}>
               <Card.Body className="d-flex flex-column justify-content-between">
                 <div>
                   <Card.Title>{item.title}</Card.Title>
                   <Card.Text>{item.description}</Card.Text>
                 </div>
                 <button
-                  className="btn btn-primary mt-3"
+                  className={`btn ${styles['btn-pasto']} mt-3`}
                   onClick={() => navigate(item.route)}
                 >
                   Ir a {item.btn}
