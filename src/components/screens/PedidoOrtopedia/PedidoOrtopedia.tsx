@@ -1,19 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { FaEdit, FaTrash, FaPlus } from 'react-icons/fa';
+import { FaEdit, FaTrash, FaPlus, FaFileAlt, FaHistory } from 'react-icons/fa';
 import styles from './PedidoOrtopedia.module.css';
-import { useAuthStore } from '../../../auth/store/authStore';
 import ModalPedidoOrtopedia from '../../ui/ModalPedidoOrtopedia/ModalPedidoOrtopedia';
+import ModalDocumento from '../../ui/ModalDocumento/ModalDocumento';
 import HistorialMovimiento from '../../ui/HistorialMovimiento/HistorialMovimiento';
 
 interface Beneficiario {
-  id: number;
   nombre: string;
   apellido: string;
 }
 
 interface Medico {
-  id: number;
   matricula: string;
 }
 
@@ -30,11 +28,30 @@ interface PedidoOrtopedia {
   medico: Medico;
 }
 
+interface Documento {
+  id: number;
+  nombreArchivo: string;
+  path: string;
+  observacion: string;
+  fechaSubida: string;
+  subidoPor: { email: string };
+}
+
+interface Movimiento {
+  id: number;
+  fecha: string;
+  tipoMovimiento: string;
+  comentario: string;
+  usuario: { email: string };
+}
+
 export const PedidoOrtopedia: React.FC = () => {
   const [pedidos, setPedidos] = useState<PedidoOrtopedia[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [search, setSearch] = useState('');
-  const token = useAuthStore((state) => state.token);
+  const [documentos, setDocumentos] = useState<Documento[]>([]);
+  const [historial, setHistorial] = useState<Movimiento[]>([]);
+  const [modalDocsOpen, setModalDocsOpen] = useState(false);
+  const [modalHistOpen, setModalHistOpen] = useState(false);
 
   useEffect(() => {
     obtenerPedidos();
@@ -51,65 +68,41 @@ export const PedidoOrtopedia: React.FC = () => {
 
   const eliminarPedido = async (id: number) => {
     try {
-      await axios.delete(`http://localhost:9000/api/pedidos/ortopedia/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      await axios.delete(`http://localhost:9000/api/pedidos/ortopedia/${id}`);
       setPedidos((prev) => prev.filter((p) => p.id !== id));
     } catch (error) {
-      console.error('Error al eliminar pedido de ortopedia:', error);
+      console.error('Error al eliminar pedido:', error);
     }
   };
 
   const editarPedido = (id: number) => {
-    console.log('Editar pedido de ortopedia con ID:', id);
-    // Lógica futura para edición
+    console.log('Editar pedido:', id);
   };
 
-  const agregarPedido = () => {
-    setIsModalOpen(true);
+  const verDocumentos = async (id: number) => {
+    try {
+      const res = await axios.get(`http://localhost:9000/api/documentos/${id}`);
+      setDocumentos([res.data]); // o res.data si es array
+      setModalDocsOpen(true);
+    } catch (error) {
+      console.error('Error al obtener documentos:', error);
+    }
   };
 
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
+  const verHistorial = async (id: number) => {
+    try {
+      const res = await axios.get(`http://localhost:9000/api/historiales/${id}`);
+      setHistorial([res.data]); // o res.data si es array
+      setModalHistOpen(true);
+    } catch (error) {
+      console.error('Error al obtener historial:', error);
+    }
   };
-
-  const handlePedidoAdded = () => {
-    obtenerPedidos();
-  };
-
-  // Barra de búsqueda por cualquier campo
-  const pedidosFiltrados = pedidos.filter((p) =>
-    [
-      p.id,
-      p.nombre,
-      p.beneficiario?.nombre,
-      p.beneficiario?.apellido,
-      p.dni,
-      p.telefono,
-      p.empresa,
-      p.delegacion,
-      p.fechaIngreso,
-      p.estado,
-      p.medico?.matricula
-    ]
-      .join(' ')
-      .toLowerCase()
-      .includes(search.toLowerCase())
-  );
 
   return (
     <div className={styles.container}>
       <h2 className={styles.title}>Pedidos de Ortopedia</h2>
-      <input
-        type="text"
-        placeholder="Buscar por cualquier campo..."
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        style={{ marginBottom: '10px', padding: '5px', width: '250px' }}
-      />
-      <button className={styles.addButton} onClick={agregarPedido}>
+      <button className={styles.addButton} onClick={() => setIsModalOpen(true)}>
         <FaPlus /> Agregar Pedido
       </button>
 
@@ -130,7 +123,7 @@ export const PedidoOrtopedia: React.FC = () => {
           </tr>
         </thead>
         <tbody>
-          {pedidosFiltrados.map((p) => (
+          {pedidos.map((p) => (
             <tr key={p.id}>
               <td>{p.id}</td>
               <td>{p.nombre}</td>
@@ -143,8 +136,10 @@ export const PedidoOrtopedia: React.FC = () => {
               <td>{p.estado}</td>
               <td>{p.medico?.matricula}</td>
               <td className={styles.actions}>
-                <FaEdit className={styles.editIcon} onClick={() => editarPedido(p.id)} />
-                <FaTrash className={styles.deleteIcon} onClick={() => eliminarPedido(p.id)} />
+                <FaFileAlt className={styles.icon} onClick={() => verDocumentos(p.id)} title="Ver documentos" />
+                <FaHistory className={styles.icon} onClick={() => verHistorial(p.id)} title="Ver historial" />
+                <FaEdit className={styles.editIcon} onClick={() => editarPedido(p.id)} title="Editar" />
+                <FaTrash className={styles.deleteIcon} onClick={() => eliminarPedido(p.id)} title="Eliminar" />
               </td>
             </tr>
           ))}
@@ -153,11 +148,21 @@ export const PedidoOrtopedia: React.FC = () => {
 
       <ModalPedidoOrtopedia
         isOpen={isModalOpen}
-        onClose={handleCloseModal}
-        onPedidoAdded={handlePedidoAdded}
+        onClose={() => setIsModalOpen(false)}
+        onPedidoAdded={obtenerPedidos}
       />
 
-      {pedidos.length > 0 && <HistorialMovimiento pedidoId={pedidos[0].id} />}
+      <ModalDocumento
+        isOpen={modalDocsOpen}
+        documentos={documentos}
+        onClose={() => setModalDocsOpen(false)}
+      />
+
+      <HistorialMovimiento
+        isOpen={modalHistOpen}
+        historial={historial}
+        onClose={() => setModalHistOpen(false)}
+      />
     </div>
   );
 };

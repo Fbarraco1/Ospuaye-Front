@@ -1,51 +1,53 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import React from 'react';
 import styles from './HistorialMovimiento.module.css';
 
 interface Movimiento {
   id: number;
-  pedidoId: number;
-  descripcion: string;
   fecha: string;
+  tipoMovimiento: string;
+  comentario: string;
+  usuario: {
+    email: string;
+  };
 }
 
-const HistorialMovimiento: React.FC<{ pedidoId: number }> = ({ pedidoId }) => {
-  const [movimientos, setMovimientos] = useState<Movimiento[]>([]);
+interface Props {
+  isOpen: boolean;
+  historial: Movimiento[];
+  onClose: () => void;
+}
 
-  useEffect(() => {
-    const fetchMovimientos = async () => {
-      try {
-        const response = await axios.get(`http://localhost:9000/api/movimientos/${pedidoId}`);
-        setMovimientos(response.data);
-      } catch (error) {
-        console.error('Error fetching movimiento history:', error);
-      }
-    };
-
-    fetchMovimientos();
-  }, [pedidoId]);
+const HistorialMovimiento: React.FC<Props> = ({ isOpen, historial, onClose }) => {
+  if (!isOpen) return null;
 
   return (
-    <div className={styles.container}>
-      <h3>Historial de Movimientos</h3>
-      <table className={styles.table}>
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Descripción</th>
-            <th>Fecha</th>
-          </tr>
-        </thead>
-        <tbody>
-          {movimientos.map((movimiento) => (
-            <tr key={movimiento.id}>
-              <td>{movimiento.id}</td>
-              <td>{movimiento.descripcion}</td>
-              <td>{new Date(movimiento.fecha).toLocaleDateString()}</td>
+    <div className={styles.overlay}>
+      <div className={styles.modal}>
+        <h3>Historial de Movimientos</h3>
+        <table className={styles.table}>
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Movimiento</th>
+              <th>Comentario</th>
+              <th>Usuario</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {historial.map((m) => (
+              <tr key={m.id}>
+                <td>{new Date(m.fecha).toLocaleString()}</td>
+                <td>{m.tipoMovimiento}</td>
+                <td>{m.comentario || 'Sin comentario'}</td>
+                <td>{m.usuario?.email || 'Desconocido'}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <button className={styles.closeButton} onClick={onClose}>
+          Cerrar
+        </button>
+      </div>
     </div>
   );
 };
