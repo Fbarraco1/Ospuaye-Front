@@ -8,11 +8,8 @@ import { useAuthStore } from '../../../auth/store/authStore';
 
 interface Usuario {
   id: number;
-  nombre: string;
   email: string;
   rol: { nombre: string };
-  dni?: string | number;
-  telefono?: string | number;
   [key: string]: any; // Para permitir más campos dinámicamente
 }
 
@@ -86,22 +83,15 @@ export const Usuarios: React.FC = () => {
       <table>
         <thead>
           <tr>
-            <th>Nombre</th>
             <th>Email</th>
             <th>Rol</th>
-            <th>DNI</th>
-            <th>Teléfono</th>
-            <th>Acciones</th>
           </tr>
         </thead>
         <tbody>
           {usuariosFiltrados.map((usuario) => (
             <tr key={usuario.id}>
-              <td>{usuario.nombre}</td>
               <td>{usuario.email}</td>
               <td>{usuario.rol?.nombre}</td>
-              <td>{usuario.dni || '-'}</td>
-              <td>{usuario.telefono || '-'}</td>
               <td>
                 <FaEdit
                   style={{ cursor: 'pointer', marginRight: '10px' }}
