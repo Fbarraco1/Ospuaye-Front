@@ -3,20 +3,24 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { FaEdit, FaTrash, FaPlus } from 'react-icons/fa';
 import './Usuarios.module.css';
-import ModalUsuario from '../../ui/ModalUsuario/ModalUsuario'; // Asegúrate que la ruta sea correcta
-import { useAuthStore } from '../../../auth/store/authStore'; // Asegúrate de importar el store
+import ModalUsuario from '../../ui/ModalUsuario/ModalUsuario';
+import { useAuthStore } from '../../../auth/store/authStore';
 
 interface Usuario {
   id: number;
   nombre: string;
   email: string;
-  rol: string;
+  rol: { nombre: string };
+  dni?: string | number;
+  telefono?: string | number;
+  [key: string]: any; // Para permitir más campos dinámicamente
 }
 
 export const Usuarios: React.FC = () => {
   const [usuarios, setUsuarios] = useState<Usuario[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const token = useAuthStore((state) => state.token); // Obtén el token
+  const [search, setSearch] = useState('');
+  const token = useAuthStore((state) => state.token);
 
   useEffect(() => {
     obtenerUsuarios();
@@ -46,33 +50,58 @@ export const Usuarios: React.FC = () => {
 
   const editarUsuario = (id: number) => {
     console.log('Editar usuario con ID:', id);
-    // Puedes reusar el modal en el futuro para editar, de momento sólo mostrar mensaje
   };
 
   const agregarUsuario = () => {
-    setIsModalOpen(true); // Abrir el modal
+    setIsModalOpen(true);
   };
+
+  // Filtra por cualquier campo del usuario
+  const usuariosFiltrados = usuarios.filter((usuario) =>
+    Object.values(usuario)
+      .map((valor) =>
+        typeof valor === 'object' && valor !== null
+          ? Object.values(valor).join(' ')
+          : valor
+      )
+      .join(' ')
+      .toLowerCase()
+      .includes(search.toLowerCase())
+  );
 
   return (
     <div>
       <h2>Usuarios</h2>
-      <button onClick={agregarUsuario} style={{ marginBottom: '10px' }}>
+      <input
+        type="text"
+        placeholder="Buscar por cualquier campo..."
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        style={{ marginBottom: '10px', padding: '5px', width: '250px' }}
+      />
+      <button onClick={agregarUsuario} style={{ marginLeft: '10px', marginBottom: '10px' }}>
         <FaPlus /> Agregar Usuario
       </button>
 
       <table>
         <thead>
           <tr>
+            <th>Nombre</th>
             <th>Email</th>
             <th>Rol</th>
+            <th>DNI</th>
+            <th>Teléfono</th>
             <th>Acciones</th>
           </tr>
         </thead>
         <tbody>
-          {usuarios.map((usuario) => (
+          {usuariosFiltrados.map((usuario) => (
             <tr key={usuario.id}>
+              <td>{usuario.nombre}</td>
               <td>{usuario.email}</td>
-              <td>{usuario.rol.nombre}</td>
+              <td>{usuario.rol?.nombre}</td>
+              <td>{usuario.dni || '-'}</td>
+              <td>{usuario.telefono || '-'}</td>
               <td>
                 <FaEdit
                   style={{ cursor: 'pointer', marginRight: '10px' }}
@@ -88,13 +117,12 @@ export const Usuarios: React.FC = () => {
         </tbody>
       </table>
 
-      {/* 🔽 Modal de Agregar Usuario */}
       <ModalUsuario
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onUserAdded={() => {
-          obtenerUsuarios(); // Recargar usuarios después de agregar
-          setIsModalOpen(false); // Cerrar modal
+          obtenerUsuarios();
+          setIsModalOpen(false);
         }}
       />
     </div>
