@@ -23,7 +23,7 @@ export const PedidoOftalmologia: React.FC = () => {
 
   const obtenerPedidos = async () => {
     try {
-      const response = await axios.get('http://localhost:9000/api/pedidos-oftalmologia');
+      const response = await axios.get('http://localhost:9000/api/pedidos/oftalmologia');
       setPedidos(response.data);
     } catch (error) {
       console.error('Error al obtener pedidos de oftalmología:', error);
@@ -32,7 +32,7 @@ export const PedidoOftalmologia: React.FC = () => {
 
   const eliminarPedido = async (id: number) => {
     try {
-      await axios.delete(`http://localhost:9000/api/pedidos-oftalmologia/${id}`);
+      await axios.delete(`http://localhost:9000/api/pedidos/oftalmologia/${id}`);
       setPedidos((prev) => prev.filter((p) => p.id !== id));
     } catch (error) {
       console.error('Error al eliminar pedido de oftalmología:', error);
