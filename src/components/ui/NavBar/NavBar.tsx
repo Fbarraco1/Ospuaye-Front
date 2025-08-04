@@ -1,6 +1,7 @@
 import { Container, Nav, Navbar, NavDropdown } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../../../auth/store/authStore";
+import styles from "./NavBar.module.css";
 
 export const NavBar = () => {
   const { isAuthenticated, user, logout } = useAuthStore();
@@ -12,7 +13,7 @@ export const NavBar = () => {
   };
 
   return (
-    <Navbar expand="lg" className="bg-body-tertiary">
+    <Navbar expand="lg" className={styles["navbar-green"]}>
       <Container>
         <Navbar.Brand href="/">ABM Genérica</Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
