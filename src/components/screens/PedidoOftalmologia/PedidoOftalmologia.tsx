@@ -6,7 +6,6 @@ import ModalPedidoOftalmologia from '../../ui/ModalPedidoOftalmologia/ModalPedid
 import ModalDocumento from '../../ui/ModalDocumento/ModalDocumento';
 import HistorialMovimiento from '../../ui/HistorialMovimiento/HistorialMovimiento';
 
-
 interface Beneficiario {
   nombre: string;
   apellido: string;
@@ -53,6 +52,7 @@ export const PedidoOftalmologia: React.FC = () => {
   const [historial, setHistorial] = useState<Movimiento[]>([]);
   const [modalDocsOpen, setModalDocsOpen] = useState(false);
   const [modalHistOpen, setModalHistOpen] = useState(false);
+  const [search, setSearch] = useState('');
 
   useEffect(() => {
     obtenerPedidos();
@@ -100,9 +100,38 @@ export const PedidoOftalmologia: React.FC = () => {
     }
   };
 
+  // Filtrar pedidos por cualquier campo visible
+  const pedidosFiltrados = pedidos.filter((p) =>
+    [
+      p.id,
+      p.nombre,
+      p.beneficiario?.nombre,
+      p.beneficiario?.apellido,
+      p.dni,
+      p.telefono,
+      p.empresa,
+      p.delegacion,
+      p.fechaIngreso,
+      p.estado,
+      p.medico?.matricula,
+    ]
+      .join(' ')
+      .toLowerCase()
+      .includes(search.toLowerCase())
+  );
+
   return (
     <div className={styles.container}>
       <h2 className={styles.title}>Pedidos de Oftalmología</h2>
+
+      <input
+        type="text"
+        placeholder="Buscar por cualquier campo..."
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        style={{ marginBottom: '10px', padding: '5px', width: '250px' }}
+      />
+
       <button className={styles.addButton} onClick={() => setIsModalOpen(true)}>
         <FaPlus /> Agregar Pedido
       </button>
@@ -124,7 +153,7 @@ export const PedidoOftalmologia: React.FC = () => {
           </tr>
         </thead>
         <tbody>
-          {pedidos.map((p) => (
+          {pedidosFiltrados.map((p) => (
             <tr key={p.id}>
               <td>{p.id}</td>
               <td>{p.nombre}</td>
