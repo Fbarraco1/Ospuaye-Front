@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import styles from './ModalPedidoOrtopedia.module.css';
 import axios from 'axios';
+import { useAuthStore } from '../../../auth/store/authStore';
 
 interface ModalPedidoOrtopediaProps {
   isOpen: boolean;
@@ -9,15 +10,14 @@ interface ModalPedidoOrtopediaProps {
 }
 
 const ModalPedidoOrtopedia: React.FC<ModalPedidoOrtopediaProps> = ({ isOpen, onClose, onPedidoAdded }) => {
+  const token = useAuthStore((state) => state.token);
   const [nombre, setNombre] = useState('');
   const [beneficiarioId, setBeneficiarioId] = useState('');
   const [dni, setDni] = useState('');
   const [telefono, setTelefono] = useState('');
   const [empresa, setEmpresa] = useState('');
   const [delegacion, setDelegacion] = useState('');
-  const [fechaIngreso, setFechaIngreso] = useState('');
   const [medicoId, setMedicoId] = useState('');
-  const [file, setFile] = useState<File | null>(null);
   const [beneficiarios, setBeneficiarios] = useState<any[]>([]);
   const [medicos, setMedicos] = useState<any[]>([]);
   const [motivoConsulta, setMotivoConsulta] = useState('');
@@ -86,16 +86,11 @@ const ModalPedidoOrtopedia: React.FC<ModalPedidoOrtopediaProps> = ({ isOpen, onC
     }
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      setDocumentos(Array.from(e.target.files));
-    }
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const pedido = {
+    // Construcción del objeto pedido evitando paciente vacío
+    const pedido: any = {
       nombre,
       dni,
       telefono,
@@ -108,23 +103,30 @@ const ModalPedidoOrtopedia: React.FC<ModalPedidoOrtopediaProps> = ({ isOpen, onC
       grupoFamiliar: { id: grupoFamiliarId },
       beneficiario: { id: beneficiarioId },
       usuario: { id: usuarioId },
-      paciente: { id: pacienteId },
       medico: { id: medicoId }
     };
+
+    if (pacienteId && pacienteId.trim() !== '') {
+      pedido.paciente = { id: pacienteId };
+    }
 
     const formData = new FormData();
     formData.append('pedido', JSON.stringify(pedido));
     formData.append('usuario', JSON.stringify({ id: usuarioId }));
 
-    documentos.forEach((file, idx) => {
-      formData.append(`documentos[${idx}][nombreArchivo]`, file.name);
-      formData.append(`documentos[${idx}][path]`, `/archivos/estudios/${file.name}`);
-      formData.append(`documentos[${idx}][observacion]`, 'Estudio previo adjunto');
-      formData.append(`documentos[${idx}][file]`, file);
-    });
+    documentos.forEach(file => formData.append("documentos", file));
 
     try {
-      await axios.post('http://localhost:9000/api/pedidos/ortopedia', formData);
+      await axios.post(
+        'http://localhost:9000/api/pedidos/ortopedia', 
+        formData,
+        { 
+          headers: { 
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${token}`,
+          } 
+        }
+      );
       if (onPedidoAdded) onPedidoAdded();
       handleClose();
     } catch (error) {
@@ -139,9 +141,9 @@ const ModalPedidoOrtopedia: React.FC<ModalPedidoOrtopediaProps> = ({ isOpen, onC
     setTelefono('');
     setEmpresa('');
     setDelegacion('');
-    setFechaIngreso('');
+    setMotivoConsulta('');
     setMedicoId('');
-    setFile(null);
+    setDocumentos([]);
     setUsuarioId('');
     setGrupoFamiliarId('');
     setPacienteId('');
@@ -192,7 +194,7 @@ const ModalPedidoOrtopedia: React.FC<ModalPedidoOrtopediaProps> = ({ isOpen, onC
           <input type="text" value={observacionMedico} onChange={e => setObservacionMedico(e.target.value)} />
 
           <label>Paciente (familiar):</label>
-          <select value={pacienteId} onChange={e => setPacienteId(e.target.value)} >
+          <select value={pacienteId} onChange={e => setPacienteId(e.target.value)}>
             <option value="">Seleccione un paciente</option>
             {familiaresFiltrados.map(p => (
               <option key={p.id} value={p.id}>{p.nombre} {p.apellido}</option>
@@ -208,7 +210,7 @@ const ModalPedidoOrtopedia: React.FC<ModalPedidoOrtopediaProps> = ({ isOpen, onC
           </select>
 
           <label>Documentos:</label>
-          <input type="file" multiple onChange={handleFileChange} />
+          <input type="file" multiple onChange={e => setDocumentos(Array.from(e.target.files || []))} />
 
           <div className={styles.actions}>
             <button type="submit">Agregar</button>
@@ -221,4 +223,3 @@ const ModalPedidoOrtopedia: React.FC<ModalPedidoOrtopediaProps> = ({ isOpen, onC
 };
 
 export default ModalPedidoOrtopedia;
-
