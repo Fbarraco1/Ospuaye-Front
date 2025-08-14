@@ -3,7 +3,20 @@ import styles from './ModalFamiliar.module.css';
 import axios from 'axios';
 import { useAuthStore } from '../../../auth/store/authStore';
 
-type Parentesco = 'Hijo' | 'Esposa' | 'Conyugue' | 'No especificado';
+type Parentesco =
+  | 'Titular'
+  | 'Conyuge'
+  | 'Concubino_Concubina'
+  | 'Hijo_Soltero_Menor_De_21'
+  | 'Hijo_Soltero_Entre_21_25_Estudiando'
+  | 'Hijo_Conyuge_Menor_De_21'
+  | 'Hijo_Conyuge_Entre_21_25_Estudiando'
+  | 'Menor_Bajo_Guarda_Tutela'
+  | 'Familiar_A_Cargo'
+  | 'Mayor_de_25_Discapacitado'
+  | 'Solo_Parentescos'
+  | 'Grupo_Familiar_Completos'
+  | 'Sin_Informacion';
 
 interface Familiar {
   id?: number;
@@ -43,7 +56,7 @@ const ModalFamiliar: React.FC<ModalFamiliarProps> = ({
       dni: '',
       cuil: '',
       telefono: '',
-      tipoParentesco: 'No especificado'
+      tipoParentesco: 'Sin_Informacion'
     }
   );
 
@@ -91,9 +104,25 @@ const ModalFamiliar: React.FC<ModalFamiliarProps> = ({
   };
 
   const handleClose = () => {
-    setFamiliar({ grupoFamiliar: { id: grupoFamiliarId ?? 0 }, beneficiario: { id: beneficiarioId }, nombre: '', apellido: '', dni: '', cuil: '', telefono: '', tipoParentesco: 'No especificado' });
+    setFamiliar({ grupoFamiliar: { id: grupoFamiliarId ?? 0 }, beneficiario: { id: beneficiarioId }, nombre: '', apellido: '', dni: '', cuil: '', telefono: '', tipoParentesco: 'Sin_Informacion' });
     onClose();
   };
+
+  const parentescoOptions: { value: Parentesco; label: string }[] = [
+    { value: 'Titular', label: 'Titular' },
+    { value: 'Conyuge', label: 'Cónyuge' },
+    { value: 'Concubino_Concubina', label: 'Concubino/a' },
+    { value: 'Hijo_Soltero_Menor_De_21', label: 'Hijo soltero menor de 21' },
+    { value: 'Hijo_Soltero_Entre_21_25_Estudiando', label: 'Hijo soltero 21-25 estudiando' },
+    { value: 'Hijo_Conyuge_Menor_De_21', label: 'Hijo de cónyuge menor de 21' },
+    { value: 'Hijo_Conyuge_Entre_21_25_Estudiando', label: 'Hijo de cónyuge 21-25 estudiando' },
+    { value: 'Menor_Bajo_Guarda_Tutela', label: 'Menor bajo guarda/tutela' },
+    { value: 'Familiar_A_Cargo', label: 'Familiar a cargo' },
+    { value: 'Mayor_de_25_Discapacitado', label: 'Mayor de 25 discapacitado' },
+    { value: 'Solo_Parentescos', label: 'Solo parentescos' },
+    { value: 'Grupo_Familiar_Completos', label: 'Grupo familiar completos' },
+    { value: 'Sin_Informacion', label: 'Sin información' },
+  ];
 
   if (!isOpen) return null;
 
@@ -149,9 +178,9 @@ const ModalFamiliar: React.FC<ModalFamiliarProps> = ({
             required
           >
             <option value="">Seleccione parentesco</option>
-            <option value="Hijo">Hijo</option>
-            <option value="Esposa">Esposa</option>
-            <option value="Conyugue">Conyugue</option>
+            {parentescoOptions.map(opt => (
+              <option key={opt.value} value={opt.value}>{opt.label}</option>
+            ))}
           </select>
 
           <div className={styles.actions}>

@@ -1,4 +1,3 @@
-// src/auth/pages/Login/Login.tsx
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
@@ -10,7 +9,7 @@ export const Login = () => {
 
   const [email, setEmail] = useState('');
   const [contrasena, setContrasena] = useState('');
-  const [errorMsg, setErrorMsg] = useState('');
+  const [rememberMe, setRememberMe] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -18,32 +17,84 @@ export const Login = () => {
       await startLogin(email, contrasena);
       navigate('/');
     } catch (error) {
-      setErrorMsg('Credenciales inválidas');
+      console.log('Credenciales inválidas', error);
     }
   };
 
   return (
-    <div className={styles.container}>
-      <h2>Iniciar Sesión</h2>
-      <form onSubmit={handleSubmit} className={styles.form}>
-        <input
-          type="email"
-          placeholder="Correo"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-        <input
-          type="password"
-          placeholder="Contraseña"
-          value={contrasena}
-          onChange={(e) => setContrasena(e.target.value)}
-          required
-        />
-        {errorMsg && <p className={styles.error}>{errorMsg}</p>}
-        <button type="submit">Ingresar</button>
-      </form>
+    <div>
+      <div className={`${styles.breadcrumbs} ${styles.overlay}`}>
+        <div className="container">
+          <div className="row align-items-center">
+            <div className="col-lg-8 offset-lg-2 col-md-12 col-12">
+          <br /><br /><br />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <section className={styles.login + ' section'}>
+        <div className="container">
+          <div className="row">
+            <div className="col-lg-6 offset-lg-3 col-md-10 offset-md-1 col-12">
+              <div className={styles['form-head']}>
+                <h4 className={styles.title}>Iniciar Sesión</h4>
+                <form onSubmit={handleSubmit}>
+                  <div className={styles['form-group']}>
+                    <input
+                      type="email"
+                      placeholder="Email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <div className={styles['form-group']}>
+                    <input
+                      type="password"
+                      placeholder="Contraseña"
+                      value={contrasena}
+                      onChange={(e) => setContrasena(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <div className={styles['check-and-pass']}>
+                    <div className="row align-items-center">
+                      <div className="col-lg-6 col-md-6 col-12">
+                        <div className={styles['form-check']}>
+                          <input
+                            type="checkbox"
+                            className={`${styles['form-check-input']} ${styles['width-auto']}`}
+                            id="rememberMe"
+                            checked={rememberMe}
+                            onChange={() => setRememberMe(!rememberMe)}
+                          />
+                          <label className={styles['form-check-label']} htmlFor="rememberMe">
+                            Recordarme
+                          </label>
+                        </div>
+                      </div>
+                      <div className="col-lg-6 col-md-6 col-12">
+                        <a href="#" className={styles['lost-pass']}>
+                          Olvidé mi contraseña
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                  <div className={styles.button}>
+                    <button type="submit" className={styles.btn}>
+                      Iniciar Sesión
+                    </button>
+                  </div>
+                  <p className={styles['outer-link']}>
+                    ¿No tenés cuenta? <a href="/register">Registrate acá</a>
+                  </p>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   );
 };
-

@@ -11,6 +11,7 @@ import { Medico } from '../components/screens/Medico/Medico';
 import { GrupoFamiliar } from '../components/screens/GrupoFamiliar/GrupoFamiliar';
 import { PedidoOftalmologia } from '../components/screens/PedidoOftalmologia/PedidoOftalmologia';
 import { PedidoOrtopedia } from '../components/screens/PedidoOrtopedia/PedidoOrtopedia';
+import ModalPedidoOrtopedia from '../components/ui/ModalPedidoOrtopedia/ModalPedidoOrtopedia';
 
 export const AppRouter = () => {
   return (
@@ -29,6 +30,7 @@ export const AppRouter = () => {
         <Route path="/grupoFamiliar" element={<GrupoFamiliar />} />
         <Route path="/pedidos/oftalmologia" element={<PedidoOftalmologia />} />
         <Route path="/pedidos/ortopedia" element={<PedidoOrtopedia />} />
+        <Route path="/pedidos/ortopedia/nuevo" element={<ModalPedidoOrtopedia/>}/>
         {/* Rutas privadas */}
         {/* Aquí puedes agregar más rutas privadas según sea necesario */}
       </Routes>
