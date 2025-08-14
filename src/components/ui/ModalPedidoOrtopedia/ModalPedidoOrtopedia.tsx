@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 const ModalPedidoOrtopedia: React.FC<{ onPedidoAdded?: () => void }> = ({ onPedidoAdded }) => {
   const token = useAuthStore((state) => state.token);
   const navigate = useNavigate();
+
   const [nombre, setNombre] = useState('');
   const [beneficiarioId, setBeneficiarioId] = useState('');
   const [dni, setDni] = useState('');
@@ -24,14 +25,11 @@ const ModalPedidoOrtopedia: React.FC<{ onPedidoAdded?: () => void }> = ({ onPedi
   const [usuarioId, setUsuarioId] = useState('');
   const [pacienteId, setPacienteId] = useState('');
   const [documentos, setDocumentos] = useState<File[]>([]);
-
-  const [familiares, setFamiliares] = useState<any[]>([]);
   const [familiaresFiltrados, setFamiliaresFiltrados] = useState<any[]>([]);
 
   useEffect(() => {
     obtenerBeneficiarios();
     obtenerMedicos();
-    obtenerFamiliares();
   }, []);
 
   const obtenerBeneficiarios = async () => {
@@ -40,15 +38,6 @@ const ModalPedidoOrtopedia: React.FC<{ onPedidoAdded?: () => void }> = ({ onPedi
       setBeneficiarios(response.data);
     } catch (error) {
       console.error('Error al obtener Beneficiarios:', error);
-    }
-  };
-
-  const obtenerFamiliares = async () => {
-    try {
-      const response = await axios.get('http://localhost:9000/api/familiares');
-      setFamiliares(response.data);
-    } catch (error) {
-      console.error('Error al obtener familiares:', error);
     }
   };
 
@@ -61,7 +50,7 @@ const ModalPedidoOrtopedia: React.FC<{ onPedidoAdded?: () => void }> = ({ onPedi
     }
   };
 
-  const handleBeneficiarioChange = (id: string) => {
+  const handleBeneficiarioChange = async (id: string) => {
     setBeneficiarioId(id);
 
     const beneficiario = beneficiarios.find(b => b.id === parseInt(id));
@@ -71,8 +60,14 @@ const ModalPedidoOrtopedia: React.FC<{ onPedidoAdded?: () => void }> = ({ onPedi
       setUsuarioId(beneficiario.usuarioId?.toString() || '');
       setGrupoFamiliarId(beneficiario.grupoFamiliarId?.toString() || '');
 
-      const familiaresGrupo = familiares.filter(f => f.grupoFamiliar?.id === beneficiario.grupoFamiliarId);
-      setFamiliaresFiltrados(familiaresGrupo);
+      try {
+        // Llamar al backend para traer solo los familiares de ese beneficiario
+        const resp = await axios.get(`http://localhost:9000/api/familiares/beneficiario/${id}`);
+        setFamiliaresFiltrados(resp.data);
+      } catch (error) {
+        console.error("Error al obtener familiares del beneficiario:", error);
+        setFamiliaresFiltrados([]);
+      }
     } else {
       setUsuarioId('');
       setGrupoFamiliarId('');
@@ -111,13 +106,13 @@ const ModalPedidoOrtopedia: React.FC<{ onPedidoAdded?: () => void }> = ({ onPedi
 
     try {
       await axios.post(
-        'http://localhost:9000/api/pedidos/ortopedia', 
+        'http://localhost:9000/api/pedidos/ortopedia',
         formData,
-        { 
-          headers: { 
+        {
+          headers: {
             "Content-Type": "multipart/form-data",
             Authorization: `Bearer ${token}`,
-          } 
+          }
         }
       );
       if (onPedidoAdded) onPedidoAdded();
@@ -185,7 +180,7 @@ const ModalPedidoOrtopedia: React.FC<{ onPedidoAdded?: () => void }> = ({ onPedi
         <select value={medicoId} onChange={e => setMedicoId(e.target.value)} required>
           <option value="">Seleccione un médico</option>
           {medicos.map(m => (
-            <option key={m.id} value={m.id}>{m.matricula}</option>
+            <option key={m.id} value={m.id}>{m.nombre} {m.apellido}</option>
           ))}
         </select>
 
