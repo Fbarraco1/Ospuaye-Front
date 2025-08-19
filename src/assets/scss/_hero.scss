@@ -1,0 +1,183 @@
+/*======================================
+    Hero Area CSS
+========================================*/
+.hero-area {
+    z-index: 2;
+    position: relative;
+
+    &.style2 {
+        .single-slider {
+            background-color: #f5f5f5;
+            height: 650px;
+        }
+
+        .tns-controls button {
+            border-color: $theme-color2;
+            color: $theme-color2;
+
+            &:hover {
+                background-color: $theme-color2;
+                color: $white;
+            }
+        }
+
+        .hero-text {
+            margin-top: 170px;
+
+            h2 {
+                color: $black;
+            }
+
+            p {
+                color: #888;
+            }
+
+            .button {
+
+                .btn {
+                    background-color: $theme-color2;
+                    color: $white;
+
+                    &::before {
+                        background-color: $theme-color;
+                    }
+
+                    &:hover {
+                        color: $white;
+                    }
+
+                    &.alt {
+                        background-color: $theme-color;
+
+                        &::before {
+                            background-color: $theme-color2;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    .shape1 {
+        position: absolute;
+        left: -60px;
+        top: 150px;
+        height: 120px;
+        z-index: 1;
+    }
+
+    .shape2 {
+        position: absolute;
+        right: 30px;
+        bottom: 50px;
+        height: 100px;
+        z-index: 1;
+    }
+
+    .tns-controls button {
+        width: 45px;
+        height: 45px;
+        line-height: 42px;
+        cursor: pointer;
+        z-index: 2;
+        color: #fff;
+        font-size: 14px;
+        background: transparent;
+        border: none;
+        border-radius: 50%;
+        -webkit-transition: all .3s ease-out 0s;
+        transition: all .3s ease-out 0s;
+        position: absolute;
+        z-index: 99;
+        top: 50%;
+        margin-top: -25px;
+        border: 2px solid #fff;
+        opacity: 0;
+        visibility: hidden;
+
+        &:hover {
+            background-color: $white;
+            border-color: transparent;
+            color: $theme-color;
+        }
+    }
+
+    .tns-controls button:first-child {
+        left: 0;
+    }
+
+    .tns-controls button:last-child {
+        right: 0;
+    }
+
+    &:hover {
+        .tns-controls button {
+            opacity: 1;
+            visibility: visible;
+
+            &:first-child {
+                left: 20px;
+            }
+
+            &:last-child {
+                right: 20px;
+            }
+        }
+    }
+
+    .single-slider {
+        height: 750px;
+        z-index: 2;
+        position: relative;
+        overflow: hidden;
+        background-color: $theme-color2;
+
+        .hero-image {
+
+            position: absolute;
+            bottom: 0;
+
+            img {
+                width: 90%;
+            }
+        }
+    }
+
+
+    .hero-text {
+        margin-top: 280px;
+
+        h2 {
+            color: $white;
+            font-size: 38px;
+            line-height: 55px;
+            font-weight: 700;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        p {
+            color: #ddd;
+            font-size: 14px;
+            font-weight: 400;
+            display: block;
+        }
+
+        .button {
+            margin-top: 35px;
+
+            .btn {
+                background-color: $white;
+                color: $black;
+
+                &::before {
+                    background-color: $theme-color;
+                }
+
+                &:hover {
+                    color: $white;
+                }
+            }
+        }
+    }
+}

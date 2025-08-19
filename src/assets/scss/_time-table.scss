@@ -1,0 +1,113 @@
+/*======================================
+	Time Table CSS
+========================================*/
+
+/*===============================
+	Start Doctor Calendar CSS
+=================================*/
+.doctor-calendar-area {
+    position: relative;
+    z-index: 1;
+}
+
+.doctor-calendar-table {
+    background-color: #ffffff;
+    -webkit-box-shadow: 0 10px 55px 5px rgba(137, 173, 255, 0.2);
+    box-shadow: 0 10px 55px 5px rgba(137, 173, 255, 0.2);
+}
+
+.doctor-calendar-table table {
+    margin-bottom: 0;
+}
+
+.doctor-calendar-table table thead tr th {
+    vertical-align: middle;
+    text-align: center;
+    background-color: $theme-color2;
+    border: none;
+    color: #ffffff;
+    text-transform: uppercase;
+    white-space: nowrap;
+    font-size: 14px;
+    font-weight: 500;
+    padding-top: 17px;
+    padding-bottom: 15px;
+}
+
+.doctor-calendar-table table tbody tr td {
+    vertical-align: middle;
+    text-align: center;
+    border: 1px solid #eeeeee;
+    border-top: none;
+    -webkit-transition: 0.5s;
+    transition: 0.5s;
+    white-space: nowrap;
+    padding-top: 25px;
+    padding-right: 25px;
+    padding-left: 25px;
+    padding-bottom: 25px;
+}
+
+.doctor-calendar-table table tbody tr td:first-child {
+    border-left: none;
+}
+
+.doctor-calendar-table table tbody tr td:last-child {
+    border-right: none;
+}
+
+.doctor-calendar-table table tbody tr td h3 {
+    margin-bottom: 0;
+    -webkit-transition: 0.5s;
+    transition: 0.5s;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.doctor-calendar-table table tbody tr td span {
+    display: block;
+    color: #7d7d7d;
+    font-size: 14.5px;
+    margin-top: 5px;
+    -webkit-transition: 0.5s;
+    transition: 0.5s;
+}
+
+.doctor-calendar-table table tbody tr td span.time {
+    display: inline-block;
+    color: $theme-color2;
+    width: 65px;
+    height: 65px;
+    border-radius: 0%;
+    line-height: 65px;
+    -webkit-transition: 0.5s;
+    transition: 0.5s;
+    font-weight: 500;
+    font-size: 14px;
+    background-color: transparent;
+}
+
+.doctor-calendar-table table tbody tr td:hover {
+    background-color: $theme-color2;
+    border-color: $theme-color2;
+}
+
+.doctor-calendar-table table tbody tr td:hover h3 {
+    color: #ffffff;
+}
+
+.doctor-calendar-table table tbody tr td:hover span {
+    color: #ffffff;
+}
+
+.doctor-calendar-table table tbody tr td:hover span.time {
+    color: $white;
+}
+
+.doctor-calendar-table table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/*===============================
+      End Doctor Calendar CSS
+  =================================*/

@@ -80,23 +80,27 @@ const ModalPedidoOrtopedia: React.FC<{ onPedidoAdded?: () => void }> = ({ onPedi
 
     const pedido: any = {
       nombre,
-      dni,
-      telefono,
+      dni: dni ? Number(dni) : null,
+      telefono: telefono ? Number(telefono) : null,
       empresa,
       delegacion,
       motivoConsulta,
       recetaMedica,
       fechaRevision,
       observacionMedico,
-      grupoFamiliar: { id: grupoFamiliarId },
-      beneficiario: { id: beneficiarioId },
-      usuario: { id: usuarioId },
-      medico: { id: medicoId }
+      beneficiario: { id: Number(beneficiarioId) },
+      usuario: { id: Number(usuarioId) },
+      medico: { id: Number(medicoId) }
     };
+      // 👇 Solo agregamos grupoFamiliar si hay valor
+      if (grupoFamiliarId && grupoFamiliarId.trim() !== '') {
+        pedido.grupoFamiliar = { id: Number(grupoFamiliarId) };
+      }
 
-    if (pacienteId && pacienteId.trim() !== '') {
-      pedido.paciente = { id: pacienteId };
-    }
+      // 👇 Solo agregamos paciente si hay valor
+      if (pacienteId && pacienteId.trim() !== '') {
+        pedido.paciente = { id: Number(pacienteId) };
+      }
 
     const formData = new FormData();
     formData.append('pedido', JSON.stringify(pedido));

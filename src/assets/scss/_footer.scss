@@ -1,0 +1,307 @@
+/*======================================
+	Footer CSS
+========================================*/
+.footer {
+    background-image: url('https://via.placeholder.com/1920x1000');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    position: relative;
+    z-index: 1;
+
+    &.overlay::before {
+        background-color: $theme-color2;
+        opacity: 0.95;
+        z-index: -1;
+    }
+
+    .footer-top {
+        padding: 100px 0;
+
+        .cta {
+            position: relative;
+
+            h3 {
+                color: $white;
+                font-size: 20px;
+                display: block;
+                margin-bottom: 22px;
+                font-weight: 600;
+            }
+
+            p {
+                font-size: 15px;
+                color: $white;
+
+                a {
+                    color: $theme-color;
+                    text-decoration: underline;
+
+                    &:hover {
+                        color: $white;
+                    }
+                }
+            }
+        }
+
+        .form {
+
+            padding-left: 80px;
+
+            h3 {
+                color: $white;
+                font-size: 20px;
+                display: block;
+                margin-bottom: 22px;
+                font-weight: 600;
+            }
+
+            p {
+                color: $white;
+                margin-bottom: 20px;
+            }
+        }
+
+        .newsletter-form {
+            position: relative;
+
+
+            input {
+                height: 55px;
+                width: 100%;
+                display: inline-block;
+                background: transparent;
+                border: none;
+                color: #fff;
+                border-radius: 0;
+                padding: 0 150px 0 20px;
+                color: #fff !important;
+                font-size: 14px;
+                background-color: #fff3;
+
+            }
+
+            ::placeholder {
+                /* Chrome, Firefox, Opera, Safari 10.1+ */
+                color: $white;
+                opacity: 1;
+                /* Firefox */
+            }
+
+            :-ms-input-placeholder {
+                /* Internet Explorer 10-11 */
+                color: $white;
+            }
+
+            ::-ms-input-placeholder {
+                /* Microsoft Edge */
+                color: $white;
+            }
+
+            .button {
+                display: inline-block;
+                position: absolute;
+                right: 0;
+
+                .btn {
+                    display: inline-block;
+                    background: $theme-color;
+                    color: $white;
+                    height: 55px;
+
+                    &::before {
+                        background-color: $white;
+                    }
+
+                    &:hover {
+                        color: $black;
+                    }
+                }
+            }
+        }
+    }
+
+    .footer-middle {
+        border-top: 2px solid rgba(238, 238, 238, 0.158);
+        border-bottom: 2px solid rgba(238, 238, 238, 0.158);
+    }
+
+    .single-footer {
+        padding-top: 70px;
+        padding-bottom: 70px;
+        border-right: 2px solid rgba(238, 238, 238, 0.158);
+        height: 100%;
+
+        &.last {
+            border: none;
+        }
+
+        &.f-about {
+            padding-right: 30px;
+
+            .logo {
+                img {
+                    width: 180px;
+                }
+            }
+
+            p {
+                color: $white;
+                margin-top: 20px;
+                font-size: 14px;
+            }
+
+            .social {
+                margin-top: 30px;
+
+                li {
+                    display: inline-block;
+                    margin-right: 7px;
+
+                    &:last-child {
+                        margin: 0;
+                    }
+
+                    a {
+                        height: 30px;
+                        width: 30px;
+                        line-height: 32px;
+                        text-align: center;
+                        display: block;
+                        color: $theme-color2;
+                        background-color: $white;
+                        font-size: 13px;
+
+                        &:hover {
+                            border-radius: 50%;
+                        }
+                    }
+                }
+            }
+        }
+
+        &.f-link {
+            li {
+                display: block;
+                margin-bottom: 10px;
+
+                &:last-child {
+                    margin: 0;
+                }
+
+                a {
+                    font-size: 14px;
+                    font-weight: 400;
+                    color: $white;
+
+                    &:hover {
+                        text-decoration: underline;
+                    }
+                }
+            }
+        }
+
+        &.opening-hours {
+            padding-right: 25px;
+
+            ul {
+                li {
+                    overflow: hidden;
+                    color: $white;
+                    margin-bottom: 18px;
+
+                    &:last-child {
+                        margin: 0;
+                    }
+
+                    .day {
+                        float: left;
+                    }
+
+                    .time {
+                        float: right;
+                    }
+                }
+            }
+        }
+
+        &.f-contact {
+            ul {
+                li {
+                    display: block;
+                    margin-bottom: 15px;
+                    line-height: 25px;
+                    color: $white;
+                    position: relative;
+                    padding-left: 30px;
+
+                    i {
+                        color: $white;
+                        position: absolute;
+                        left: 0;
+                        top: 5px;
+                        font-size: 14px;
+                    }
+
+                    &:last-child {
+                        margin-bottom: 0;
+                    }
+                }
+            }
+        }
+
+        h3 {
+            font-size: 18px;
+            font-weight: 600;
+            display: block;
+            margin-bottom: 35px;
+            color: $white;
+        }
+    }
+
+    .footer-bottom {
+        text-align: left;
+        position: relative;
+        z-index: 1;
+
+        .inner {
+            padding: 30px 0;
+            overflow: hidden;
+        }
+
+        .copyright-text {
+            color: $white;
+            font-size: 14px;
+
+            a {
+                color: $white;
+
+                &:hover {
+                    text-decoration: underline;
+                }
+            }
+        }
+
+        .extra-link {
+            float: right;
+
+            li {
+                display: inline-block;
+                margin-right: 15px;
+
+                &:last-child {
+                    margin: 0;
+                }
+
+                a {
+                    color: $white;
+
+                    &:hover {
+                        text-decoration: underline;
+                    }
+                }
+            }
+        }
+
+    }
+}

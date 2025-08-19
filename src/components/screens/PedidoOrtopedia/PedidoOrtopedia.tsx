@@ -179,7 +179,6 @@ export const PedidoOrtopedia: React.FC = () => {
         </tbody>
       </table>
 
-      {/* El modal de pedido ortopedia ya no se usa aquí */}
 
       <ModalDocumento
         isOpen={modalDocsOpen}

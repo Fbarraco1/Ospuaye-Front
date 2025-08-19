@@ -1,0 +1,43 @@
+/*======================================
+    Our Achievement CSS
+========================================*/
+
+.our-achievement {
+    padding-top: 70px;
+    padding: 60px 0 90px 0;
+    background-color: $theme-color2;
+    background-image: url('../images/achievement/pattern.png');
+
+    .single-achievement {
+        margin-top: 30px;
+        text-align: center;
+        padding: 0px 50px;
+
+        i {
+            height: 70px;
+            width: 70px;
+            line-height: 70px;
+            text-align: center;
+            display: inline-block;
+            border-radius: 0%;
+            background-color: $white;
+            font-size: 25px;
+            color: $theme-color2;
+            margin-bottom: 25px;
+        }
+
+        h3 {
+            font-size: 30px;
+            font-weight: 700;
+            display: block;
+            margin-bottom: 5px;
+            color: $white;
+        }
+
+        p {
+            font-size: 14px;
+            color: $white;
+            font-weight: 500;
+        }
+    }
+}

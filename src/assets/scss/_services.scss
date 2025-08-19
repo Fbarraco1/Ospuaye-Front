@@ -1,0 +1,366 @@
+/*======================================
+    Services CSS
+========================================*/
+.services {
+
+    .custom-padding-right {
+        padding-right: 0 !important;
+    }
+
+    .custom-padding-left {
+        padding-left: 0 !important;
+    }
+
+    .custom-border-right {
+        border-right: none !important;
+    }
+
+    .custom-border-bottom {
+        border-bottom: none !important;
+    }
+
+    .services-content {
+
+        .single-list {
+            position: relative;
+            padding: 40px;
+            background-color: $gray;
+            text-align: left;
+            border: 1px solid #eee;
+            border-radius: 0;
+            transition: all 0.4s ease;
+            overflow: hidden;
+
+            .shape1 {
+                height: 100px;
+                position: absolute;
+                right: 30px;
+                top: -50px;
+                opacity: 0;
+                visibility: hidden;
+                transition: all 0.4s ease;
+                transform: scale(0);
+            }
+
+            .shape2 {
+                height: 100px;
+                position: absolute;
+                right: -30px;
+                bottom: 0;
+                opacity: 0;
+                visibility: hidden;
+                transition: all 0.4s ease;
+            }
+
+            &:hover {
+                .shape1 {
+                    opacity: 1;
+                    visibility: visible;
+                    transform: scale(1);
+                    z-index: 9;
+                }
+
+                .shape2 {
+                    opacity: 1;
+                    visibility: visible;
+                    right: 0;
+                    bottom: 0;
+                    z-index: 9;
+                }
+            }
+
+            i {
+                color: $theme-color;
+                font-size: 25px;
+                display: inline-block;
+                margin-bottom: 30px;
+                height: 70px;
+                width: 70px;
+                line-height: 68px;
+                text-align: center;
+                border-radius: 0;
+                transition: all 0.4s ease;
+                background-color: $theme-color2;
+                color: $white;
+            }
+
+            &:hover {
+                background-color: $theme-color2;
+
+                i {
+                    background-color: $white;
+                    color: $theme-color2;
+                }
+
+                h4 {
+                    a {
+                        color: $white;
+                        transition: all 0.4s ease;
+                    }
+                }
+
+                p {
+                    color: $white;
+                    transition: all 0.4s ease;
+                }
+            }
+
+            h4 {
+                display: block;
+                margin-bottom: 15px;
+
+                a {
+                    color: $black;
+                    font-size: 19px;
+                    font-weight: 600;
+                }
+            }
+
+            p {
+                font-size: 14px;
+            }
+        }
+    }
+}
+
+
+/* Service Details */
+.service-details {
+    .details-content {
+        padding-left: 30px;
+    }
+
+    .content {
+        padding: 100px 0;
+
+        img {
+            width: 100%;
+        }
+
+        .thumb {
+            margin-bottom: 40px;
+        }
+
+        .title {
+            font-size: 28px;
+            font-weight: 500;
+            margin-bottom: 30px;
+            padding-bottom: 30px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .sub-title {
+            font-size: 20px;
+            font-weight: 500;
+            margin: 25px 0;
+        }
+
+        p {
+            display: block;
+            margin: 20px 0;
+            line-height: 24px;
+
+            &:last-child {
+                margin-bottom: 0;
+            }
+        }
+
+        blockquote {
+            background-color: $theme-color2;
+            background-image: url('../images/achievement/pattern.png');
+            border-radius: 0;
+        }
+
+        .list {
+            margin: 40px 0;
+
+            li {
+                display: block;
+                margin-bottom: 15px;
+                position: relative;
+                padding-left: 32px;
+
+                &:last-child {
+                    margin-bottom: 0;
+                }
+
+                i {
+                    position: absolute;
+                    left: 0;
+                    top: 1px;
+                    color: #fff;
+                    font-size: 7px;
+                    height: 18px;
+                    width: 18px;
+                    background: $theme-color2;
+                    text-align: center;
+                    line-height: 18px;
+                    border-radius: 0;
+                }
+            }
+        }
+    }
+
+}
+
+.extra-page {
+    padding-bottom: 70px;
+
+    .single-service {
+        margin-bottom: 30px;
+    }
+}
+
+/* Service Sidebar */
+.service-sidebar {
+    .single-widget {
+        margin-bottom: 30px;
+        position: relative;
+        padding: 40px;
+        border-radius: 0;
+        background-color: $white;
+        border-top: 4px solid $theme-color2;
+        box-shadow: 0px 1px 30px 0px rgba(32, 32, 32, 0.11);
+
+        h3 {
+            font-size: 18px;
+            font-weight: 500;
+            color: $black;
+            margin-bottom: 30px;
+        }
+
+        &:last-child {
+            margin: 0;
+        }
+    }
+
+    .search-widget {
+        position: relative;
+    }
+
+    .search-widget form {
+        position: relative;
+    }
+
+    .search-widget form input {
+        width: 100%;
+        background-color: transparent;
+        height: 55px;
+        border: none;
+        padding: 0 70px 0 20px;
+        font-size: 14px;
+        font-weight: 400;
+        border: 1px solid #eee;
+        border-radius: 0;
+        background-color: $white;
+        color: $black;
+    }
+
+    .search-widget form input::placeholder {
+        color: #333;
+    }
+
+    .search-widget form button {
+        position: absolute;
+        right: 9px;
+        top: 50%;
+        width: 40px;
+        height: 38px;
+        z-index: 1;
+        color: #fff !important;
+        font-size: 13px;
+        -webkit-transition: all 0.3s ease-out 0s;
+        transition: all 0.3s ease-out 0s;
+        color: #fff;
+        border-radius: 0;
+        padding: 0 !important;
+        border: none;
+        margin-top: -19px;
+        background: $theme-color2;
+
+        &:hover {
+            background-color: $black;
+            color: $white;
+        }
+    }
+
+    .service-category {
+
+        li {
+            display: block;
+
+            &:last-child {
+                a {
+                    border: none;
+                }
+            }
+
+            a {
+                background-color: $white;
+                padding: 12px 0;
+                color: $black;
+                font-weight: 400;
+                display: block;
+                border-radius: 0;
+                position: relative;
+                padding-right: 40px;
+                font-size: 14px;
+                border-bottom: 1px solid #eee;
+
+                i {
+                    float: right;
+                    font-size: 14px;
+                    position: absolute;
+                    top: 0;
+                    right: 20px;
+                    height: 18px;
+                    top: 50%;
+                    margin-top: -9px;
+                }
+
+                &:hover {
+                    color: $theme-color2;
+                    padding-left: 10px;
+                }
+            }
+        }
+    }
+
+    .address {
+        ul {
+            li {
+                position: relative;
+                display: block;
+                margin-bottom: 25px;
+                padding-left: 45px;
+
+                &:last-child {
+                    margin: 0;
+                }
+
+                i {
+                    font-size: 24px;
+                    color: $theme-color2;
+                    position: absolute;
+                    left: 0;
+                    top: 4px;
+                }
+
+                font-size: 14px;
+                color: #888;
+
+                a {
+                    font-size: 15px;
+                    display: block;
+                    margin-top: 3px;
+                    font-weight: 500;
+                    color: $black;
+
+                    &:hover {
+                        color: $theme-color2;
+                    }
+                }
+            }
+        }
+    }
+}

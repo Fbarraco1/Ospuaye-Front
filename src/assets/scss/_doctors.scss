@@ -1,0 +1,272 @@
+/*======================================
+    Doctors CSS
+========================================*/
+.doctors {
+    .section-title {
+        margin-bottom: 50px;
+    }
+
+    .single-doctor {
+        margin-top: 30px;
+
+        .image {
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+
+            img {
+                width: 100%;
+            }
+
+            .social {
+                background-color: $theme-color2;
+                padding: 15px 10px;
+                position: absolute;
+                bottom: -100px;
+                transition: all 0.4s ease-in-out;
+                width: 100%;
+
+                li {
+                    display: inline-block;
+                    margin-right: 15px;
+
+                    &:last-child {
+                        margin: 0;
+                    }
+
+                    a {
+                        text-align: center;
+                        font-size: 15px;
+                        color: $white;
+
+                        &:hover {
+                            opacity: 0.7;
+                        }
+                    }
+                }
+            }
+        }
+
+        &:hover {
+            .image {
+                .social {
+                    bottom: 0;
+                }
+            }
+        }
+
+        .content {
+            text-align: center;
+            background-color: $gray;
+            padding: 30px 20px;
+            border: 1px solid #eee;
+            border-top-color: transparent;
+
+            h5 {
+                font-weight: 400;
+                font-size: 13px;
+                display: block;
+                color: $theme-color;
+                margin-bottom: -4px;
+            }
+
+            h3 {
+                a {
+                    font-size: 16px;
+                    font-weight: 600;
+                    color: $theme-color2;
+                }
+            }
+        }
+    }
+}
+
+/* Doctor Details */
+.doctor-details {
+    .inner {
+        background-color: $white;
+    }
+
+    .image {
+        img {
+            width: 100%;
+        }
+
+        margin-bottom: 30px;
+    }
+
+    .doctor-left-bar {
+        .single-bar {
+            margin-bottom: 25px;
+            padding-bottom: 25px;
+            border-bottom: 1px solid #eee;
+
+            &:last-child {
+                margin: 0;
+                padding: 0;
+                border: none;
+            }
+
+            h4 {
+                font-size: 18px;
+                font-weight: 500;
+                margin-bottom: 10px;
+                color: $black;
+            }
+
+            &:last-child {
+                margin-bottom: 0;
+            }
+
+            .list {
+                margin-top: 20px;
+
+                li {
+                    display: block;
+                    margin-top: 12px;
+
+                    a {
+                        color: #888;
+
+                        &:hover {
+                            color: $theme-color2;
+                        }
+                    }
+                }
+            }
+
+            .opening-hour {
+                margin-top: 20px;
+
+                li {
+                    overflow: hidden;
+                    color: #888;
+                    margin-bottom: 13px;
+
+                    i {
+                        display: inline-block;
+                        margin-right: 3px;
+                    }
+
+                    &:last-child {
+                        margin: 0;
+                    }
+
+                    .day {
+                        float: left;
+                    }
+
+                    .time {
+                        float: right;
+                    }
+                }
+            }
+        }
+    }
+
+    .content {
+        padding-left: 40px;
+
+        .name {
+            font-size: 24px;
+            font-weight: 500;
+
+            span {
+                font-weight: 400;
+                font-size: 15px;
+                color: #888;
+                display: block;
+                margin-top: 5px;
+            }
+        }
+
+        .list-info {
+            margin-top: 30px;
+            margin-bottom: 30px;
+            white-space: none !important;
+
+            li {
+                white-space: none !important;
+                display: block;
+                margin-bottom: 10px;
+                color: #888;
+
+                span {
+                    min-width: 100px;
+                    color: $theme-color2;
+                    white-space: none !important;
+                }
+
+                &:last-child {
+                    margin: 0;
+                }
+
+                .social {
+                    white-space: 0 !important;
+
+                    li {
+                        display: inline-block;
+                        margin-right: 12px;
+
+                        &:first-child {
+                            margin: 0;
+                        }
+
+                        a {
+                            color: $black;
+
+                            &:hover {
+                                color: $theme-color2;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        p {
+            margin: 20px 0 25px 0;
+
+            &:last-child {
+                margin-bottom: 0;
+            }
+        }
+
+        h4 {
+            font-size: 18px;
+            color: $black;
+            display: block;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .normal-list-info {
+            margin-bottom: 30px;
+
+            &:last-child {
+                margin-bottom: 0;
+            }
+
+            li {
+                display: block;
+                margin-bottom: 12px;
+                position: relative;
+                padding-left: 25px;
+
+                &::before {
+                    position: absolute;
+                    content: "";
+                    left: 0;
+                    top: 9px;
+                    height: 3px;
+                    width: 10px;
+                    background-color: $theme-color2;
+                }
+
+                &:last-child {
+                    margin-bottom: 0;
+                }
+            }
+        }
+    }
+}

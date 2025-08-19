@@ -2,9 +2,9 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { FaEdit, FaTrash, FaPlus, FaFileAlt, FaHistory } from 'react-icons/fa';
 import styles from './PedidoOftalmologia.module.css';
-import ModalPedidoOftalmologia from '../../ui/ModalPedidoOftalmologia/ModalPedidoOftalmologia';
 import ModalDocumento from '../../ui/ModalDocumento/ModalDocumento';
 import HistorialMovimiento from '../../ui/HistorialMovimiento/HistorialMovimiento';
+import { useNavigate } from 'react-router-dom';
 
 interface Beneficiario {
   nombre: string;
@@ -47,12 +47,13 @@ interface Movimiento {
 
 export const PedidoOftalmologia: React.FC = () => {
   const [pedidos, setPedidos] = useState<PedidoOftalmologia[]>([]);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [documentos, setDocumentos] = useState<Documento[]>([]);
   const [historial, setHistorial] = useState<Movimiento[]>([]);
   const [modalDocsOpen, setModalDocsOpen] = useState(false);
   const [modalHistOpen, setModalHistOpen] = useState(false);
   const [search, setSearch] = useState('');
+  const navigate = useNavigate();
+
 
   useEffect(() => {
     obtenerPedidos();
@@ -132,7 +133,7 @@ export const PedidoOftalmologia: React.FC = () => {
         style={{ marginBottom: '10px', padding: '5px', width: '250px' }}
       />
 
-      <button className={styles.addButton} onClick={() => setIsModalOpen(true)}>
+      <button className={styles.addButton} onClick={() => navigate('/pedidos/oftalmologia/nuevo')}>
         <FaPlus /> Agregar Pedido
       </button>
 
@@ -191,12 +192,6 @@ export const PedidoOftalmologia: React.FC = () => {
           ))}
         </tbody>
       </table>
-
-      <ModalPedidoOftalmologia
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onPedidoAdded={obtenerPedidos}
-      />
 
       <ModalDocumento
         isOpen={modalDocsOpen}

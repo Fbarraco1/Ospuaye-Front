@@ -1,0 +1,172 @@
+/*======================================
+    Appointment CSS
+========================================*/
+.appointment {
+    &.page {
+        background-color: $gray;
+        position: relative;
+        padding-top: 100px;
+        padding-bottom: 100px;
+
+        .appointment-title {
+            h2 {
+                font-size: 30px;
+            }
+        }
+
+        .image {
+            position: absolute;
+            bottom: 0;
+        }
+
+        .appointment-form {
+            padding: 50px;
+            box-shadow: 0px 1px 30px 0px rgba(32, 32, 32, 0.11);
+            border-top: 4px solid #006838;
+            border-radius: 0;
+            background-color: $white;
+        }
+
+        .appointment-input {
+            margin-bottom: 20px;
+        }
+
+        .button {
+            padding: 0px 8px;
+
+            .btn {
+                width: auto;
+            }
+        }
+    }
+}
+
+.appointment-form {
+    background: #fff3;
+    border-radius: 6px;
+    padding: 100px 0;
+
+    .custom-padding {
+        padding-left: 8px !important;
+    }
+
+    .appointment-title {
+        margin-bottom: 40px;
+        position: relative;
+
+        span {
+            font-size: 80px;
+            font-weight: 700;
+            text-transform: uppercase;
+            position: absolute;
+            top: -40px;
+            left: 0;
+            color: #eee;
+            z-index: -1;
+            opacity: 1;
+            opacity: 0.4;
+            font-family: 'Merriweather', serif;
+        }
+
+        h2 {
+            font-size: 35px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        p {}
+    }
+
+    .small-title {
+        font-size: 15px;
+        font-weight: 500;
+        display: block;
+        margin-bottom: 15px;
+        margin-left: 8px;
+    }
+
+    .appointment-input {
+        position: relative;
+        padding: 0px 8px;
+
+        input {
+            width: 100%;
+            background: #fff;
+            border-radius: 0;
+            border: none;
+            padding: 0 25px;
+            padding-right: 45px;
+            height: 55px;
+            font-size: 14px;
+            border: 1px solid #eee;
+            font-weight: 400;
+            color: #666;
+
+            &:focus {
+                outline: none !important;
+            }
+        }
+
+        textarea {
+            width: 100%;
+            background: #fff;
+            border-radius: 0;
+            border: none;
+            padding: 25px;
+            padding-right: 45px;
+            height: 150px;
+            font-size: 14px;
+            border: 1px solid #eee;
+            font-weight: 400;
+            color: #666;
+
+            &:focus {
+                outline: none !important;
+            }
+        }
+
+        label {
+            position: absolute;
+            right: 25px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        select {
+            width: 100%;
+            background: #fff;
+            border-radius: 0;
+            border: 1px solid #eee;
+            padding: 0 25px;
+            height: 55px;
+            appearance: none;
+            font-size: 14px;
+            color: #888;
+            font-weight: 400;
+
+            &:focus {
+                outline: none !important;
+            }
+
+            &:focus option:hover {
+                background: $theme-color !important;
+                color: $white !important;
+            }
+        }
+
+    }
+
+    button {
+        width: 100%;
+        border-radius: 6px;
+        border: none;
+        padding: 0 25px;
+        height: 55px;
+        margin-left: 5px;
+
+        i {
+            display: inline-block;
+            margin-right: 5px;
+        }
+    }
+}

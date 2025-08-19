@@ -1,0 +1,109 @@
+/*======================================
+    Newsletter CSS
+========================================*/
+.newsletter {
+    padding: 80px;
+    background-color: $theme-color;
+    background-image: url(../images/newsletter/newsletter-bg.png);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+
+    .inner-content {
+        position: relative;
+    }
+
+    .title {
+        padding-left: 80px;
+
+        i {
+            height: 60px;
+            width: 60px;
+            line-height: 60px;
+            text-align: center;
+            display: inline-block;
+            background: $white;
+            color: $theme-color;
+            border-radius: 50%;
+            font-size: 20px;
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        h2 {
+            font-size: 32px;
+            font-weight: 700;
+            line-height: 50px;
+            color: $white;
+            line-height: 40px;
+        }
+
+        p {
+            color: $white;
+            display: block;
+            margin-top: 0px;
+            font-size: 16px;
+            font-family: 'Jost',
+                sans-serif;
+            ;
+        }
+    }
+
+    .newsletter-form {
+        padding-left: 80px;
+        position: relative;
+
+        input {
+            height: 55px;
+            width: 100%;
+            display: inline-block;
+            background: transparent;
+            border: none;
+            color: #fff;
+            border: 2px solid #fff;
+            border-radius: 6px;
+            padding: 0 142px 0 20px;
+            color: #fff !important;
+            font-size: 16px;
+            border-radius: 6px;
+
+        }
+
+        ::placeholder {
+            /* Chrome, Firefox, Opera, Safari 10.1+ */
+            color: $white;
+            opacity: 1;
+            /* Firefox */
+        }
+
+        :-ms-input-placeholder {
+            /* Internet Explorer 10-11 */
+            color: $white;
+        }
+
+        ::-ms-input-placeholder {
+            /* Microsoft Edge */
+            color: $white;
+        }
+
+        .button {
+            display: inline-block;
+            position: absolute;
+            right: 0;
+
+            .btn {
+                display: inline-block;
+                background: #fff;
+                color: $theme-color;
+                height: 55px;
+                border-radius: 0px 6px 6px 0;
+
+                &:hover {
+                    color: $black;
+                }
+            }
+        }
+    }
+}

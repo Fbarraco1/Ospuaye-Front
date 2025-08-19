@@ -1,0 +1,26 @@
+/*======================================
+   Clients CSS
+========================================*/
+
+.client-logo-section {
+    background: $gray;
+    padding: 50px 0;
+}
+
+.client-logo-section .client-logo-wrapper .client-logo-carousel .client-logo {
+    padding: 10px 20px;
+    text-align: center;
+    margin: auto
+}
+
+.client-logo-section .client-logo-wrapper .client-logo-carousel .client-logo img {
+    max-width: 180px;
+    width: 100%;
+    opacity: .5;
+    -webkit-transition: all .3s ease-out 0s;
+    transition: all .3s ease-out 0s
+}
+
+.client-logo-section .client-logo-wrapper .client-logo-carousel .client-logo img:hover {
+    opacity: 1;
+}

@@ -1,93 +1,206 @@
 import React, { useEffect, useState } from 'react';
 import styles from './ModalPedidoOftalmologia.module.css';
 import axios from 'axios';
+import { useAuthStore } from '../../../auth/store/authStore';
+import { useNavigate } from 'react-router-dom';
 
-interface ModalPedidoOftalmologiaProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onPedidoAdded?: () => void;
-}
+const ModalPedidoOftalmologia: React.FC<{ onPedidoAdded?: () => void }> = ({ onPedidoAdded }) => {
+  const token = useAuthStore((state) => state.token);
+  const navigate = useNavigate();
 
-const ModalPedidoOftalmologia: React.FC<ModalPedidoOftalmologiaProps> = ({ isOpen, onClose, onPedidoAdded }) => {
   const [nombre, setNombre] = useState('');
+  const [beneficiarioId, setBeneficiarioId] = useState('');
   const [dni, setDni] = useState('');
   const [telefono, setTelefono] = useState('');
   const [empresa, setEmpresa] = useState('');
   const [delegacion, setDelegacion] = useState('');
-  const [fechaIngreso, setFechaIngreso] = useState('');
-  const [archivo, setArchivo] = useState<File | null>(null);
+  const [medicoId, setMedicoId] = useState('');
+  const [beneficiarios, setBeneficiarios] = useState<any[]>([]);
+  const [medicos, setMedicos] = useState<any[]>([]);
+  const [motivoConsulta, setMotivoConsulta] = useState('');
+  const [usaLentes, setUsaLentes] = useState(false);
+  const [recetaMedica, setRecetaMedica] = useState(false);
+  const [fechaRevision, setFechaRevision] = useState('');
+  const [observacionMedico, setObservacionMedico] = useState('');
+  const [grupoFamiliarId, setGrupoFamiliarId] = useState('');
+  const [usuarioId, setUsuarioId] = useState('');
+  const [pacienteId, setPacienteId] = useState('');
+  const [documentos, setDocumentos] = useState<File[]>([]);
+  const [familiaresFiltrados, setFamiliaresFiltrados] = useState<any[]>([]);
+
+  useEffect(() => {
+    obtenerBeneficiarios();
+    obtenerMedicos();
+  }, []);
+
+  const obtenerBeneficiarios = async () => {
+    try {
+      const response = await axios.get('http://localhost:9000/api/beneficiarios/dto');
+      setBeneficiarios(response.data);
+    } catch (error) {
+      console.error('Error al obtener Beneficiarios:', error);
+    }
+  };
+
+  const obtenerMedicos = async () => {
+    try {
+      const response = await axios.get('http://localhost:9000/api/medicos');
+      setMedicos(response.data);
+    } catch (error) {
+      console.error('Error al obtener Médicos:', error);
+    }
+  };
+
+  const handleBeneficiarioChange = async (id: string) => {
+    setBeneficiarioId(id);
+
+    const beneficiario = beneficiarios.find(b => b.id === parseInt(id));
+    if (beneficiario) {
+      setDni(beneficiario.dni);
+      setTelefono(beneficiario.telefono);
+      setUsuarioId(beneficiario.usuarioId?.toString() || '');
+      setGrupoFamiliarId(beneficiario.grupoFamiliarId?.toString() || '');
+
+      try {
+        // Llamar al backend para traer solo los familiares de ese beneficiario
+        const resp = await axios.get(`http://localhost:9000/api/familiares/beneficiario/${id}`);
+        setFamiliaresFiltrados(resp.data);
+      } catch (error) {
+        console.error("Error al obtener familiares del beneficiario:", error);
+        setFamiliaresFiltrados([]);
+      }
+    } else {
+      setUsuarioId('');
+      setGrupoFamiliarId('');
+      setFamiliaresFiltrados([]);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    const pedido: any = {
+      nombre,
+      dni: dni ? Number(dni) : null,
+      telefono: telefono ? Number(telefono) : null,
+      empresa,
+      delegacion,
+      motivoConsulta,
+      usaLentes,
+      recetaMedica,
+      fechaRevision,
+      observacionMedico,
+      beneficiario: { id: Number(beneficiarioId) },
+      usuario: { id: Number(usuarioId) },
+      medico: { id: Number(medicoId) }
+    };
+      // 👇 Solo agregamos grupoFamiliar si hay valor
+      if (grupoFamiliarId && grupoFamiliarId.trim() !== '') {
+        pedido.grupoFamiliar = { id: Number(grupoFamiliarId) };
+      }
+
+      // 👇 Solo agregamos paciente si hay valor
+      if (pacienteId && pacienteId.trim() !== '') {
+        pedido.paciente = { id: Number(pacienteId) };
+      }
+
     const formData = new FormData();
-    formData.append('nombre', nombre);
-    formData.append('dni', dni);
-    formData.append('telefono', telefono);
-    formData.append('empresa', empresa);
-    formData.append('delegacion', delegacion);
-    formData.append('fechaIngreso', fechaIngreso);
-    if (archivo) {
-      formData.append('archivo', archivo);
-    }
+    formData.append('pedido', JSON.stringify(pedido));
+    formData.append('usuario', JSON.stringify({ id: usuarioId }));
+
+    documentos.forEach(file => formData.append("documentos", file));
 
     try {
-      await axios.post('http://localhost:9000/api/pedidos-oftalmologia', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
+      await axios.post(
+        'http://localhost:9000/api/pedidos/oftalmologia',
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${token}`,
+          }
+        }
+      );
       if (onPedidoAdded) onPedidoAdded();
-      handleClose();
+      navigate('/pedidos/oftalmologia');
     } catch (error) {
-      console.error('Error al crear pedido oftalmología:', error);
+      console.error('Error al crear pedido oftalmologia:', error);
     }
   };
 
-  const handleClose = () => {
-    setNombre('');
-    setDni('');
-    setTelefono('');
-    setEmpresa('');
-    setDelegacion('');
-    setFechaIngreso('');
-    setArchivo(null);
-    onClose();
+  const handleVolver = () => {
+    navigate('/pedidos/oftalmologia');
   };
 
-  if (!isOpen) return null;
-
   return (
-    <div className={styles.overlay}>
-      <div className={styles.modal}>
-        <h2>Agregar Pedido Oftalmología</h2>
-        <form onSubmit={handleSubmit}>
-          <label>Nombre:</label>
-          <input type="text" value={nombre} onChange={(e) => setNombre(e.target.value)} required />
+    <div className={styles.container}>
+      <button type="button" onClick={handleVolver} style={{ marginBottom: 10 }}>
+        Volver
+      </button>
+      <h2 className={styles.title}>Agregar Pedido Ortopedia</h2>
+      <form onSubmit={handleSubmit}>
+        <label>Beneficiario:</label>
+        <select value={beneficiarioId} onChange={e => handleBeneficiarioChange(e.target.value)} required>
+          <option value="">Seleccione un beneficiario</option>
+          {beneficiarios.map(b => (
+            <option key={b.id} value={b.id}>{b.nombre} {b.apellido}</option>
+          ))}
+        </select>
 
-          <label>DNI:</label>
-          <input type="number" value={dni} onChange={(e) => setDni(e.target.value)} required />
+        <label>Nombre:</label>
+        <input type="text" value={nombre} onChange={e => setNombre(e.target.value)} required />
 
-          <label>Teléfono:</label>
-          <input type="number" value={telefono} onChange={(e) => setTelefono(e.target.value)} required />
+        <label>DNI:</label>
+        <input type="number" value={dni} onChange={e => setDni(e.target.value)} required />
 
-          <label>Empresa:</label>
-          <input type="text" value={empresa} onChange={(e) => setEmpresa(e.target.value)} required />
+        <label>Teléfono:</label>
+        <input type="number" value={telefono} onChange={e => setTelefono(e.target.value)} required />
 
-          <label>Delegación:</label>
-          <input type="text" value={delegacion} onChange={(e) => setDelegacion(e.target.value)} required />
+        <label>Empresa:</label>
+        <input type="text" value={empresa} onChange={e => setEmpresa(e.target.value)} required />
 
-          <label>Fecha de Ingreso:</label>
-          <input type="date" value={fechaIngreso} onChange={(e) => setFechaIngreso(e.target.value)} required />
+        <label>Delegación:</label>
+        <input type="text" value={delegacion} onChange={e => setDelegacion(e.target.value)} required />
 
-          <label>Archivo:</label>
-          <input type="file" onChange={(e) => setArchivo(e.target.files?.[0] || null)} />
+        <label>Motivo de Consulta:</label>
+        <input type="text" value={motivoConsulta} onChange={e => setMotivoConsulta(e.target.value)} required />
 
-          <div className={styles.actions}>
-            <button type="submit">Agregar</button>
-            <button type="button" onClick={handleClose}>Cancelar</button>
-          </div>
-        </form>
-      </div>
+        <label>Usa Lentes:</label>
+        <input type="checkbox" checked={usaLentes} onChange={e => setUsaLentes(e.target.checked)} />
+
+        <label>Receta Médica:</label>
+        <input type="checkbox" checked={recetaMedica} onChange={e => setRecetaMedica(e.target.checked)} />
+
+        <label>Fecha de Revisión:</label>
+        <input type="date" value={fechaRevision} onChange={e => setFechaRevision(e.target.value)} required />
+
+        <label>Observación Médico:</label>
+        <input type="text" value={observacionMedico} onChange={e => setObservacionMedico(e.target.value)} />
+
+        <label>Paciente (familiar):</label>
+        <select value={pacienteId} onChange={e => setPacienteId(e.target.value)}>
+          <option value="">Seleccione un paciente</option>
+          {familiaresFiltrados.map(p => (
+            <option key={p.id} value={p.id}>{p.nombre} {p.apellido}</option>
+          ))}
+        </select>
+
+        <label>Médico:</label>
+        <select value={medicoId} onChange={e => setMedicoId(e.target.value)} required>
+          <option value="">Seleccione un médico</option>
+          {medicos.map(m => (
+            <option key={m.id} value={m.id}>{m.nombre} {m.apellido}</option>
+          ))}
+        </select>
+
+        <label>Documentos:</label>
+        <input type="file" multiple onChange={e => setDocumentos(Array.from(e.target.files || []))} />
+
+        <div className={styles.actions}>
+          <button type="submit">Agregar</button>
+          <button type="button" onClick={handleVolver}>Cancelar</button>
+        </div>
+      </form>
     </div>
   );
 };

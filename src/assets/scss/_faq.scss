@@ -1,0 +1,104 @@
+/*======================================
+    Faq CSS
+========================================*/
+.faq {
+    padding-bottom: 80px;
+}
+
+.accordion-item:first-of-type .accordion-button {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+}
+
+.accordion-item:last-of-type .accordion-button.collapsed {
+    border-bottom-right-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+.accordion-item .accordion-button {
+    border-radius: 0;
+    font-size: 17px;
+    font-weight: 500;
+    width: 100%;
+    display: block;
+    overflow: hidden;
+    border: none;
+    border: 1px solid #eee;
+
+    .title {
+        font-size: 15px;
+        position: relative;
+        font-weight: 600;
+        float: left;
+
+        .serial {
+            color: $black;
+            display: inline-block;
+            height: 30px;
+            width: 30px;
+            line-height: 28px;
+            text-align: center;
+            border-radius: 50%;
+            border: 1px solid #eee;
+            margin-right: 10px;
+            font-size: 14px;
+        }
+    }
+
+
+    i {
+        float: right;
+        font-size: 13px;
+        transition: all 0.3s ease;
+        position: relative;
+        top: 9px;
+    }
+}
+
+.accordion-button:not(.collapsed) {
+    color: #fff;
+    background-color: $theme-color2;
+    border-color: transparent;
+    border-radius: 0;
+
+    .serial {
+        background-color: $white;
+        color: $theme-color2;
+        border-color: transparent;
+    }
+
+    i {
+        &::before {
+            content: "\eb2c";
+            font-family: lineIcons;
+        }
+    }
+}
+
+.accordion-button::after {
+    display: none;
+}
+
+.accordion-collapse {
+    border: none;
+}
+
+.accordion-body {
+    border: 1px solid #eee;
+    border-radius: 0;
+    padding: 30px 20px;
+
+    p {
+        margin: 0;
+        margin-bottom: 20px;
+        font-size: 15px;
+
+        &:last-child {
+            margin: 0;
+        }
+    }
+}
+
+.accordion-item {
+    margin-bottom: 20px;
+}

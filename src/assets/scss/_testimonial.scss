@@ -1,0 +1,234 @@
+/*======================================
+    Testimonial CSS
+========================================*/
+.testimonials {
+    background-color: $theme-color2;
+    padding-bottom: 150px;
+
+    &.style2 {
+        background-color: $gray;
+
+        .section-title {
+            h3 {
+                opacity: 0.4;
+                font-size: 70px;
+            }
+
+            h2 {
+                color: $black;
+            }
+
+            p {
+                color: #888;
+            }
+        }
+
+        .tns-nav {
+
+            button {
+                background-color: $black;
+            }
+        }
+
+        .single-testimonial {
+            .text {
+                border: 2px solid#eee;
+                background-color: $white;
+
+                .quote-icon {
+                    i {
+                        color: $theme-color2;
+                        font-size: 35px;
+                        transition: all 0.4s ease;
+                    }
+                }
+
+                p {
+                    font-size: 14px;
+                    color: #888;
+                    transition: all 0.4s ease;
+                }
+            }
+
+            &:hover {
+                .text {
+                    background-color: $theme-color;
+                    border-color: $theme-color;
+
+                    .quote-icon {
+                        i {
+                            color: $white;
+                        }
+                    }
+
+                    p {
+                        color: $white;
+                    }
+                }
+
+                .author {
+                    img {
+                        border-color: $theme-color2;
+                    }
+                }
+            }
+
+
+            .author {
+                position: relative;
+                top: -35px;
+
+                img {
+                    height: 70px;
+                    width: 70px;
+                    border-radius: 50%;
+                    border: 5px solid #ececec38;
+                    transition: all 0.4s ease;
+                }
+
+                .name {
+                    color: $theme-color2;
+
+                    .deg {
+                        color: $theme-color;
+                    }
+                }
+            }
+        }
+    }
+
+    .section-title {
+        h3 {
+            opacity: 0.1;
+            font-size: 70px;
+        }
+
+        h2 {
+            color: $white;
+        }
+
+        p {
+            color: $white;
+        }
+    }
+
+
+    .testimonial-slider {
+        margin: 0;
+    }
+
+    .tns-nav {
+        text-align: center;
+        position: absolute;
+        bottom: 90px;
+        transform: translateX(-50%);
+        width: 100%;
+        left: 50%;
+        z-index: 9;
+
+        button {
+            height: 5px;
+            width: 30px;
+            background-color: $white;
+            border-radius: 0;
+            display: inline-block;
+            border: none;
+            margin: 0px 5px;
+            transition: all 0.4s ease;
+
+            &:hover {
+                background: $theme-color;
+            }
+
+            &.tns-nav-active {
+                background: $theme-color;
+            }
+        }
+    }
+
+    .single-testimonial {
+        background: transparent;
+        margin: 20px 0;
+        transition: all 0.4s ease;
+        position: relative;
+        text-align: center;
+
+        &:hover {
+            .text {
+                .quote-icon {
+                    i {
+                        color: $theme-color;
+                    }
+                }
+            }
+
+            .author {
+                img {
+                    border-color: $theme-color;
+                }
+            }
+        }
+
+        .author {
+            position: relative;
+            top: -35px;
+
+            img {
+                height: 70px;
+                width: 70px;
+                border-radius: 50%;
+                border: 5px solid #ececec38;
+                transition: all 0.4s ease;
+            }
+
+            .name {
+                font-size: 16px;
+                font-weight: 600;
+                color: $white;
+                margin-top: 10px;
+
+                .deg {
+                    display: block;
+                    margin-top: 8px;
+                    font-size: 13px;
+                    font-weight: 400;
+                    color: $white;
+                }
+            }
+        }
+
+        .text {
+            padding: 40px 30px;
+            border: 2px solid rgba(238, 238, 238, 0.288);
+            padding-bottom: 60px;
+            transition: all 0.4s ease;
+
+            .quote-icon {
+                i {
+                    color: $white;
+                    font-size: 35px;
+                    transition: all 0.4s ease;
+                }
+
+                margin-bottom: 10px;
+            }
+
+            p {
+                font-size: 14px;
+                color: $white;
+                transition: all 0.4s ease;
+            }
+        }
+
+        &:hover {
+            .text {
+                background-color: $white;
+                border-color: transparent;
+
+                p {
+                    color: $black;
+                }
+            }
+        }
+    }
+}
