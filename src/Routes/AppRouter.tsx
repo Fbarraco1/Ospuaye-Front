@@ -12,10 +12,12 @@ import { PedidoOrtopedia } from '../components/screens/PedidoOrtopedia/PedidoOrt
 import ModalPedidoOrtopedia from '../components/ui/ModalPedidoOrtopedia/ModalPedidoOrtopedia';
 import ModalPedidoOftalmologia from '../components/ui/ModalPedidoOftalmologia/ModalPedidoOftalmologia';
 import HeaderAdmin from '../components/screens/HeaderAdmin/HeaderAdmin';
+import { NavBar } from '../components/ui/NavBar/NavBar';
 
 export const AppRouter = () => {
   return (
     <BrowserRouter>
+    <NavBar />
       <Routes>
         {/* Rutas públicas */}
         <Route path="/login" element={<Login />} />

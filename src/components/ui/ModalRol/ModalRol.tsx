@@ -42,7 +42,7 @@ export const ModalRol: React.FC<ModalRolProps> = ({ isOpen, onClose, onRolAdded 
   ) => {
         try {
       const response = await axios.post(
-        'http://localhost:9000/api/roles',
+        'http://localhost:9000/api/roles/crear',
         { nombre, area: { id: area } }, // <-- Cambia aquí
         {
           headers: {
@@ -75,6 +75,7 @@ export const ModalRol: React.FC<ModalRolProps> = ({ isOpen, onClose, onRolAdded 
   
     const handleClose = () => {
       setNombre('');
+      setArea(0);
       onClose();
     };
   

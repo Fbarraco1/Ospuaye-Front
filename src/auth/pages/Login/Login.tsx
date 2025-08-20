@@ -1,3 +1,4 @@
+// src/auth/pages/Login/Login.tsx
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
@@ -14,8 +15,23 @@ export const Login = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await startLogin(email, contrasena);
-      navigate('/');
+      const loggedUser = await startLogin(email, contrasena);
+
+      if (!loggedUser) {
+        console.log('Credenciales inválidas');
+        return;
+      }
+
+      // Redirección según el rol
+      if (loggedUser.rol === 'ADMIN') {
+        navigate('/usuarios');
+      } else if (loggedUser.rol === 'ADMINOFTALMOLOGIA') {
+        navigate('/pedidos/oftalmologia');
+      } else if (loggedUser.rol === 'ADMINORTOPEDIA') {
+        navigate('/pedidos/ortopedia');
+      } else {
+        navigate('/beneficiarios');
+      }
     } catch (error) {
       console.log('Credenciales inválidas', error);
     }
@@ -27,7 +43,7 @@ export const Login = () => {
         <div className="container">
           <div className="row align-items-center">
             <div className="col-lg-8 offset-lg-2 col-md-12 col-12">
-          <br /><br /><br />
+              <br /><br /><br />
             </div>
           </div>
         </div>

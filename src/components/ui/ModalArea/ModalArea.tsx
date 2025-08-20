@@ -18,7 +18,7 @@ export const ModalArea: React.FC<ModalAreaProps> = ({ isOpen, onClose, onAreaAdd
   ) => {
         try {
       const response = await axios.post(
-        'http://localhost:9000/api/areas',
+        'http://localhost:9000/api/areas/crear',
         { nombre },
         {
           headers: {
