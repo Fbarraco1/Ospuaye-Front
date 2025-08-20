@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import logo from "../../../assets/images/logo/logo1.svg"
 
 const HeaderAdmin = () => {
   const navigate = useNavigate();
@@ -33,14 +34,14 @@ const HeaderAdmin = () => {
                     <div className="login-button">
                     <ul>
                         <li>
-                        <a href="paginaConstruccion.html">
-                            <i className="lni lni-enter"></i> Ingresar
-                        </a>
+                            <span style={{ cursor: "pointer" }} onClick={() => navigate("/login")}>
+                                <i className="lni lni-enter"></i> Ingresar
+                            </span>
                         </li>
                         <li>
-                        <a href="paginaConstruccion.html">
-                            <i className="lni lni-user"></i> Registrarse
-                        </a>
+                            <span style={{ cursor: "pointer" }} onClick={() => navigate("/register")}>
+                                <i className="lni lni-user"></i> Registrarse
+                            </span>
                         </li>
                     </ul>
                     </div>
@@ -76,8 +77,8 @@ const HeaderAdmin = () => {
             <div className="nav-inner">
                 {/* Start Navbar */}
                 <nav className="navbar navbar-expand-lg">
-                <a className="navbar-brand" href="index.html">
-                    <img src="assets/images/logo/logo1.svg" alt="Logo" />
+                <a className="navbar-brand" href="">
+                    <img src={logo} alt="Logo" />
                 </a>
                 <button
                     className="navbar-toggler mobile-menu-btn"
@@ -95,35 +96,35 @@ const HeaderAdmin = () => {
                 <div className="collapse navbar-collapse sub-menu-bar" id="navbarSupportedContent">
                     <ul id="nav" className="navbar-nav ms-auto">
                     <li className="nav-item" >
-                        <span aria-label="Toggle navigation" onClick={() => navigate("/usuarios")}>Gestión de Usuarios</span>
+                        <span aria-label="Toggle navigation" style={{ cursor: "pointer" }} onClick={() => navigate("/usuarios")}>Gestión de Usuarios</span>
                     </li>
 
                     <li className="nav-item">
-                        <a href="index.html" aria-label="Toggle navigation">Gestión de Beneficiarios</a>
+                        <span aria-label="Toggle navigation" style={{ cursor: "pointer" }} onClick={() => navigate("/beneficiarios")}>Gestión de Beneficiarios</span>
                     </li>  
 
                     <li className="nav-item">
-                        <a href="index.html" aria-label="Toggle navigation">Gestión de Médicos</a>
+                        <span aria-label="Toggle navigation" style={{ cursor: "pointer" }} onClick={() => navigate("/medicos")}>Gestión de Médicos</span>
                     </li>
 
                     <li className="nav-item">
-                        <a href="index.html" aria-label="Toggle navigation">Pedidos Oftalmología</a>
+                        <span aria-label="Toggle navigation" style={{ cursor: "pointer" }} onClick={() => navigate("/pedidos/oftalmologia")}>Pedidos Oftalmología</span>
                     </li>
 
                     <li className="nav-item">
-                        <a href="index.html" aria-label="Toggle navigation">Pedidos Ortopedia</a>
+                        <span aria-label="Toggle navigation" style={{ cursor: "pointer" }} onClick={() => navigate("/pedidos/ortopedia")}>Pedidos Ortopedia</span>
                     </li>
 
                     <li className="nav-item">
-                        <a href="index.html" aria-label="Toggle navigation">Grupos Familiares</a>
+                        <span aria-label="Toggle navigation" style={{ cursor: "pointer" }} onClick={() => navigate("/grupoFamiliar")}>Grupos Familiares</span>
                     </li>
 
                     <li className="nav-item">
-                        <a href="index.html" aria-label="Toggle navigation">Áreas</a>
+                        <span aria-label="Toggle navigation" style={{ cursor: "pointer" }} onClick={() => navigate("/areas")}>Áreas</span>
                     </li>
 
                     <li className="nav-item">
-                        <a href="index.html" aria-label="Toggle navigation">Roles</a>
+                        <span aria-label="Toggle navigation" style={{ cursor: "pointer" }} onClick={() => navigate("/roles")}>Roles</span>
                     </li>                                                                        
                     </ul>
                 </div>
