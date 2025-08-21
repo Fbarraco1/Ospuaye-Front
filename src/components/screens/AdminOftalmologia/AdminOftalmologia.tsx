@@ -1,0 +1,53 @@
+import { useNavigate } from "react-router-dom";
+import logo from "../../../assets/images/logo/logo1.svg"
+
+const AdminOftalmologia = () => {
+  const navigate = useNavigate();
+
+  return (
+    <header className="header navbar-area style2">
+        <div className="container">
+        <div className="row align-items-center">
+            <div className="col-lg-12">
+            <div className="nav-inner">
+                {/* Start Navbar */}
+                <nav className="navbar navbar-expand-lg">
+                <a className="navbar-brand" href="">
+                    <img src={logo} alt="Logo" />
+                </a>
+                <button
+                    className="navbar-toggler mobile-menu-btn"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#navbarSupportedContent"
+                    aria-controls="navbarSupportedContent"
+                    aria-expanded="false"
+                    aria-label="Toggle navigation"
+                >
+                    <span className="toggler-icon"></span>
+                    <span className="toggler-icon"></span>
+                    <span className="toggler-icon"></span>
+                </button>
+                <div className="collapse navbar-collapse sub-menu-bar" id="navbarSupportedContent">
+                    <ul id="nav" className="navbar-nav ms-auto">
+
+                    <li className="nav-item">
+                        <span aria-label="Toggle navigation" style={{ cursor: "pointer" }} onClick={() => navigate("/medicos")}>Gestión de Médicos</span>
+                    </li>
+
+                    <li className="nav-item">
+                        <span aria-label="Toggle navigation" style={{ cursor: "pointer" }} onClick={() => navigate("/pedidos/oftalmologia")}>Pedidos Oftalmología</span>
+                    </li>                                                       
+                    </ul>
+                </div>
+                </nav>
+                {/* End Navbar */}
+            </div>
+            </div>
+        </div>
+        </div>
+    </header>
+  );
+};
+
+export default AdminOftalmologia;
