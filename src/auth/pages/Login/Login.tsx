@@ -24,11 +24,11 @@ export const Login = () => {
 
       // Redirección según el rol
       if (loggedUser.rol === 'ADMIN') {
-        navigate('/usuarios');
+        navigate('/admin');
       } else if (loggedUser.rol === 'ADMINOFTALMOLOGIA') {
-        navigate('/pedidos/oftalmologia');
+        navigate('/admin/Oftalmologia');
       } else if (loggedUser.rol === 'ADMINORTOPEDIA') {
-        navigate('/pedidos/ortopedia');
+        navigate('/admin/Ortopedia');
       } else {
         navigate('/beneficiarios');
       }
