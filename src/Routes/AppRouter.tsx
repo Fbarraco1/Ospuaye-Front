@@ -13,6 +13,8 @@ import ModalPedidoOrtopedia from '../components/ui/ModalPedidoOrtopedia/ModalPed
 import ModalPedidoOftalmologia from '../components/ui/ModalPedidoOftalmologia/ModalPedidoOftalmologia';
 import HeaderAdmin from '../components/screens/HeaderAdmin/HeaderAdmin';
 import { NavBar } from '../components/ui/NavBar/NavBar';
+import RecuperarContra from '../components/screens/RecuperarContra/RecuperarContra';
+import PerdiContra from '../components/screens/PerdiContra/PerdiContra';
 
 export const AppRouter = () => {
   return (
@@ -33,6 +35,9 @@ export const AppRouter = () => {
         <Route path="/pedidos/oftalmologia/nuevo" element={<ModalPedidoOftalmologia/>}/>
         <Route path="/pedidos/ortopedia" element={<PedidoOrtopedia />} />
         <Route path="/pedidos/ortopedia/nuevo" element={<ModalPedidoOrtopedia/>}/>
+        {/* Pantallas de recuperación de contraseña */}
+        <Route path="/recuperar-contra" element={<RecuperarContra />} />
+        <Route path="/perdi-contra" element={<PerdiContra />} />
         {/* Rutas privadas */}
         
         {/* Aquí puedes agregar más rutas privadas según sea necesario */}

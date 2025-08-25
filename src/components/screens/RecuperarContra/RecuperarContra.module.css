@@ -1,0 +1,111 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 60px;
+  min-height: 80vh;
+  background: #f7f9fb;
+  border-radius: 18px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.10);
+  padding: 40px 32px;
+  max-width: 420px;
+  margin-left: auto;
+  margin-right: auto;
+}
+h2 {
+  margin-bottom: 28px;
+  color: #0a2540;
+  font-size: 2.2rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+  font-family: 'Montserrat', Arial, sans-serif;
+}
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  width: 100%;
+}
+.inputGroup {
+  position: relative;
+  width: 100%;
+}
+input {
+  padding: 12px 44px 12px 14px;
+  font-size: 1.08rem;
+  border-radius: 8px;
+  border: 1.5px solid #bfc8d6;
+  background: #fff;
+  transition: border 0.2s;
+  width: 100%;
+  box-sizing: border-box;
+  font-family: 'Montserrat', Arial, sans-serif;
+  outline: none;
+}
+input:focus {
+  border: 2px solid #007bff;
+  box-shadow: 0 0 0 2px #e3f0ff;
+}
+.showBtn {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: linear-gradient(90deg, #e3f0ff 60%, #cbe2ff 100%);
+  color: #007bff;
+  border: none;
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 6px 16px;
+  border-radius: 6px;
+  transition: background 0.2s, box-shadow 0.2s;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(0,123,255,0.08);
+}
+.showBtn:hover {
+  background: linear-gradient(90deg, #d0e7ff 60%, #b3d8ff 100%);
+  color: #0056b3;
+  box-shadow: 0 4px 16px rgba(0,123,255,0.12);
+}
+button {
+  padding: 10px 24px;
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1rem;
+}
+button[type="submit"] {
+  padding: 14px 0;
+  background: linear-gradient(90deg, #007bff 60%, #0056b3 100%);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 1.15rem;
+  font-weight: 700;
+  box-shadow: 0 2px 12px rgba(0,123,255,0.10);
+  transition: background 0.2s, box-shadow 0.2s;
+  font-family: 'Montserrat', Arial, sans-serif;
+  margin-top: 10px;
+}
+button[type="submit"]:hover:not(:disabled) {
+  background: linear-gradient(90deg, #0056b3 60%, #007bff 100%);
+  box-shadow: 0 4px 20px rgba(0,123,255,0.16);
+}
+button[type="submit"]:disabled {
+  background: #bfc8d6;
+  cursor: not-allowed;
+  color: #fff;
+  opacity: 0.7;
+}
+.mensaje {
+  margin-top: 18px;
+  color: #d32f2f;
+  font-weight: bold;
+  text-align: center;
+  font-size: 1.08rem;
+  min-height: 24px;
+  font-family: 'Montserrat', Arial, sans-serif;
+}
