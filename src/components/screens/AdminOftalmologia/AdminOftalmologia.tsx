@@ -37,7 +37,15 @@ const AdminOftalmologia = () => {
 
                     <li className="nav-item">
                         <span aria-label="Toggle navigation" style={{ cursor: "pointer" }} onClick={() => navigate("/pedidos/oftalmologia")}>Pedidos Oftalmología</span>
-                    </li>                                                       
+                    </li>    
+
+                    <li className="nav-item">
+                        <span aria-label="Toggle navigation" style={{ cursor: "pointer" }} onClick={() => navigate("/beneficiarios")}>Gestión de beneficiarios</span>
+                    </li>
+
+                    <li className="nav-item">
+                        <span aria-label="Toggle navigation" style={{ cursor: "pointer" }} onClick={() => navigate("/grupoFamiliar")}>Grupos Familiares</span>
+                    </li>                                                   
                     </ul>
                 </div>
                 </nav>
