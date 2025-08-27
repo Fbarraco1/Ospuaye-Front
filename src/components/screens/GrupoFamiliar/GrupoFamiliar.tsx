@@ -38,6 +38,9 @@ export const GrupoFamiliar: React.FC = () => {
   const [grupoFamiliarId, setGrupoFamiliarId] = useState<number | null>(null);
   const [beneficiarioId, setBeneficiarioId] = useState<number | null>(null);
   const [search, setSearch] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5; // mostramos 5 por página
+
   const token = useAuthStore((state) => state.token);
 
   useEffect(() => {
@@ -101,7 +104,7 @@ export const GrupoFamiliar: React.FC = () => {
     handleCloseModalFamiliar();
   };
 
-  // Barra de búsqueda por cualquier campo del grupo
+  // --- FILTRADO ---
   const gruposFiltrados = grupos.filter((g) =>
     [
       g.id,
@@ -117,6 +120,19 @@ export const GrupoFamiliar: React.FC = () => {
       .includes(search.toLowerCase())
   );
 
+  // --- PAGINADO ---
+  const totalPages = Math.ceil(gruposFiltrados.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const currentItems = gruposFiltrados.slice(startIndex, startIndex + itemsPerPage);
+
+  const handlePrevPage = () => {
+    if (currentPage > 1) setCurrentPage((prev) => prev - 1);
+  };
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) setCurrentPage((prev) => prev + 1);
+  };
+
   return (
     <div className={styles.container}>
       <h2 className={styles.title}>Grupos Familiares</h2>
@@ -124,7 +140,10 @@ export const GrupoFamiliar: React.FC = () => {
         type="text"
         placeholder="Buscar por cualquier campo..."
         value={search}
-        onChange={(e) => setSearch(e.target.value)}
+        onChange={(e) => {
+          setSearch(e.target.value);
+          setCurrentPage(1); // resetear al buscar
+        }}
         style={{ marginBottom: '10px', padding: '5px', width: '250px' }}
       />
       <button className={styles.addButton} onClick={handleOpenModalGrupoFamiliar}>
@@ -143,7 +162,7 @@ export const GrupoFamiliar: React.FC = () => {
           </tr>
         </thead>
         <tbody>
-          {gruposFiltrados.map((g) => (
+          {currentItems.map((g) => (
             <React.Fragment key={g.id}>
               <tr
                 className={styles.clickableRow}
@@ -194,6 +213,41 @@ export const GrupoFamiliar: React.FC = () => {
           ))}
         </tbody>
       </table>
+
+      {/* PAGINADO */}
+      {totalPages > 1 && (
+        <div style={{ marginTop: '15px', display: 'flex', justifyContent: 'center', gap: '10px' }}>
+          <button
+            onClick={handlePrevPage}
+            disabled={currentPage === 1}
+            style={{
+              padding: '5px 10px',
+              borderRadius: '8px',
+              border: '1px solid #ccc',
+              background: currentPage === 1 ? '#88C250' : '#88C250',
+              cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+            }}
+          >
+            ◀
+          </button>
+          <span style={{ alignSelf: 'center', fontSize: '14px', color: '#555' }}>
+            Página {currentPage} de {totalPages}
+          </span>
+          <button
+            onClick={handleNextPage}
+            disabled={currentPage === totalPages}
+            style={{
+              padding: '5px 10px',
+              borderRadius: '8px',
+              border: '1px solid #ccc',
+              background: currentPage === totalPages ? '#88C250' : '#88C250',
+              cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+            }}
+          >
+            ▶
+          </button>
+        </div>
+      )}
 
       <ModalFamiliar
         isOpen={isModalFamiliarOpen}

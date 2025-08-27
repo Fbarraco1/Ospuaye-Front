@@ -1354,6 +1354,7 @@ ol {
   position: relative;
   top: 0;
   background-color: #fff;
+  border-bottom: 2px solid #88C250;
 }
 
 .header.style2 .nav-inner {

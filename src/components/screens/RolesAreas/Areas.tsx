@@ -14,6 +14,8 @@ export const Areas = () => {
   const [areas, setAreas] = useState<Area[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [search, setSearch] = useState('');
+  const [currentPage, setCurrentPage] = useState(1); // estado para paginación
+  const itemsPerPage = 5;
   const token = useAuthStore((state) => state.token);
   
   useEffect(() => {
@@ -36,7 +38,6 @@ export const Areas = () => {
 
   const editarArea = (id: number) => {
     console.log('Editar Area con ID:', id);
-
   }
 
   const eliminarArea = async (id: number) => {
@@ -52,7 +53,7 @@ export const Areas = () => {
     }
   }
 
-    const handleCloseModal = () => {
+  const handleCloseModal = () => {
     setIsModalOpen(false);
   };
 
@@ -70,6 +71,20 @@ export const Areas = () => {
       .toLowerCase()
       .includes(search.toLowerCase())
   );
+
+  // --- Paginación ---
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = areasFiltradas.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(areasFiltradas.length / itemsPerPage);
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) setCurrentPage((prev) => prev + 1);
+  };
+
+  const handlePrevPage = () => {
+    if (currentPage > 1) setCurrentPage((prev) => prev - 1);
+  };
 
   return (
     <div className={styles.container}>
@@ -93,7 +108,7 @@ export const Areas = () => {
           </tr>
         </thead>
         <tbody>
-          {areasFiltradas.map((b) => (
+          {currentItems.map((b) => (
             <tr key={b.id}>
               <td>{b.nombre}</td>
               <td className={styles.actions}>
@@ -110,6 +125,19 @@ export const Areas = () => {
           ))}
         </tbody>
       </table>
+
+      {/* Controles de paginación */}
+      {totalPages > 1 && (
+        <div style={{ marginTop: '10px', display: 'flex', justifyContent: 'center', gap: '10px' }}>
+          <button onClick={handlePrevPage} disabled={currentPage === 1}>
+            Anterior
+          </button>
+          <span>Página {currentPage} de {totalPages}</span>
+          <button onClick={handleNextPage} disabled={currentPage === totalPages}>
+            Siguiente
+          </button>
+        </div>
+      )}
 
       <ModalArea
         isOpen={isModalOpen}

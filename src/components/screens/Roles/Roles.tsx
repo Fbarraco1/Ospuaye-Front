@@ -16,6 +16,10 @@ export const Roles = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [search, setSearch] = useState('');
   const token = useAuthStore((state) => state.token);
+
+  // 🔹 Estados para paginación
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
   
   useEffect(() => {
     obtenerRoles();
@@ -23,8 +27,7 @@ export const Roles = () => {
 
   const obtenerRoles = async () => {
     try {
-      const response = await axios.get('http://localhost:9000/api/roles', {
-      });
+      const response = await axios.get('http://localhost:9000/api/roles', {});
       setRoles(response.data);
     } catch (error) {
       console.error('Error al obtener Roles:', error);
@@ -37,7 +40,6 @@ export const Roles = () => {
 
   const editarRol = (id: number) => {
     console.log('Editar Area con ID:', id);
-
   }
 
   const eliminarRol= async (id: number) => {
@@ -53,7 +55,7 @@ export const Roles = () => {
     }
   }
 
-    const handleCloseModal = () => {
+  const handleCloseModal = () => {
     setIsModalOpen(false);
   };
 
@@ -72,6 +74,20 @@ export const Roles = () => {
       .toLowerCase()
       .includes(search.toLowerCase())
   );
+
+  // 🔹 Lógica de paginación
+  const totalPages = Math.ceil(rolesFiltrados.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const rolesPaginados = rolesFiltrados.slice(startIndex, endIndex);
+
+  const nextPage = () => {
+    if (currentPage < totalPages) setCurrentPage(currentPage + 1);
+  };
+
+  const prevPage = () => {
+    if (currentPage > 1) setCurrentPage(currentPage - 1);
+  };
 
   return (
     <div className={styles.container}>
@@ -96,10 +112,10 @@ export const Roles = () => {
           </tr>
         </thead>
         <tbody>
-          {rolesFiltrados.map((b) => (
+          {rolesPaginados.map((b) => (
             <tr key={b.id}>
               <td>{b.nombre}</td>
-              <td>{b.area.nombre}</td>
+              <td>{/* @ts-ignore */ b.area.nombre}</td>
               <td className={styles.actions}>
                 <FaEdit
                   className={styles.editIcon}
@@ -114,6 +130,27 @@ export const Roles = () => {
           ))}
         </tbody>
       </table>
+
+      {/* 🔹 Controles de paginación */}
+      <div className={styles.pagination}>
+        <button 
+          onClick={prevPage} 
+          disabled={currentPage === 1}
+          className={styles.pageButton}
+        >
+          Anterior
+        </button>
+        <span className={styles.pageInfo}>
+          Página {currentPage} de {totalPages || 1}
+        </span>
+        <button 
+          onClick={nextPage} 
+          disabled={currentPage === totalPages || totalPages === 0}
+          className={styles.pageButton}
+        >
+          Siguiente
+        </button>
+      </div>
 
       <ModalRol
         isOpen={isModalOpen}
