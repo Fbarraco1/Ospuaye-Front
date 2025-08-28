@@ -17,6 +17,8 @@ export const Usuarios: React.FC = () => {
   const [usuarios, setUsuarios] = useState<Usuario[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [search, setSearch] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
   const token = useAuthStore((state) => state.token);
 
   useEffect(() => {
@@ -66,6 +68,11 @@ export const Usuarios: React.FC = () => {
       .includes(search.toLowerCase())
   );
 
+  // Lógica de paginación
+  const totalPages = Math.ceil(usuariosFiltrados.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const usuariosPaginados = usuariosFiltrados.slice(startIndex, startIndex + itemsPerPage);
+
   return (
     <div className={styles.container}>
       <h2 className={styles.title}>Usuarios</h2>
@@ -89,7 +96,7 @@ export const Usuarios: React.FC = () => {
           </tr>
         </thead>
         <tbody>
-          {usuariosFiltrados.map((usuario) => (
+          {usuariosPaginados.map((usuario) => (
             <tr key={usuario.id}>
               <td>{usuario.email}</td>
               <td>{usuario.rol?.nombre}</td>
@@ -107,6 +114,27 @@ export const Usuarios: React.FC = () => {
           ))}
         </tbody>
       </table>
+
+      {/* Controles de paginación */}
+      {totalPages > 1 && (
+        <div className={styles.pagination}>
+          <button
+            disabled={currentPage === 1}
+            onClick={() => setCurrentPage((prev) => prev - 1)}
+          >
+            ← Anterior
+          </button>
+          <span>
+            Página {currentPage} de {totalPages}
+          </span>
+          <button
+            disabled={currentPage === totalPages}
+            onClick={() => setCurrentPage((prev) => prev + 1)}
+          >
+            Siguiente →
+          </button>
+        </div>
+      )}
 
       <ModalUsuario
         isOpen={isModalOpen}

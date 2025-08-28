@@ -52,6 +52,8 @@ export const PedidoOrtopedia: React.FC = () => {
   const [modalDocsOpen, setModalDocsOpen] = useState(false);
   const [modalHistOpen, setModalHistOpen] = useState(false);
   const [search, setSearch] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -120,6 +122,19 @@ export const PedidoOrtopedia: React.FC = () => {
       .includes(search.toLowerCase())
   );
 
+  // --- PAGINACIÓN ---
+  const totalPages = Math.ceil(pedidosFiltrados.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const currentItems = pedidosFiltrados.slice(startIndex, startIndex + itemsPerPage);
+
+  const handlePrevPage = () => {
+    if (currentPage > 1) setCurrentPage((prev) => prev - 1);
+  };
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) setCurrentPage((prev) => prev + 1);
+  };
+
   return (
     <div className={styles.container}>
       <h2 className={styles.title}>Pedidos de Ortopedia</h2>
@@ -128,7 +143,10 @@ export const PedidoOrtopedia: React.FC = () => {
         type="text"
         placeholder="Buscar por cualquier campo..."
         value={search}
-        onChange={(e) => setSearch(e.target.value)}
+        onChange={(e) => {
+          setSearch(e.target.value);
+          setCurrentPage(1); // resetear página al filtrar
+        }}
         style={{ marginBottom: '10px', padding: '5px', width: '250px' }}
       />
 
@@ -156,7 +174,7 @@ export const PedidoOrtopedia: React.FC = () => {
           </tr>
         </thead>
         <tbody>
-          {pedidosFiltrados.map((p) => (
+          {currentItems.map((p) => (
             <tr key={p.id}>
               <td>{p.id}</td>
               <td>{p.nombre}</td>
@@ -179,6 +197,40 @@ export const PedidoOrtopedia: React.FC = () => {
         </tbody>
       </table>
 
+      {/* PAGINADO */}
+      {totalPages > 1 && (
+        <div style={{ marginTop: '15px', display: 'flex', justifyContent: 'center', gap: '10px' }}>
+          <button
+            onClick={handlePrevPage}
+            disabled={currentPage === 1}
+            style={{
+              padding: '5px 10px',
+              borderRadius: '8px',
+              border: '1px solid #ccc',
+              background: currentPage === 1 ? '#88C250' : '#88C250',
+              cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+            }}
+          >
+            ◀
+          </button>
+          <span style={{ alignSelf: 'center', fontSize: '14px', color: '#555' }}>
+            Página {currentPage} de {totalPages}
+          </span>
+          <button
+            onClick={handleNextPage}
+            disabled={currentPage === totalPages}
+            style={{
+              padding: '5px 10px',
+              borderRadius: '8px',
+              border: '1px solid #ccc',
+              background: currentPage === totalPages ? '#88C250' : '#88C250',
+              cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+            }}
+          >
+            ▶
+          </button>
+        </div>
+      )}
 
       <ModalDocumento
         isOpen={modalDocsOpen}

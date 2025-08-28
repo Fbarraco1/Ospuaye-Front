@@ -17,9 +17,9 @@ import { PrivateRoutes } from '../auth/PrivateRoutes/PrivateRoutes';
 import AdminOftalmologia from '../components/screens/AdminOftalmologia/AdminOftalmologia';
 import AdminOrtopedia from '../components/screens/AdminOrtopedia/AdminOrtopedia';
 import { MainScreen } from '../components/screens/main/MainScreen';
-
 import RecuperarContra from '../components/screens/RecuperarContra/RecuperarContra';
 import PerdiContra from '../components/screens/PerdiContra/PerdiContra';
+import { Footer } from '../components/ui/Footer/Footer';
 
 export const AppRouter = () => {
   return (
@@ -30,6 +30,10 @@ export const AppRouter = () => {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/" element={<MainScreen />} />
+        {/* Pantallas de recuperación de contraseña */}
+        <Route path="/recuperar-contra" element={<RecuperarContra />} />
+        <Route path="/perdi-contra" element={<PerdiContra />} />
+
 
          {/* Rutas Admin */}
         <Route path="/admin" element={
@@ -96,24 +100,11 @@ export const AppRouter = () => {
           <PrivateRoutes roles={['ADMIN', 'ADMINORTOPEDIA']}>
             <ModalPedidoOrtopedia /> 
           </PrivateRoutes>} />
-        <Route path="/" element={<HeaderAdmin />} />
-        <Route path="/usuarios" element={<Usuarios />} />
-        <Route path="/beneficiarios" element={<Beneficiarios />} />
-        <Route path="/areas" element={<Areas />} />
-        <Route path="/roles" element={<Roles />} />
-        <Route path="/medicos" element={<Medico />} />
-        <Route path="/grupoFamiliar" element={<GrupoFamiliar />} />
-        <Route path="/pedidos/oftalmologia" element={<PedidoOftalmologia />} />
-        <Route path="/pedidos/oftalmologia/nuevo" element={<ModalPedidoOftalmologia/>}/>
-        <Route path="/pedidos/ortopedia" element={<PedidoOrtopedia />} />
-        <Route path="/pedidos/ortopedia/nuevo" element={<ModalPedidoOrtopedia/>}/>
-        {/* Pantallas de recuperación de contraseña */}
-        <Route path="/recuperar-contra" element={<RecuperarContra />} />
-        <Route path="/perdi-contra" element={<PerdiContra />} />
-        {/* Rutas privadas */}
-        
-        {/* Aquí puedes agregar más rutas privadas según sea necesario */}
       </Routes>
+      <div>
+        <span><br /><br /><br /></span>
+      </div>
+      <Footer />
     </BrowserRouter>
   );
 };

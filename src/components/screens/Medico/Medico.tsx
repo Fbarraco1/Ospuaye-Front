@@ -19,6 +19,9 @@ export const Medico: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [search, setSearch] = useState('');
   const token = useAuthStore((state) => state.token);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5; // mostramos 5 por página
+  
 
   useEffect(() => {
     obtenerMedicos();
@@ -77,6 +80,20 @@ export const Medico: React.FC = () => {
       .includes(search.toLowerCase())
   );
 
+  
+  // --- PAGINADO ---
+  const totalPages = Math.ceil(medicosFiltrados.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const currentItems = medicosFiltrados.slice(startIndex, startIndex + itemsPerPage);
+
+  const handlePrevPage = () => {
+    if (currentPage > 1) setCurrentPage((prev) => prev - 1);
+  };
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) setCurrentPage((prev) => prev + 1);
+  };
+
   return (
     <div className={styles.container}>
       <h2 className={styles.title}>Médicos</h2>
@@ -101,7 +118,7 @@ export const Medico: React.FC = () => {
           </tr>
         </thead>
         <tbody>
-          {medicosFiltrados.map((m) => (
+          {currentItems.map((m) => (
             <tr key={m.id}>
               <td>{m.id}</td>
               <td>{m.matricula}</td>
@@ -120,6 +137,41 @@ export const Medico: React.FC = () => {
           ))}
         </tbody>
       </table>
+
+{/* PAGINADO */}
+      {totalPages > 1 && (
+        <div style={{ marginTop: '15px', display: 'flex', justifyContent: 'center', gap: '10px' }}>
+          <button
+            onClick={handlePrevPage}
+            disabled={currentPage === 1}
+            style={{
+              padding: '5px 10px',
+              borderRadius: '8px',
+              border: '1px solid #ccc',
+              background: currentPage === 1 ? '#88C250' : '#88C250',
+              cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+            }}
+          >
+            ◀
+          </button>
+          <span style={{ alignSelf: 'center', fontSize: '14px', color: '#555' }}>
+            Página {currentPage} de {totalPages}
+          </span>
+          <button
+            onClick={handleNextPage}
+            disabled={currentPage === totalPages}
+            style={{
+              padding: '5px 10px',
+              borderRadius: '8px',
+              border: '1px solid #ccc',
+              background: currentPage === totalPages ? '#88C250' : '#88C250',
+              cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+            }}
+          >
+            ▶
+          </button>
+        </div>
+      )}
 
       <ModalMedico
         isOpen={isModalOpen}

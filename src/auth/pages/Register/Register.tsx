@@ -59,7 +59,7 @@ export const Register = () => {
                   </div>
                   <div className={styles.button}>
                     <button type="submit" className={styles.btn}>
-                      Iniciar Sesión
+                      Registrarse
                     </button>
                   </div>
                   <p className={styles['outer-link']}>

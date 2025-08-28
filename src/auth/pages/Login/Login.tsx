@@ -37,6 +37,9 @@ export const Login = () => {
     }
   };
 
+  const olvideContrasena = () => {
+    navigate('/perdi-contra');
+  };
   return (
     <div>
       <div className={`${styles.breadcrumbs} ${styles.overlay}`}>
@@ -91,9 +94,9 @@ export const Login = () => {
                         </div>
                       </div>
                       <div className="col-lg-6 col-md-6 col-12">
-                        <a href="#" className={styles['lost-pass']}>
+                        <span onClick={olvideContrasena} className={styles['lost-pass']}>
                           Olvidé mi contraseña
-                        </a>
+                        </span>
                       </div>
                     </div>
                   </div>

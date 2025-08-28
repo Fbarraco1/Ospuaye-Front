@@ -83,11 +83,17 @@
   width: 100%;
   -webkit-box-shadow: none !important;
           box-shadow: none !important;
+  background: #88C250 !important;
+  color: #fff !important;
+  border: none;
+  transition: background 0.3s;
 }
 
 .login .form-head form .button .btn:hover {
   -webkit-box-shadow: none !important;
           box-shadow: none !important;
+  background: #6fa13e !important; /* Un verde más oscuro para el hover */
+  color: #fff !important;
 }
 
 .login .form-head form .outer-link {
