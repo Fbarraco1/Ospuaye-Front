@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import styles from "./RecuperarContra.module.css";
+import axios from "axios";
+import { useAuthStore } from "../../../auth/store/authStore";
 
 export default function RecuperarContra() {
   const [email, setEmail] = useState("");
@@ -11,6 +13,8 @@ export default function RecuperarContra() {
   const [showActual, setShowActual] = useState(false);
   const [showNueva, setShowNueva] = useState(false);
   const [showRepetir, setShowRepetir] = useState(false);
+  const token = useAuthStore((state) => state.token);
+  
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,20 +28,21 @@ export default function RecuperarContra() {
     setLoading(true);
 
     try {
-      const res = await fetch("/api/usuarios/cambiarContrasena", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email,
-          actual,
-          nueva,
-        }),
-      });
+      const res = await axios.post(
+        'http://localhost:9000/api/usuarios/cambiarContrasena',
+        { email, actual, nueva },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
-      const text = await res.text();
-      if (!res.ok) throw new Error(text);
+      if (res.status < 200 || res.status >= 300) throw new Error('Error al crear Area');
+      // if (!res.ok) throw new Error(text);
 
-      setMensaje(text);
+      // setMensaje(text);
     } catch (err: any) {
       setMensaje(err.message || "Error al actualizar la contraseña.");
     }
