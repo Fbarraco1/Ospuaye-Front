@@ -24,36 +24,20 @@ export default function RecuperarContra() {
     setLoading(true);
 
     try {
-      // 1. Buscar usuario por email
-      const res = await fetch(`/api/usuarios/buscarPorEmail?email=${email}`);
-      if (!res.ok) throw new Error("Usuario no encontrado");
-      const usuario = await res.json();
-
-      // 2. Validar contraseña actual
-      if (usuario.contrasena !== actual) {
-        setMensaje("La contraseña actual es incorrecta.");
-        setLoading(false);
-        return;
-      }
-
-      // 3. Actualizar contraseña
-      const actualizado = {
-        ...usuario,
-        contrasena: nueva,
-      };
-
-      const res2 = await fetch("/api/usuarios/actualizar", {
-        method: "PUT",
+      const res = await fetch("/api/usuarios/cambiarContrasena", {
+        method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(actualizado),
+        body: JSON.stringify({
+          email,
+          actual,
+          nueva,
+        }),
       });
 
-      if (!res2.ok) {
-        const error = await res2.text();
-        throw new Error(error);
-      }
+      const text = await res.text();
+      if (!res.ok) throw new Error(text);
 
-      setMensaje("Contraseña actualizada correctamente.");
+      setMensaje(text);
     } catch (err: any) {
       setMensaje(err.message || "Error al actualizar la contraseña.");
     }
