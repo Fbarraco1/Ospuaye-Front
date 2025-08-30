@@ -1,10 +1,13 @@
 import { useNavigate } from "react-router-dom";
 import logo from "../../../assets/images/logo/logo1.svg"
+import fondoAdmin from "../../../assets/images/FondoAdmin.png"
+
 
 const AdminOftalmologia = () => {
   const navigate = useNavigate();
 
   return (
+    <div>
     <header className="header navbar-area style2">
         <div className="container">
         <div className="row align-items-center">
@@ -55,6 +58,20 @@ const AdminOftalmologia = () => {
         </div>
         </div>
     </header>
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+            <img
+                src={fondoAdmin}
+                alt="admin"
+                style={{
+                    opacity: 0.5,
+                    width: '750px',
+                    maxWidth: '100%',
+                    height: 'auto',
+                    display: 'block'
+                }}
+            />
+        </div>
+        </div>
   );
 };
 
