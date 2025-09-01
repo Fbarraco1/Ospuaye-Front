@@ -1,20 +1,22 @@
 import { FaEdit, FaPlus, FaTrash } from 'react-icons/fa';
-import styles from './Roles.module.css';
+import styles from './Departamento.module.css';
 import { useEffect, useState } from 'react';
 import { useAuthStore } from '../../../auth/store/authStore';
 import axios from 'axios';
-import { ModalRol } from '../../ui/ModalRol/ModalRol';
+import { ModalDepartamento } from '../../ui/ModalDepartamento/ModalDepartamento';
 
-interface Rol {
+interface Departamento {
     id: number;
     nombre: string;
-    area: {
+    provincia: {
+        id: number;
         nombre: string;
+        activo: boolean;
     }
 }
 
-export const Roles = () => {
-  const [roles, setRoles] = useState<Rol[]>([]);
+export const Departamento = () => {
+  const [departamentos, setDepartamentos] = useState<Departamento[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [search, setSearch] = useState('');
   const token = useAuthStore((state) => state.token);
@@ -24,36 +26,36 @@ export const Roles = () => {
   const itemsPerPage = 5;
   
   useEffect(() => {
-    obtenerRoles();
+    obtenerDepartamentos();
   }, []);
 
-  const obtenerRoles = async () => {
+  const obtenerDepartamentos = async () => {
     try {
-      const response = await axios.get('http://localhost:9000/api/roles', {});
-      setRoles(response.data);
+      const response = await axios.get('http://localhost:9000/api/departamentos', {});
+      setDepartamentos(response.data);
     } catch (error) {
-      console.error('Error al obtener Roles:', error);
+      console.error('Error al obtener Departamentos:', error);
     }
   };
     
-  const agregarRol = () => {
+  const agregarDepartamento = () => {
     setIsModalOpen(true);
   }
 
-  const editarRol = (id: number) => {
-    console.log('Editar Area con ID:', id);
+  const editarDepartamento = (id: number) => {
+    console.log('Editar Departamento con ID:', id);
   }
 
-  const eliminarRol= async (id: number) => {
+  const eliminarDepartamento= async (id: number) => {
     try {
-        await axios.delete(`http://localhost:9000/api/roles/${id}`, {
+        await axios.delete(`http://localhost:9000/api/departamentos/${id}`, {
             headers: {
             Authorization: `Bearer ${token}`,
             },
         });
-        setRoles(prev => prev.filter(b => b.id !== id));
+        setDepartamentos(prev => prev.filter(b => b.id !== id));
         } catch (error) {
-        console.error('Error al eliminar roles:', error);
+        console.error('Error al eliminar Departamento:', error);
     }
   }
 
@@ -61,16 +63,16 @@ export const Roles = () => {
     setIsModalOpen(false);
   };
 
-  const handleAreaAdded = () => {
-    obtenerRoles();
+  const handleDepartamentoAdded = () => {
+    obtenerDepartamentos();
   };
 
   // Barra de búsqueda por cualquier campo
-  const rolesFiltrados = roles.filter((r) =>
+  const provinciasFiltrados = departamentos.filter((r) =>
     [
       r.id,
       r.nombre,
-      r.area
+      r.provincia
     ]
       .join(' ')
       .toLowerCase()
@@ -78,10 +80,10 @@ export const Roles = () => {
   );
 
   // 🔹 Lógica de paginación
-  const totalPages = Math.ceil(rolesFiltrados.length / itemsPerPage);
+  const totalPages = Math.ceil(provinciasFiltrados.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
-  const rolesPaginados = rolesFiltrados.slice(startIndex, endIndex);
+  const rolesPaginados = provinciasFiltrados.slice(startIndex, endIndex);
 
   const nextPage = () => {
     if (currentPage < totalPages) setCurrentPage(currentPage + 1);
@@ -93,7 +95,7 @@ export const Roles = () => {
 
   return (
     <div className={styles.container}>
-      <h2 className={styles.title}>Roles</h2>
+      <h2 className={styles.title}>Departamentos</h2>
       <input
         type="text"
         placeholder="Buscar por cualquier campo..."
@@ -101,7 +103,7 @@ export const Roles = () => {
         onChange={(e) => setSearch(e.target.value)}
         style={{ marginBottom: '10px', padding: '5px', width: '250px' }}
       />
-      <button className={styles.addButton} onClick={agregarRol}>
+      <button className={styles.addButton} onClick={agregarDepartamento}>
         <FaPlus /> Agregar Roles
       </button>
 
@@ -109,7 +111,7 @@ export const Roles = () => {
         <thead>
           <tr>
             <th>Nombre</th>
-            <th>Area</th>
+            <th>Provincia</th>
             <th>Acciones</th>
           </tr>
         </thead>
@@ -117,15 +119,15 @@ export const Roles = () => {
           {rolesPaginados.map((b) => (
             <tr key={b.id}>
               <td>{b.nombre}</td>
-              <td>{/* @ts-ignore */ b.area.nombre}</td>
+              <td>{/* @ts-ignore */ b.provincia.nombre}</td>
               <td className={styles.actions}>
                 <FaEdit
                   className={styles.editIcon}
-                  onClick={() => editarRol(b.id)}
+                  onClick={() => editarDepartamento(b.id)}
                 />
                 <FaTrash
                   className={styles.deleteIcon}
-                  onClick={() => eliminarRol(b.id)}
+                  onClick={() => eliminarDepartamento(b.id)}
                 />
               </td>
             </tr>
@@ -154,10 +156,10 @@ export const Roles = () => {
         </button>
       </div>
 
-      <ModalRol
+      <ModalDepartamento
         isOpen={isModalOpen}
         onClose={handleCloseModal}
-        onRolAdded={handleAreaAdded}
+        onDepartamentoAdded={handleDepartamentoAdded}
       />
     </div>
   )

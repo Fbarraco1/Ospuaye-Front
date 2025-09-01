@@ -5,6 +5,7 @@ import styles from './GrupoFamiliar.module.css';
 import { useAuthStore } from '../../../auth/store/authStore';
 import ModalFamiliar from '../../ui/ModalFamiliar/ModalFamiliar';
 import ModalGrupoFamiliar from '../../ui/ModalGrupoFamiliar/ModalGrupoFamiliar';
+import EditarFamiliar from '../../ui/EditarFamiliar/EditarFamiliar';
 
 interface Familiar {
   id: number;
@@ -40,6 +41,9 @@ export const GrupoFamiliar: React.FC = () => {
   const [search, setSearch] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5; // mostramos 5 por página
+  const [isModalEditarFamiliarOpen, setIsModalEditarFamiliarOpen] = useState(false);
+  const [selectedFamiliar, setSelectedFamiliar] = useState<any>(undefined);
+
 
   const token = useAuthStore((state) => state.token);
 
@@ -88,6 +92,18 @@ export const GrupoFamiliar: React.FC = () => {
     setGrupoFamiliarId(grupoId);
     setBeneficiarioId(beneficiarioId);
     setIsModalFamiliarOpen(true);
+  };
+
+    const eliminarFamiliar= async (id: number) => {
+    try {
+      await axios.delete(`http://localhost:9000/api/familiares/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+    } catch (error) {
+      console.error('Error al eliminar familiar:', error);
+    }
   };
 
   const handleCloseModalGrupo = () => {
@@ -195,13 +211,44 @@ export const GrupoFamiliar: React.FC = () => {
                     <div className={styles.familiaresList}>
                       <strong>Familiares:</strong>
                       {g.familiares && g.familiares.length > 0 ? (
-                        <ul>
-                          {g.familiares.map((f) => (
-                            <li key={f.id}>
-                              {f.nombre} {f.apellido} - DNI: {f.dni} - Parentesco: {f.tipoParentesco}
-                            </li>
-                          ))}
-                        </ul>
+                        <table className={styles.table} style={{ marginTop: 10 }}>
+                          <thead>
+                            <tr>
+                              <th>Nombre</th>
+                              <th>Apellido</th>
+                              <th>Parentesco</th>
+                              <th>Acciones</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {g.familiares.map((f) => (
+                              <tr key={f.id}>
+                                <td>{f.nombre}</td>
+                                <td>{f.apellido}</td>
+                                <td>{f.tipoParentesco}</td>
+                                <td className={styles.actions}>
+                                  <FaEdit
+                                    className={styles.editIcon}
+                                    onClick={() => {
+                                      setSelectedFamiliar({
+                                        ...f,
+                                        grupoFamiliar: { id: g.id },
+                                        beneficiario: { id: g.titular.id }
+                                      });
+                                      setIsModalEditarFamiliarOpen(true);
+                                    }}
+                                    style={{ cursor: "pointer" }}
+                                  />
+                                  <FaTrash
+                                    className={styles.deleteIcon}
+                                    onClick={() => {eliminarFamiliar(f.id)}}
+                                    style={{ cursor: "pointer" }}
+                                  />
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
                       ) : (
                         <span>No hay familiares registrados.</span>
                       )}
@@ -261,6 +308,16 @@ export const GrupoFamiliar: React.FC = () => {
         isOpen={isModalGrupoOpen}
         onClose={handleCloseModalGrupo}
         onGrupoFamiliarAdded={handleFamiliarAdded}
+      />
+
+      <EditarFamiliar
+        isOpen={isModalEditarFamiliarOpen && !!selectedFamiliar}
+        onClose={() => {
+          setIsModalEditarFamiliarOpen(false);
+          setSelectedFamiliar(undefined);
+        }}
+        onSave={obtenerGrupos}
+        initialData={selectedFamiliar}
       />
     </div>
   );

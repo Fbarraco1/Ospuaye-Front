@@ -113,7 +113,7 @@ button {
 
 button[type="submit"] {
   padding: 14px 0;
-  background: linear-gradient(90deg, #007bff 60%, #0056b3 100%);
+  background: #88C250;
   color: white;
   border: none;
   border-radius: 10px;
