@@ -1,22 +1,31 @@
 import { FaEdit, FaPlus, FaTrash } from 'react-icons/fa';
-import styles from './Provincia.module.css';
+import styles from './Domicilio.module.css';
 import { useEffect, useState } from 'react';
 import { useAuthStore } from '../../../auth/store/authStore';
 import axios from 'axios';
-import { ModalProvincia } from '../../ui/ModalProvincia/ModalProvincia';
+import { ModalDomicilio } from '../../ui/ModalDomicilio/ModalDomicilio';
 
-interface Provincia {
+interface Domicilio {
     id: number;
-    nombre: string;
-    pais: {
+    calle: string;
+    numeracion: string;
+    barrio: string;
+    manzanaPiso: string;
+    casaDepartamento:string;
+    referencia:string;
+    activo: Boolean;
+    localidad: {
         id: number;
         nombre: string;
+        codigoPostal: string;
         activo: boolean;
-    }
+    },
+    tipo: 'URBANO' | 'RURAL';
+
 }
 
-export const Provincia = () => {
-  const [provincias, setProvincias] = useState<Provincia[]>([]);
+export const Domicilio = () => {
+  const [domicilios, setDomicilios] = useState<Domicilio[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [search, setSearch] = useState('');
   const token = useAuthStore((state) => state.token);
@@ -26,36 +35,36 @@ export const Provincia = () => {
   const itemsPerPage = 5;
   
   useEffect(() => {
-    obtenerProvincias();
+    obtenerDomicilios();
   }, []);
 
-  const obtenerProvincias = async () => {
+  const obtenerDomicilios = async () => {
     try {
-      const response = await axios.get('http://localhost:9000/api/provincias', {});
-      setProvincias(response.data);
+      const response = await axios.get('http://localhost:9000/api/domicilios', {});
+      setDomicilios(response.data);
     } catch (error) {
-      console.error('Error al obtener Provincias:', error);
+      console.error('Error al obtener Domicilios:', error);
     }
   };
     
-  const agregarProvincia = () => {
+  const agregarDomicilio = () => {
     setIsModalOpen(true);
   }
 
-  const editarProvincia = (id: number) => {
-    console.log('Editar Provinvcia con ID:', id);
+  const editarDomicilio = (id: number) => {
+    console.log('Editar Domicilio con ID:', id);
   }
 
-  const eliminarProvincia= async (id: number) => {
+  const eliminarDomicilio= async (id: number) => {
     try {
-        await axios.delete(`http://localhost:9000/api/provincias/${id}`, {
+        await axios.delete(`http://localhost:9000/api/domicilios/${id}`, {
             headers: {
             Authorization: `Bearer ${token}`,
             },
         });
-        setProvincias(prev => prev.filter(b => b.id !== id));
+        setDomicilios(prev => prev.filter(b => b.id !== id));
         } catch (error) {
-        console.error('Error al eliminar Provincias:', error);
+        console.error('Error al eliminar Domicilios:', error);
     }
   }
 
@@ -63,16 +72,22 @@ export const Provincia = () => {
     setIsModalOpen(false);
   };
 
-  const handleProvinciaAdded = () => {
-    obtenerProvincias();
+  const handleDomicilioAdded = () => {
+    obtenerDomicilios();
   };
 
   // Barra de búsqueda por cualquier campo
-  const provinciasFiltrados = provincias.filter((r) =>
+  const provinciasFiltrados = domicilios.filter((r) =>
     [
       r.id,
-      r.nombre,
-      r.pais
+      r.calle,
+      r.numeracion,
+      r.barrio,
+      r.manzanaPiso,
+      r.casaDepartamento,
+      r.referencia,
+      r.localidad?.nombre,
+      r.tipo
     ]
       .join(' ')
       .toLowerCase()
@@ -95,7 +110,7 @@ export const Provincia = () => {
 
   return (
     <div className={styles.container}>
-      <h2 className={styles.title}>Provincias</h2>
+      <h2 className={styles.title}>Domicilios</h2>
       <input
         type="text"
         placeholder="Buscar por cualquier campo..."
@@ -103,31 +118,44 @@ export const Provincia = () => {
         onChange={(e) => setSearch(e.target.value)}
         style={{ marginBottom: '10px', padding: '5px', width: '250px' }}
       />
-      <button className={styles.addButton} onClick={agregarProvincia}>
-        <FaPlus /> Agregar Roles
+      <button className={styles.addButton} onClick={agregarDomicilio}>
+        <FaPlus /> Agregar Domicilio
       </button>
 
       <table className={styles.table}>
         <thead>
           <tr>
-            <th>Nombre</th>
-            <th>Pais</th>
+            <th>Calle</th>
+            <th>Numeracion</th>
+            <th>Barrio</th>
+            <th>Manzana/Piso</th>
+            <th>Casa/Departamento</th>
+            <th>Referencia</th>
+            <th>Localidad</th>
+            <th>Tipo</th>
             <th>Acciones</th>
           </tr>
         </thead>
         <tbody>
           {rolesPaginados.map((b) => (
             <tr key={b.id}>
-              <td>{b.nombre}</td>
-              <td>{/* @ts-ignore */ b.pais.nombre}</td>
+              <td>{b.calle}</td>
+              <td>{b.numeracion}</td>
+              <td>{b.barrio}</td>
+              <td>{b.manzanaPiso}</td>
+              <td>{b.casaDepartamento}</td>
+              <td>{b.referencia}</td>
+              <td>{b.tipo}</td>
+              <td>{/* @ts-ignore */ b.localidad.nombre}</td>
+              <td>{b.codigoPostal}</td>
               <td className={styles.actions}>
                 <FaEdit
                   className={styles.editIcon}
-                  onClick={() => editarProvincia(b.id)}
+                  onClick={() => editarDomicilio(b.id)}
                 />
                 <FaTrash
                   className={styles.deleteIcon}
-                  onClick={() => eliminarProvincia(b.id)}
+                  onClick={() => eliminarDomicilio(b.id)}
                 />
               </td>
             </tr>
@@ -156,10 +184,10 @@ export const Provincia = () => {
         </button>
       </div>
 
-      <ModalProvincia
+      <ModalDomicilio
         isOpen={isModalOpen}
         onClose={handleCloseModal}
-        onProvinciaAdded={handleProvinciaAdded}
+        onDomicilioAdded={handleDomicilioAdded}
       />
     </div>
   )

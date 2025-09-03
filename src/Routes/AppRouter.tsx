@@ -20,6 +20,12 @@ import { MainScreen } from '../components/screens/main/MainScreen';
 import RecuperarContra from '../components/screens/RecuperarContra/RecuperarContra';
 import PerdiContra from '../components/screens/PerdiContra/PerdiContra';
 import { Footer } from '../components/ui/Footer/Footer';
+import { Pais } from '../components/screens/Pais/Pais';
+import { Provincia } from '../components/screens/Provincia/Provincia';
+import { Departamento } from '../components/screens/Departamento/Departamento';
+import { Localidad } from '../components/screens/Localidad/Localidad';
+import { Domicilio } from '../components/screens/Domicilio/Domicilio';
+import { Empresa } from '../components/screens/Empresa/Empresa';
 
 export const AppRouter = () => {
   return (
@@ -54,6 +60,36 @@ export const AppRouter = () => {
         <Route path="/roles" element={
           <PrivateRoutes roles={['ADMIN']}>
             <Roles /> 
+          </PrivateRoutes>} />
+
+        <Route path="/pais" element={
+          <PrivateRoutes roles={['ADMIN']}>
+            <Pais /> 
+          </PrivateRoutes>} />
+
+        <Route path="/provincia" element={
+          <PrivateRoutes roles={['ADMIN']}>
+            <Provincia /> 
+          </PrivateRoutes>} />
+
+        <Route path="/departamento" element={
+          <PrivateRoutes roles={['ADMIN']}>
+            <Departamento /> 
+          </PrivateRoutes>} />
+
+        <Route path="/localidad" element={
+          <PrivateRoutes roles={['ADMIN']}>
+            <Localidad /> 
+          </PrivateRoutes>} />
+
+        <Route path="/domicilio" element={
+          <PrivateRoutes roles={['ADMIN']}>
+            <Domicilio /> 
+          </PrivateRoutes>} />
+
+        <Route path="/empresa" element={
+          <PrivateRoutes roles={['ADMIN']}>
+            <Empresa /> 
           </PrivateRoutes>} />
 
         <Route path="/beneficiarios" element={

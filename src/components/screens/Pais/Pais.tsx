@@ -1,5 +1,5 @@
 import { FaEdit, FaPlus, FaTrash } from 'react-icons/fa';
-import styles from './Areas.module.css';
+import styles from './Pais.module.css';
 import { useEffect, useState } from 'react';
 import { useAuthStore } from '../../../auth/store/authStore';
 import axios from 'axios';
