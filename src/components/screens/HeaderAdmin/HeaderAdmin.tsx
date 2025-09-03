@@ -33,36 +33,74 @@ const HeaderAdmin = () => {
                     </button>
                     <div className="collapse navbar-collapse sub-menu-bar" id="navbarSupportedContent">
                         <ul id="nav" className="navbar-nav ms-auto">
-                        <li className="nav-item" >
-                            <span aria-label="Toggle navigation" style={{ cursor: "pointer" }} onClick={() => navigate("/usuarios")}>Gestión de Usuarios</span>
+
+                        <li  className="nav-item">
+                            <a className="page-scroll dd-menu collapsed" href="javascript:void(0)"
+                              data-bs-toggle="collapse" data-bs-target="#submenu-1-1"
+                              aria-controls="navbarSupportedContent" aria-expanded="false"
+                              aria-label="Toggle navigation">Usuario</a>
+                              <ul className="sub-menu collapse" id="submenu-1-1">
+                                <li className="nav-item" onClick={() => navigate("/usuarios")}>ABM Usuarios</li>
+                                <li className="nav-item" onClick={() => navigate("/")}>Modificacion Clave</li>
+                              </ul>                            
                         </li>
 
-                        <li className="nav-item">
-                            <span aria-label="Toggle navigation" style={{ cursor: "pointer" }} onClick={() => navigate("/beneficiarios")}>Gestión de Beneficiarios</span>
-                        </li>  
-
-                        <li className="nav-item">
-                            <span aria-label="Toggle navigation" style={{ cursor: "pointer" }} onClick={() => navigate("/medicos")}>Gestión de Médicos</span>
+                        <li  className="nav-item">
+                            <a className="page-scroll dd-menu collapsed" href="javascript:void(0)"
+                              data-bs-toggle="collapse" data-bs-target="#submenu-1-2"
+                              aria-controls="navbarSupportedContent" aria-expanded="false"
+                              aria-label="Toggle navigation">Configuracion</a>
+                              <ul className="sub-menu collapse" id="submenu-1-2">
+                                <li className="nav-item" onClick={() => navigate("/usuarios")}>ABM Medicos</li>
+                                <li className="nav-item" onClick={() => navigate("/areas")}>Modificacion Areas</li>
+                                <li className="nav-item" onClick={() => navigate("/roles")}>Modificacion Roles</li>
+                              </ul>                            
                         </li>
 
-                        <li className="nav-item">
-                            <span aria-label="Toggle navigation" style={{ cursor: "pointer" }} onClick={() => navigate("/pedidos/oftalmologia")}>Pedidos Oftalmología</span>
+                        <li  className="nav-item">
+                            <a className="page-scroll dd-menu collapsed" href="javascript:void(0)"
+                              data-bs-toggle="collapse" data-bs-target="#submenu-1-3"
+                              aria-controls="navbarSupportedContent" aria-expanded="false"
+                              aria-label="Toggle navigation">Domicilios</a>
+                              <ul className="sub-menu collapse" id="submenu-1-3">
+                                <li className="nav-item" onClick={() => navigate("/pais")}>ABM Pais</li>
+                                <li className="nav-item" onClick={() => navigate("/provincia")}>ABM Provincia</li>
+                                <li className="nav-item" onClick={() => navigate("/departamento")}>ABM Departamento</li>
+                                <li className="nav-item" onClick={() => navigate("/localidad")}>ABM Localidad</li>
+                                <li className="nav-item" onClick={() => navigate("/domicilio")}>ABM Domicilio</li>
+                              </ul>                            
                         </li>
 
-                        <li className="nav-item">
-                            <span aria-label="Toggle navigation" style={{ cursor: "pointer" }} onClick={() => navigate("/pedidos/ortopedia")}>Pedidos Ortopedia</span>
+                        <li  className="nav-item">
+                            <a className="page-scroll dd-menu collapsed" href="javascript:void(0)"
+                              data-bs-toggle="collapse" data-bs-target="#submenu-1-3"
+                              aria-controls="navbarSupportedContent" aria-expanded="false"
+                              aria-label="Toggle navigation">Empresas</a>
+                              <ul className="sub-menu collapse" id="submenu-1-3">
+                                <li className="nav-item" onClick={() => navigate("/empresa")}>ABM Empresa</li>
+                              </ul>                            
                         </li>
 
-                        <li className="nav-item">
-                            <span aria-label="Toggle navigation" style={{ cursor: "pointer" }} onClick={() => navigate("/grupoFamiliar")}>Grupos Familiares</span>
+                        <li  className="nav-item">
+                            <a className="page-scroll dd-menu collapsed" href="javascript:void(0)"
+                              data-bs-toggle="collapse" data-bs-target="#submenu-1-4"
+                              aria-controls="navbarSupportedContent" aria-expanded="false"
+                              aria-label="Toggle navigation">Beneficiarios</a>
+                              <ul className="sub-menu collapse" id="submenu-1-4">
+                                <li className="nav-item" onClick={() => navigate("/beneficiario")}>ABM Beneficiario</li>
+                                <li className="nav-item" onClick={() => navigate("/grupoFamiliar")}>ABM Grupo Familiar</li>
+                              </ul>                            
                         </li>
 
-                        <li className="nav-item">
-                            <span aria-label="Toggle navigation" style={{ cursor: "pointer" }} onClick={() => navigate("/areas")}>Áreas</span>
-                        </li>
-
-                        <li className="nav-item">
-                            <span aria-label="Toggle navigation" style={{ cursor: "pointer" }} onClick={() => navigate("/roles")}>Roles</span>
+                        <li  className="nav-item">
+                            <a className="page-scroll dd-menu collapsed" href="javascript:void(0)"
+                              data-bs-toggle="collapse" data-bs-target="#submenu-1-4"
+                              aria-controls="navbarSupportedContent" aria-expanded="false"
+                              aria-label="Toggle navigation">Reintegros</a>
+                              <ul className="sub-menu collapse" id="submenu-1-4">
+                                <li className="nav-item" onClick={() => navigate("/")}>Alta Pedido Medico</li>
+                                <li className="nav-item" onClick={() => navigate("/")}>Gestion Pedido Medico</li>
+                              </ul>                            
                         </li>                                                                        
                         </ul>
                     </div>
