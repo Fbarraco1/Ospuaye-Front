@@ -26,6 +26,7 @@ import { Departamento } from '../components/screens/Departamento/Departamento';
 import { Localidad } from '../components/screens/Localidad/Localidad';
 import { Domicilio } from '../components/screens/Domicilio/Domicilio';
 import { Empresa } from '../components/screens/Empresa/Empresa';
+import { Nacionalidad } from '../components/screens/Nacionalidad/Nacionalidad';
 
 export const AppRouter = () => {
   return (
@@ -105,6 +106,11 @@ export const AppRouter = () => {
         <Route path="/grupoFamiliar" element={
           <PrivateRoutes roles={['ADMIN', 'ADMINOFTALMOLOGIA', 'ADMINORTOPEDIA']}>
             <GrupoFamiliar /> 
+          </PrivateRoutes>} />
+
+        <Route path="/nacionalidades" element={
+          <PrivateRoutes roles={['ADMIN', 'ADMINOFTALMOLOGIA', 'ADMINORTOPEDIA']}>
+            <Nacionalidad /> 
           </PrivateRoutes>} />
 
         <Route path="/admin/oftalmologia" element={

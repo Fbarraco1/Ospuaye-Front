@@ -42,7 +42,7 @@ export const ModalProvincia: React.FC<ModalProvinciaProps> = ({ isOpen, onClose,
   ) => {
         try {
       const response = await axios.post(
-        'http://localhost:9000/api/roles/crear',
+        'http://localhost:9000/api/provincias/crear',
         { nombre, pais: { id: pais } }, // <-- Cambia aquí
         {
           headers: {

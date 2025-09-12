@@ -147,7 +147,6 @@ export const Domicilio = () => {
               <td>{b.referencia}</td>
               <td>{b.tipo}</td>
               <td>{/* @ts-ignore */ b.localidad.nombre}</td>
-              <td>{b.codigoPostal}</td>
               <td className={styles.actions}>
                 <FaEdit
                   className={styles.editIcon}

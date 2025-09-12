@@ -51,7 +51,7 @@ const HeaderAdmin = () => {
                               aria-controls="navbarSupportedContent" aria-expanded="false"
                               aria-label="Toggle navigation">Configuracion</a>
                               <ul className="sub-menu collapse" id="submenu-1-2">
-                                <li className="nav-item" onClick={() => navigate("/usuarios")}>ABM Medicos</li>
+                                <li className="nav-item" onClick={() => navigate("/medicos")}>ABM Medicos</li>
                                 <li className="nav-item" onClick={() => navigate("/areas")}>Modificacion Areas</li>
                                 <li className="nav-item" onClick={() => navigate("/roles")}>Modificacion Roles</li>
                               </ul>                            

@@ -45,7 +45,7 @@ export const ModalLocalidad: React.FC<ModalLocalidadProps> = ({ isOpen, onClose,
   ) => {
         try {
       const response = await axios.post(
-        'http://localhost:9000/api/localidades/crear',
+        'http://localhost:9000/api/localidades',
         { nombre, codigoPostal, departamento: { id: departamento } }, // <-- Cambia aquí
         {
           headers: {

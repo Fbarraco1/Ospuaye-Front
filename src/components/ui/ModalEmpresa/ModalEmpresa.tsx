@@ -11,7 +11,7 @@ interface ModalEmpresaProps {
 interface Domicilio {
     id: number;
     calle: string;
-    numero: string;
+    numeracion: string;
 }
 
 
@@ -121,7 +121,7 @@ export const ModalEmpresa: React.FC<ModalEmpresaProps> = ({ isOpen, onClose, onE
             <option value={0} disabled>Seleccione un domicilio</option>
             {domicilios.map((a) => (
                 <option key={a.id} value={a.id}>
-                {a.calle + ' ' + a.numero}
+                {a.calle + ' ' + a.numeracion}
                 </option>
             ))}
            </select>

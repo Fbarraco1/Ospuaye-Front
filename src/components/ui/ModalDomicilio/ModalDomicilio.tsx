@@ -55,7 +55,7 @@ export const ModalDomicilio: React.FC<ModalDomicilioProps> = ({ isOpen, onClose,
   ) => {
         try {
       const response = await axios.post(
-        'http://localhost:9000/api/localidades/crear',
+        'http://localhost:9000/api/domicilios/crear',
         { calle, numeracion, barrio, manzanaPiso, casaDepartamento, referencia, localidad: { id: localidad }, tipo }, // <-- Cambia aquí
         {
           headers: {

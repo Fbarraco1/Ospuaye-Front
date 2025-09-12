@@ -14,7 +14,7 @@ interface Empresa {
     domicilio: {
         id: number;
         calle: string;
-        numeracion: number;
+        numeracion: string;
         codigoPostal: string;
     }
 }
@@ -132,7 +132,7 @@ export const Empresa = () => {
               <td>{b.nombre}</td>
               <td>{b.cuit}</td>
               <td>{b.razonSocial}</td>
-              <td>{b.domicilio.calle + b.domicilio.numeracion}</td>
+              <td>{`${b.domicilio.calle} ${b.domicilio.numeracion}`}</td>
               <td>{b.domicilio.codigoPostal}</td>
               <td className={styles.actions}>
                 <FaEdit

@@ -1,18 +1,18 @@
 import { FaEdit, FaPlus, FaTrash } from 'react-icons/fa';
-import styles from './Pais.module.css';
+import styles from './Nacionalidad.module.css';
 import { useEffect, useState } from 'react';
 import { useAuthStore } from '../../../auth/store/authStore';
 import axios from 'axios';
-import { ModalPais } from '../../ui/ModalPais/ModalPais';
+import { ModalNacionalidad } from '../../ui/ModalNacionalidad/ModalNacionalidad';
 
-interface Pais {
+interface Nacionalidad {
     id: number;
     nombre: string;
     activo: boolean;
 }
 
-export const Pais = () => {
-  const [paises, setPaises] = useState<Pais[]>([]);
+export const Nacionalidad = () => {
+  const [nacionalidades, setNacionalidades] = useState<Nacionalidad[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [search, setSearch] = useState('');
   const [currentPage, setCurrentPage] = useState(1); // estado para paginación
@@ -20,35 +20,35 @@ export const Pais = () => {
   const token = useAuthStore((state) => state.token);
   
   useEffect(() => {
-    obtenerPaises();
+    obtenerNacionalidades();
   }, []);
 
-  const obtenerPaises = async () => {
+  const obtenerNacionalidades = async () => {
     try {
-      const response = await axios.get('http://localhost:9000/api/paises', {
+      const response = await axios.get('http://localhost:9000/api/nacionalidades', {
       });
-      setPaises(response.data);
+      setNacionalidades(response.data);
     } catch (error) {
-      console.error('Error al obtener Areas:', error);
+      console.error('Error al obtener Nacionalidades:', error);
     }
   };
     
-  const agregarPais = () => {
+  const agregarNacionalidad = () => {
     setIsModalOpen(true);
   }
 
-  const editarPais = (id: number) => {
+  const editarNacionalidad = (id: number) => {
     console.log('Editar Area con ID:', id);
   }
 
-  const eliminarPais = async (id: number) => {
+  const eliminarNacionalidad = async (id: number) => {
     try {
-        await axios.delete(`http://localhost:9000/api/paises/${id}`, {
+        await axios.delete(`http://localhost:9000/api/nacionalidades/${id}`, {
             headers: {
             Authorization: `Bearer ${token}`,
             },
         });
-        setPaises(prev => prev.filter(b => b.id !== id));
+        setNacionalidades(prev => prev.filter(b => b.id !== id));
         } catch (error) {
         console.error('Error al eliminar beneficiario:', error);
     }
@@ -58,12 +58,12 @@ export const Pais = () => {
     setIsModalOpen(false);
   };
 
-  const handlePaisesAdded = () => {
-    obtenerPaises();
+  const handleNacionalidadAdded = () => {
+    obtenerNacionalidades();
   };
 
   // Barra de búsqueda por cualquier campo
-  const paisesFiltrados = paises.filter((a) =>
+  const paisesFiltrados = nacionalidades.filter((a) =>
     [
       a.id,
       a.nombre
@@ -89,7 +89,7 @@ export const Pais = () => {
 
   return (
     <div className={styles.container}>
-      <h2 className={styles.title}>Paises</h2>
+      <h2 className={styles.title}>Nacionalidades</h2>
       <input
         type="text"
         placeholder="Buscar por cualquier campo..."
@@ -97,8 +97,8 @@ export const Pais = () => {
         onChange={(e) => setSearch(e.target.value)}
         style={{ marginBottom: '10px', padding: '5px', width: '250px' }}
       />
-      <button className={styles.addButton} onClick={agregarPais}>
-        <FaPlus /> Agregar Paises
+      <button className={styles.addButton} onClick={agregarNacionalidad}>
+        <FaPlus /> Agregar Nacionalidades
       </button>
 
       <table className={styles.table}>
@@ -117,11 +117,11 @@ export const Pais = () => {
               <td className={styles.actions}>
                 <FaEdit
                   className={styles.editIcon}
-                  onClick={() => editarPais(b.id)}
+                  onClick={() => editarNacionalidad(b.id)}
                 />
                 <FaTrash
                   className={styles.deleteIcon}
-                  onClick={() => eliminarPais(b.id)}
+                  onClick={() => eliminarNacionalidad(b.id)}
                 />
               </td>
             </tr>
@@ -142,10 +142,10 @@ export const Pais = () => {
         </div>
       )}
 
-      <ModalPais
+      <ModalNacionalidad
         isOpen={isModalOpen}
         onClose={handleCloseModal}
-        onPaisesAdded={handlePaisesAdded}
+        onNacionalidadAdded={handleNacionalidadAdded}
       />
     </div>
   )

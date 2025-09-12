@@ -99,7 +99,7 @@ export const ModalDepartamento: React.FC<ModalDepartamentoProps> = ({ isOpen, on
             onChange={(e) => setProvincia(Number(e.target.value))}
             required
             >
-            <option value={0} disabled>Seleccione un pais</option>
+            <option value={0} disabled>Seleccione una provincia</option>
             {provincias.map((a) => (
                 <option key={a.id} value={a.id}>
                 {a.nombre}
