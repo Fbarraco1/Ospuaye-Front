@@ -136,6 +136,20 @@ export const PedidoOftalmologia: React.FC = () => {
   };
 
   return (
+    <div>
+    <div className="breadcrumbs overlay">
+        <div className="container">
+          <div className="row align-items-center">
+            <div className="col-lg-8 offset-lg-2 col-md-12 col-12">
+              <div className="breadcrumbs-content">
+                <h1 className="page-title">PEDIDOS OFTALMOLOGIA</h1>
+              </div>
+              <ul className="breadcrumb-nav">
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
     <div className={styles.container}>
       <h2 className={styles.title}>Pedidos de Oftalmología</h2>
 
@@ -256,6 +270,7 @@ export const PedidoOftalmologia: React.FC = () => {
         historial={historial}
         onClose={() => setModalHistOpen(false)}
       />
+    </div>
     </div>
   );
 };

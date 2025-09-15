@@ -80,7 +80,7 @@ const ModalFamiliar: React.FC<ModalFamiliarProps> = ({
   const createFamiliar = async (familiar: Familiar) => {
     try {
       const response = await axios.post(
-        'http://localhost:9000/api/familiares',
+        'http://localhost:9000/api/familiares/crear',
         familiar,
         {
           headers: {
@@ -109,7 +109,6 @@ const ModalFamiliar: React.FC<ModalFamiliarProps> = ({
   };
 
   const parentescoOptions: { value: Parentesco; label: string }[] = [
-    { value: 'Titular', label: 'Titular' },
     { value: 'Conyuge', label: 'Cónyuge' },
     { value: 'Concubino_Concubina', label: 'Concubino/a' },
     { value: 'Hijo_Soltero_Menor_De_21', label: 'Hijo soltero menor de 21' },

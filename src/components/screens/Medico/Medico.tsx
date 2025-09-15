@@ -3,10 +3,12 @@ import axios from 'axios';
 import { FaEdit, FaTrash, FaPlus } from 'react-icons/fa';
 import styles from './Medico.module.css';
 import { useAuthStore } from '../../../auth/store/authStore';
-import ModalMedico from '../../ui/ModalMedico/ModalMedico';
+import { useNavigate } from 'react-router-dom';
 
 interface Medico {
   id: number;
+  nombre: string;
+  apellido: string;
   matricula: string;
   area: {
     id: number;
@@ -16,11 +18,12 @@ interface Medico {
 
 export const Medico: React.FC = () => {
   const [medicos, setMedicos] = useState<Medico[]>([]);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [search, setSearch] = useState('');
   const token = useAuthStore((state) => state.token);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5; // mostramos 5 por página
+  const navigate = useNavigate();
+
   
 
   useEffect(() => {
@@ -56,21 +59,15 @@ export const Medico: React.FC = () => {
   };
 
   const agregarMedico = () => {
-    setIsModalOpen(true);
-  };
-
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-  };
-
-  const handleMedicoAdded = () => {
-    obtenerMedicos();
+    navigate('/medicos/nuevo');
   };
 
   // Barra de búsqueda por cualquier campo
   const medicosFiltrados = medicos.filter((m) =>
     [
       m.id,
+      m.nombre,
+      m.apellido,
       m.matricula,
       m.area?.id,
       m.area?.nombre
@@ -95,6 +92,20 @@ export const Medico: React.FC = () => {
   };
 
   return (
+    <div>
+      <div className="breadcrumbs overlay">
+        <div className="container">
+          <div className="row align-items-center">
+            <div className="col-lg-8 offset-lg-2 col-md-12 col-12">
+              <div className="breadcrumbs-content">
+                <h1 className="page-title">MEDICOS</h1>
+              </div>
+              <ul className="breadcrumb-nav">
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
     <div className={styles.container}>
       <h2 className={styles.title}>Médicos</h2>
       <input
@@ -112,6 +123,8 @@ export const Medico: React.FC = () => {
         <thead>
           <tr>
             <th>ID</th>
+            <th>Nombre</th>
+            <th>Apellido</th>
             <th>Matrícula</th>
             <th>Área</th>
             <th>Acciones</th>
@@ -121,6 +134,8 @@ export const Medico: React.FC = () => {
           {currentItems.map((m) => (
             <tr key={m.id}>
               <td>{m.id}</td>
+              <td>{m.nombre}</td>
+              <td>{m.apellido}</td>
               <td>{m.matricula}</td>
               <td>{m.area?.nombre}</td> 
               <td className={styles.actions}>
@@ -172,12 +187,7 @@ export const Medico: React.FC = () => {
           </button>
         </div>
       )}
-
-      <ModalMedico
-        isOpen={isModalOpen}
-        onClose={handleCloseModal}
-        onMedicoAdded={handleMedicoAdded}
-      />
+    </div>
     </div>
   );
 };

@@ -97,6 +97,20 @@ export const Localidad = () => {
   };
 
   return (
+    <div>
+      <div className="breadcrumbs overlay">
+        <div className="container">
+          <div className="row align-items-center">
+            <div className="col-lg-8 offset-lg-2 col-md-12 col-12">
+              <div className="breadcrumbs-content">
+                <h1 className="page-title">LOCALIDADES</h1>
+              </div>
+              <ul className="breadcrumb-nav">
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
     <div className={styles.container}>
       <h2 className={styles.title}>Localidades</h2>
       <input
@@ -166,6 +180,7 @@ export const Localidad = () => {
         onClose={handleCloseModal}
         onLocalidadAdded={handleLocalidadAdded}
       />
+    </div>
     </div>
   )
 }

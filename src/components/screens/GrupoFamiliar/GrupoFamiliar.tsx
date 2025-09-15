@@ -150,6 +150,20 @@ export const GrupoFamiliar: React.FC = () => {
   };
 
   return (
+    <div>
+      <div className="breadcrumbs overlay">
+        <div className="container">
+          <div className="row align-items-center">
+            <div className="col-lg-8 offset-lg-2 col-md-12 col-12">
+              <div className="breadcrumbs-content">
+                <h1 className="page-title">GRUPOS FAMILIARES</h1>
+              </div>
+              <ul className="breadcrumb-nav">
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
     <div className={styles.container}>
       <h2 className={styles.title}>Grupos Familiares</h2>
       <input
@@ -319,6 +333,7 @@ export const GrupoFamiliar: React.FC = () => {
         onSave={obtenerGrupos}
         initialData={selectedFamiliar}
       />
+    </div>
     </div>
   );
 };

@@ -49,7 +49,7 @@ const ModalGrupoFamiliar: React.FC<ModalGrupoFamiliarProps> = ({
   ) => {
     try {
       const response = await axios.post(
-        'http://localhost:9000/api/grupoFamiliar',
+        'http://localhost:9000/api/grupoFamiliar/crear',
         {
           nombreGrupo,
           titular: { id: titularId },

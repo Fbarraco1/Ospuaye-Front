@@ -1,7 +1,5 @@
 import { useNavigate } from "react-router-dom";
 import logo from "../../../assets/images/logo/logo1.svg"
-import fondoAdmin from "../../../assets/images/FondoAdmin.png"
-
 
 const HeaderAdmin = () => {
   const navigate = useNavigate();
@@ -87,7 +85,7 @@ const HeaderAdmin = () => {
                               aria-controls="navbarSupportedContent" aria-expanded="false"
                               aria-label="Toggle navigation">Beneficiarios</a>
                               <ul className="sub-menu collapse" id="submenu-1-4">
-                                <li className="nav-item" onClick={() => navigate("/beneficiario")}>ABM Beneficiario</li>
+                                <li className="nav-item" onClick={() => navigate("/beneficiarios")}>ABM Beneficiario</li>
                                 <li className="nav-item" onClick={() => navigate("/grupoFamiliar")}>ABM Grupo Familiar</li>
                               </ul>                            
                         </li>
@@ -111,19 +109,6 @@ const HeaderAdmin = () => {
             </div>
             </div>
         </header>
-        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-            <img
-                src={fondoAdmin}
-                alt="admin"
-                style={{
-                    opacity: 0.5,
-                    width: '750px',
-                    maxWidth: '100%',
-                    height: 'auto',
-                    display: 'block'
-                }}
-            />
-        </div>
     </div>  
   );
 };

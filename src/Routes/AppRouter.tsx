@@ -11,7 +11,7 @@ import { PedidoOftalmologia } from '../components/screens/PedidoOftalmologia/Ped
 import { PedidoOrtopedia } from '../components/screens/PedidoOrtopedia/PedidoOrtopedia';
 import ModalPedidoOrtopedia from '../components/ui/ModalPedidoOrtopedia/ModalPedidoOrtopedia';
 import ModalPedidoOftalmologia from '../components/ui/ModalPedidoOftalmologia/ModalPedidoOftalmologia';
-import HeaderAdmin from '../components/screens/HeaderAdmin/HeaderAdmin';
+import { useAuthStore } from '../auth/store/authStore';
 import { NavBar } from '../components/ui/NavBar/NavBar';
 import { PrivateRoutes } from '../auth/PrivateRoutes/PrivateRoutes';
 import AdminOftalmologia from '../components/screens/AdminOftalmologia/AdminOftalmologia';
@@ -27,11 +27,33 @@ import { Localidad } from '../components/screens/Localidad/Localidad';
 import { Domicilio } from '../components/screens/Domicilio/Domicilio';
 import { Empresa } from '../components/screens/Empresa/Empresa';
 import { Nacionalidad } from '../components/screens/Nacionalidad/Nacionalidad';
+import HeaderAdmin from '../components/screens/HeaderAdmin/HeaderAdmin';
+import { ImgSistema } from '../components/ui/imgSistema/imgSistema';
+import ModalMedico from '../components/ui/ModalMedico/ModalMedico';
 
 export const AppRouter = () => {
+  const { user } = useAuthStore();
+
+  // Función para mostrar el menú según el rol
+  const renderMenuByRole = () => {
+    if (!user) return null;
+    switch (user.rol) {
+      case 'ADMIN':
+        return <HeaderAdmin />;
+      case 'ADMINOFTALMOLOGIA':
+        return <AdminOftalmologia />;
+      case 'ADMINORTOPEDIA':
+        return <AdminOrtopedia />;
+      default:
+        return null;
+    }
+  };
+
   return (
     <BrowserRouter>
-    <NavBar />
+      <NavBar />
+      {/* Menú según el rol */}
+      {renderMenuByRole()}
       <Routes>
         {/* Rutas públicas */}
         <Route path="/login" element={<Login />} />
@@ -45,7 +67,7 @@ export const AppRouter = () => {
          {/* Rutas Admin */}
         <Route path="/admin" element={
           <PrivateRoutes roles={['ADMIN']}>
-            <HeaderAdmin /> 
+            <ImgSistema /> 
           </PrivateRoutes>} />
 
         <Route path="/usuarios" element={
@@ -101,6 +123,11 @@ export const AppRouter = () => {
         <Route path="/medicos" element={
           <PrivateRoutes roles={['ADMIN', 'ADMINOFTALMOLOGIA', 'ADMINORTOPEDIA']}>
             <Medico /> 
+          </PrivateRoutes>} /> 
+
+        <Route path="/medicos/nuevo" element={
+          <PrivateRoutes roles={['ADMIN', 'ADMINOFTALMOLOGIA', 'ADMINORTOPEDIA']}>
+            <ModalMedico /> 
           </PrivateRoutes>} />  
 
         <Route path="/grupoFamiliar" element={
@@ -115,12 +142,12 @@ export const AppRouter = () => {
 
         <Route path="/admin/oftalmologia" element={
           <PrivateRoutes roles={['ADMINOFTALMOLOGIA']}>
-            <AdminOftalmologia /> 
+            <ImgSistema /> 
           </PrivateRoutes>} />
 
         <Route path="/admin/ortopedia" element={
           <PrivateRoutes roles={['ADMINORTOPEDIA']}>
-            <AdminOrtopedia /> 
+            <ImgSistema /> 
           </PrivateRoutes>} />          
 
         <Route path="/pedidos/oftalmologia" element={

@@ -88,6 +88,20 @@ export const Nacionalidad = () => {
   };
 
   return (
+    <div>
+    <div className="breadcrumbs overlay">
+        <div className="container">
+          <div className="row align-items-center">
+            <div className="col-lg-8 offset-lg-2 col-md-12 col-12">
+              <div className="breadcrumbs-content">
+                <h1 className="page-title">NACIONALIDADES</h1>
+              </div>
+              <ul className="breadcrumb-nav">
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
     <div className={styles.container}>
       <h2 className={styles.title}>Nacionalidades</h2>
       <input
@@ -147,6 +161,7 @@ export const Nacionalidad = () => {
         onClose={handleCloseModal}
         onNacionalidadAdded={handleNacionalidadAdded}
       />
+    </div>
     </div>
   )
 }
