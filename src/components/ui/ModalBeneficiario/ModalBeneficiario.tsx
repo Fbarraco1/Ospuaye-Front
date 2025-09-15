@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import styles from './modalBeneficiario.module.css';
 import axios from 'axios';
+import Swal from 'sweetalert2';
 
 interface ModalBeneficiarioProps {
   isOpen: boolean;
@@ -38,9 +39,20 @@ const ModalBeneficiario: React.FC<ModalBeneficiarioProps> = ({ isOpen, onClose, 
       );
 
       if (response.status < 200 || response.status >= 300) throw new Error('Error al crear beneficiario');
-      // const data = response.data;
+      Swal.fire({
+        icon: 'success',
+        title: 'Beneficiario creado',
+        text: 'El beneficiario se creó correctamente.',
+        timer: 2000,
+        showConfirmButton: false
+      });
     } catch (error) {
-      console.error('error:', error);
+      console.error('Error al crear beneficiario:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'No se pudo crear el beneficiario.',
+      });
     }
   }
   const handleSubmit = async (e: React.FormEvent) => {
