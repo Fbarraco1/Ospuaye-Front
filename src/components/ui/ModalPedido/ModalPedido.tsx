@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import styles from './ModalPedido.module.css';
 import axios from 'axios';
+import Swal from 'sweetalert2';
 
 interface ModalPedidoProps {
   isOpen: boolean;
@@ -72,8 +73,22 @@ const ModalPedido: React.FC<ModalPedidoProps> = ({ isOpen, onClose, onPedidoAdde
       });
       if (onPedidoAdded) onPedidoAdded();
       handleClose();
+
+            Swal.fire({
+              icon: 'success',
+              title: 'Pedido creado',
+              text: 'El pedido se creó correctamente.',
+              timer: 2000,
+              showConfirmButton: false
+            });
+
     } catch (error) {
       console.error('Error al crear pedido:', error);
+            Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: 'No se pudo crear el pedido.',
+            });
     }
   };
 

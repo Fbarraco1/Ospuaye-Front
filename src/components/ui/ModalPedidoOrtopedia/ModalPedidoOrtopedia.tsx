@@ -3,6 +3,7 @@ import styles from './ModalPedidoOrtopedia.module.css';
 import axios from 'axios';
 import { useAuthStore } from '../../../auth/store/authStore';
 import { useNavigate } from 'react-router-dom';
+import Swal from 'sweetalert2';
 
 const ModalPedidoOrtopedia: React.FC<{ onPedidoAdded?: () => void }> = ({ onPedidoAdded }) => {
   const token = useAuthStore((state) => state.token);
@@ -121,8 +122,20 @@ const ModalPedidoOrtopedia: React.FC<{ onPedidoAdded?: () => void }> = ({ onPedi
       );
       if (onPedidoAdded) onPedidoAdded();
       navigate('/pedidos/ortopedia');
+            Swal.fire({
+              icon: 'success',
+              title: 'Pedido creado',
+              text: 'El pedido se creó correctamente.',
+              timer: 2000,
+              showConfirmButton: false
+            });
     } catch (error) {
       console.error('Error al crear pedido ortopedia:', error);
+            Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: 'No se pudo crear el pedido.',
+            });
     }
   };
 

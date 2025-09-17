@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import styles from './EditarFamiliar.module.css';
 import axios from 'axios';
 import { useAuthStore } from '../../../auth/store/authStore';
+import Swal from 'sweetalert2';
 
 type Parentesco =
   | 'Titular'
@@ -71,8 +72,20 @@ const EditarFamiliar: React.FC<EditarFamiliarProps> = ({
         }
       );
       if (response.status < 200 || response.status >= 300) throw new Error('Error al actualizar familiar');
+      Swal.fire({
+              icon: 'success',
+              title: 'Familiar actualizado',
+              text: 'El familiar se actualizó correctamente.',
+              timer: 2000,
+              showConfirmButton: false
+            });
     } catch (error) {
       console.error('Error al actualizar familiar:', error);
+      Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: 'No se pudo actualizar el familiar.',
+            });
     }
   };
 

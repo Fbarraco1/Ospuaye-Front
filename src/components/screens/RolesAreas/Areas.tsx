@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useAuthStore } from '../../../auth/store/authStore';
 import axios from 'axios';
 import { ModalArea } from '../../ui/ModalArea/ModalArea';
+import Swal from 'sweetalert2';
 
 interface Area {
     id: number;
@@ -41,15 +42,40 @@ export const Areas = () => {
   }
 
   const eliminarArea = async (id: number) => {
-    try {
-        await axios.delete(`http://localhost:9000/api/areas/${id}`, {
-            headers: {
-            Authorization: `Bearer ${token}`,
-            },
-        });
-        setAreas(prev => prev.filter(b => b.id !== id));
-        } catch (error) {
-        console.error('Error al eliminar beneficiario:', error);
+    const result = await Swal.fire({
+      title: '¿Estás seguro?',
+      text: 'Esta acción eliminará el area de forma permanente.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar'
+    });
+
+    if (result.isConfirmed) {    
+      try {
+          await axios.delete(`http://localhost:9000/api/areas/${id}`, {
+              headers: {
+              Authorization: `Bearer ${token}`,
+              },
+          });
+          setAreas(prev => prev.filter(b => b.id !== id));
+          Swal.fire({
+            icon: 'success',
+            title: 'Eliminado',
+            text: 'El area fue eliminada correctamente.',
+            timer: 1500,
+            showConfirmButton: false
+          });
+          } catch (error) {
+          console.error('Error al eliminar beneficiario:', error);
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'No se pudo eliminar el area.',
+          });       
+      }
     }
   }
 

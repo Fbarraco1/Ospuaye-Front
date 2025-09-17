@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useAuthStore } from '../../../auth/store/authStore';
 import axios from 'axios';
 import { ModalProvincia } from '../../ui/ModalProvincia/ModalProvincia';
+import Swal from 'sweetalert2';
 
 interface Provincia {
     id: number;
@@ -47,16 +48,41 @@ export const Provincia = () => {
   }
 
   const eliminarProvincia= async (id: number) => {
-    try {
-        await axios.delete(`http://localhost:9000/api/provincias/${id}`, {
-            headers: {
-            Authorization: `Bearer ${token}`,
-            },
-        });
-        setProvincias(prev => prev.filter(b => b.id !== id));
-        } catch (error) {
-        console.error('Error al eliminar Provincias:', error);
-    }
+    const result = await Swal.fire({
+      title: '¿Estás seguro?',
+      text: 'Esta acción eliminará la provincia de forma permanente.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar'
+    });
+
+    if (result.isConfirmed) {    
+      try {
+          await axios.delete(`http://localhost:9000/api/provincias/${id}`, {
+              headers: {
+              Authorization: `Bearer ${token}`,
+              },
+          });
+          setProvincias(prev => prev.filter(b => b.id !== id));
+          Swal.fire({
+            icon: 'success',
+            title: 'Eliminado',
+            text: 'La provincia fue eliminada correctamente.',
+            timer: 1500,
+            showConfirmButton: false
+          });
+          } catch (error) {
+          console.error('Error al eliminar Provincias:', error);
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'No se pudo eliminar la provincia.',
+          });
+      }
+   }
   }
 
   const handleCloseModal = () => {

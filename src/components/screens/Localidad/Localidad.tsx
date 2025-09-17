@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useAuthStore } from '../../../auth/store/authStore';
 import axios from 'axios';
 import { ModalLocalidad } from '../../ui/ModalLocalidad/ModalLocalidad';
+import Swal from 'sweetalert2';
 
 interface Localidad {
     id: number;
@@ -49,16 +50,41 @@ export const Localidad = () => {
   }
 
   const eliminarLocalidad= async (id: number) => {
-    try {
-        await axios.delete(`http://localhost:9000/api/localidades/${id}`, {
-            headers: {
-            Authorization: `Bearer ${token}`,
-            },
+    const result = await Swal.fire({
+          title: '¿Estás seguro?',
+          text: 'Esta acción eliminará la localidad de forma permanente.',
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#d33',
+          cancelButtonColor: '#3085d6',
+          confirmButtonText: 'Sí, eliminar',
+          cancelButtonText: 'Cancelar'
         });
-        setLocalidades(prev => prev.filter(b => b.id !== id));
-        } catch (error) {
-        console.error('Error al eliminar Localidad:', error);
-    }
+    
+        if (result.isConfirmed) {
+          try {
+              await axios.delete(`http://localhost:9000/api/localidades/${id}`, {
+                  headers: {
+                  Authorization: `Bearer ${token}`,
+                  },
+              });
+              setLocalidades(prev => prev.filter(b => b.id !== id));
+              Swal.fire({
+                        icon: 'success',
+                        title: 'Eliminado',
+                        text: 'La localidad fue eliminada correctamente.',
+                        timer: 1500,
+                        showConfirmButton: false
+                      });
+              } catch (error) {
+              console.error('Error al eliminar Localidad:', error);
+              Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'No se pudo eliminar la localidad.',
+              });
+          }
+        }
   }
 
   const handleCloseModal = () => {

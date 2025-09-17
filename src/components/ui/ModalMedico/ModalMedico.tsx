@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import styles from './ModalMedico.module.css';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import Swal from 'sweetalert2';
 
 interface Area {
   id: number;
@@ -56,11 +57,25 @@ const ModalMedico: React.FC<{ onMedicoAdded?: () => void }> = ({ onMedicoAdded }
           areaId: Number(areaId)
         },
       );
+
+            Swal.fire({
+              icon: 'success',
+              title: 'Médico creado',
+              text: 'El médico se creó correctamente.',
+              timer: 2000,
+              showConfirmButton: false
+            });
+
       if (onMedicoAdded) onMedicoAdded();
       navigate('/medicos');
 
     } catch (error) {
       console.error('Error al crear médico:', error);
+            Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: 'No se pudo crear el médico.',
+            });
     }
   };
 

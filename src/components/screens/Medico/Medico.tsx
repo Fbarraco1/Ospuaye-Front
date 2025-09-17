@@ -4,6 +4,7 @@ import { FaEdit, FaTrash, FaPlus } from 'react-icons/fa';
 import styles from './Medico.module.css';
 import { useAuthStore } from '../../../auth/store/authStore';
 import { useNavigate } from 'react-router-dom';
+import Swal from 'sweetalert2';
 
 interface Medico {
   id: number;
@@ -41,15 +42,39 @@ export const Medico: React.FC = () => {
   };
 
   const eliminarMedico = async (id: number) => {
-    try {
-      await axios.delete(`http://localhost:9000/api/medicos/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      setMedicos(prev => prev.filter(m => m.id !== id));
-    } catch (error) {
-      console.error('Error al eliminar medico:', error);
+    const result = await Swal.fire({
+      title: '¿Estás seguro?',
+      text: 'Esta acción eliminará el medico de forma permanente.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar'
+    });
+    if (result.isConfirmed) {
+      try {
+        await axios.delete(`http://localhost:9000/api/medicos/${id}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        setMedicos(prev => prev.filter(m => m.id !== id));
+        Swal.fire({
+          icon: 'success',
+          title: 'Eliminado',
+          text: 'El medico fue eliminado correctamente.',
+          timer: 1500,
+          showConfirmButton: false
+        });        
+      } catch (error) {
+        console.error('Error al eliminar medico:', error);
+        Swal.fire({
+                  icon: 'error',
+                  title: 'Error',
+                  text: 'No se pudo eliminar el medico.',
+                });
+      }
     }
   };
 

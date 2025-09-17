@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useAuthStore } from '../../../auth/store/authStore';
 import styles from './ModalRol.module.css';
 import axios from 'axios';
+import Swal from 'sweetalert2';
 
 interface ModalRolProps {
   isOpen: boolean;
@@ -53,9 +54,22 @@ export const ModalRol: React.FC<ModalRolProps> = ({ isOpen, onClose, onRolAdded 
       );
 
       if (response.status < 200 || response.status >= 300) throw new Error('Error al crear Rol');
+      
+            Swal.fire({
+              icon: 'success',
+              title: 'Rol creado',
+              text: 'El rol se creó correctamente.',
+              timer: 2000,
+              showConfirmButton: false
+            });
       // const data = response.data;
     } catch (error) {
       console.error('error:', error);
+            Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: 'No se pudo crear el rol.',
+            });
     }
   }
 

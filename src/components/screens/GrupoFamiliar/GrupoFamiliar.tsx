@@ -6,6 +6,7 @@ import { useAuthStore } from '../../../auth/store/authStore';
 import ModalFamiliar from '../../ui/ModalFamiliar/ModalFamiliar';
 import ModalGrupoFamiliar from '../../ui/ModalGrupoFamiliar/ModalGrupoFamiliar';
 import EditarFamiliar from '../../ui/EditarFamiliar/EditarFamiliar';
+import Swal from 'sweetalert2';
 
 interface Familiar {
   id: number;
@@ -61,15 +62,40 @@ export const GrupoFamiliar: React.FC = () => {
   };
 
   const eliminarGrupo = async (id: number) => {
-    try {
-      await axios.delete(`http://localhost:9000/api/grupoFamiliar/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      setGrupos((prev) => prev.filter((g) => g.id !== id));
-    } catch (error) {
-      console.error('Error al eliminar grupo familiar:', error);
+    const result = await Swal.fire({
+          title: '¿Estás seguro?',
+          text: 'Esta acción eliminará el grupo familiar de forma permanente.',
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#d33',
+          cancelButtonColor: '#3085d6',
+          confirmButtonText: 'Sí, eliminar',
+          cancelButtonText: 'Cancelar'
+        });
+    
+        if (result.isConfirmed) {
+      try {
+        await axios.delete(`http://localhost:9000/api/grupoFamiliar/${id}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        setGrupos((prev) => prev.filter((g) => g.id !== id));
+                Swal.fire({
+                  icon: 'success',
+                  title: 'Eliminado',
+                  text: 'El grupo familiar fue eliminado correctamente.',
+                  timer: 1500,
+                  showConfirmButton: false
+                });
+      } catch (error) {
+        console.error('Error al eliminar grupo familiar:', error);
+                Swal.fire({
+                  icon: 'error',
+                  title: 'Error',
+                  text: 'No se pudo eliminar el grupo familiar.',
+                });
+      }
     }
   };
 

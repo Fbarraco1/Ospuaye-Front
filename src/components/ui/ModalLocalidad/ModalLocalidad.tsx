@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useAuthStore } from '../../../auth/store/authStore';
 import styles from './ModalLocalidad.module.css';
 import axios from 'axios';
+import Swal from 'sweetalert2';
 
 interface ModalLocalidadProps {
   isOpen: boolean;
@@ -56,9 +57,21 @@ export const ModalLocalidad: React.FC<ModalLocalidadProps> = ({ isOpen, onClose,
       );
 
       if (response.status < 200 || response.status >= 300) throw new Error('Error al crear Localidad');
+            Swal.fire({
+              icon: 'success',
+              title: 'Localidad creada',
+              text: 'La localidad se creó correctamente.',
+              timer: 2000,
+              showConfirmButton: false
+            });
       // const data = response.data;
     } catch (error) {
       console.error('error:', error);
+            Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: 'No se pudo crear la localidad.',
+            });
     }
   }
 

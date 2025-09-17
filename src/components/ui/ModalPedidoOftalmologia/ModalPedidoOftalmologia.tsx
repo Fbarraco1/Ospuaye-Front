@@ -3,6 +3,7 @@ import styles from './ModalPedidoOftalmologia.module.css';
 import axios from 'axios';
 import { useAuthStore } from '../../../auth/store/authStore';
 import { useNavigate } from 'react-router-dom';
+import Swal from 'sweetalert2';
 
 const ModalPedidoOftalmologia: React.FC<{ onPedidoAdded?: () => void }> = ({ onPedidoAdded }) => {
   const token = useAuthStore((state) => state.token);
@@ -123,8 +124,20 @@ const ModalPedidoOftalmologia: React.FC<{ onPedidoAdded?: () => void }> = ({ onP
       );
       if (onPedidoAdded) onPedidoAdded();
       navigate('/pedidos/oftalmologia');
+            Swal.fire({
+              icon: 'success',
+              title: 'Pedido creado',
+              text: 'El pedido se creó correctamente.',
+              timer: 2000,
+              showConfirmButton: false
+            });
     } catch (error) {
       console.error('Error al crear pedido oftalmologia:', error);
+            Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: 'No se pudo crear el pedido.',
+            });
     }
   };
 

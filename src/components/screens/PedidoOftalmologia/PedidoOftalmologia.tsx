@@ -5,6 +5,7 @@ import styles from './PedidoOftalmologia.module.css';
 import ModalDocumento from '../../ui/ModalDocumento/ModalDocumento';
 import HistorialMovimiento from '../../ui/HistorialMovimiento/HistorialMovimiento';
 import { useNavigate } from 'react-router-dom';
+import Swal from 'sweetalert2';
 
 interface Beneficiario {
   nombre: string;
@@ -70,12 +71,37 @@ export const PedidoOftalmologia: React.FC = () => {
   };
 
   const eliminarPedido = async (id: number) => {
-    try {
-      await axios.delete(`http://localhost:9000/api/pedidos/oftalmologia/${id}`);
-      setPedidos((prev) => prev.filter((p) => p.id !== id));
-    } catch (error) {
-      console.error('Error al eliminar pedido:', error);
-    }
+    const result = await Swal.fire({
+      title: '¿Estás seguro?',
+      text: 'Esta acción eliminará el pedido de forma permanente.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar'
+    });
+
+    if (result.isConfirmed) {    
+      try {
+        await axios.delete(`http://localhost:9000/api/pedidos/oftalmologia/${id}`);
+        setPedidos((prev) => prev.filter((p) => p.id !== id));
+          Swal.fire({
+            icon: 'success',
+            title: 'Eliminado',
+            text: 'El pedido fue eliminado correctamente.',
+            timer: 1500,
+            showConfirmButton: false
+          });      
+      } catch (error) {
+        console.error('Error al eliminar pedido:', error);
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'No se pudo eliminar el pedido.',
+          });      
+      }
+  }
   };
 
   const editarPedido = (id: number) => {

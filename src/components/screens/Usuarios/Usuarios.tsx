@@ -5,6 +5,7 @@ import { FaEdit, FaTrash, FaPlus } from 'react-icons/fa';
 import styles from './Usuarios.module.css';
 import ModalUsuario from '../../ui/ModalUsuario/ModalUsuario';
 import { useAuthStore } from '../../../auth/store/authStore';
+import Swal from 'sweetalert2';
 
 interface Usuario {
   id: number;
@@ -35,15 +36,40 @@ export const Usuarios: React.FC = () => {
   };
 
   const eliminarUsuario = async (id: number) => {
-    try {
-      await axios.delete(`http://localhost:9000/api/usuarios/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      setUsuarios((prev) => prev.filter((usuario) => usuario.id !== id));
-    } catch (error) {
-      console.error('Error al eliminar usuario:', error);
+    const result = await Swal.fire({
+      title: '¿Estás seguro?',
+      text: 'Esta acción eliminará el usuario de forma permanente.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar'
+    });
+
+    if (result.isConfirmed) {
+      try {
+        await axios.delete(`http://localhost:9000/api/usuarios/${id}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        setUsuarios((prev) => prev.filter((usuario) => usuario.id !== id));
+        Swal.fire({
+          icon: 'success',
+          title: 'Eliminado',
+          text: 'El usuario fue eliminado correctamente.',
+          timer: 1500,
+          showConfirmButton: false
+        });      
+      } catch (error) {
+        console.error('Error al eliminar usuario:', error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'No se pudo eliminar el usuario.',
+        });        
+      }
     }
   };
 

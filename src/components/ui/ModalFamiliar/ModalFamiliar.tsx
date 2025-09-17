@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import styles from './ModalFamiliar.module.css';
 import axios from 'axios';
 import { useAuthStore } from '../../../auth/store/authStore';
+import Swal from 'sweetalert2';
 
 type Parentesco =
   | 'Titular'
@@ -90,8 +91,20 @@ const ModalFamiliar: React.FC<ModalFamiliarProps> = ({
         }
       );
       if (response.status < 200 || response.status >= 300) throw new Error('Error al crear familiar');
+          Swal.fire({
+            icon: 'success',
+            title: 'Familiar creado',
+            text: 'El familiar se creó correctamente.',
+            timer: 2000,
+            showConfirmButton: false
+          });
     } catch (error) {
       console.error('Error al crear familiar:', error);
+            Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: 'No se pudo crear el familiar.',
+            });
     }
   };
 

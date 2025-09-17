@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useAuthStore } from '../../../auth/store/authStore';
 import styles from './ModalGrupoFamiliar.module.css';
 import axios from 'axios';
+import Swal from 'sweetalert2';
 
 interface ModalGrupoFamiliarProps {
   isOpen: boolean;
@@ -67,8 +68,21 @@ const ModalGrupoFamiliar: React.FC<ModalGrupoFamiliarProps> = ({
 
       if (response.status < 200 || response.status >= 300)
         throw new Error('Error al crear Grupo Familiar');
+
+            Swal.fire({
+              icon: 'success',
+              title: 'Grupo familiar creado',
+              text: 'El grupo familiar se creó correctamente.',
+              timer: 2000,
+              showConfirmButton: false
+            });
     } catch (error) {
       console.error('error:', error);
+            Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: 'No se pudo crear el grupo familiar.',
+            });
     }
   };
 

@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useAuthStore } from '../../../auth/store/authStore';
 import axios from 'axios';
 import { ModalDomicilio } from '../../ui/ModalDomicilio/ModalDomicilio';
+import Swal from 'sweetalert2';
 
 interface Domicilio {
     id: number;
@@ -56,15 +57,40 @@ export const Domicilio = () => {
   }
 
   const eliminarDomicilio= async (id: number) => {
-    try {
-        await axios.delete(`http://localhost:9000/api/domicilios/${id}`, {
-            headers: {
-            Authorization: `Bearer ${token}`,
-            },
-        });
-        setDomicilios(prev => prev.filter(b => b.id !== id));
-        } catch (error) {
-        console.error('Error al eliminar Domicilios:', error);
+    const result = await Swal.fire({
+      title: '¿Estás seguro?',
+      text: 'Esta acción eliminará el domicilio de forma permanente.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar'
+    });
+
+    if (result.isConfirmed) {    
+      try {
+          await axios.delete(`http://localhost:9000/api/domicilios/${id}`, {
+              headers: {
+              Authorization: `Bearer ${token}`,
+              },
+          });
+          setDomicilios(prev => prev.filter(b => b.id !== id));
+                  Swal.fire({
+                    icon: 'success',
+                    title: 'Eliminado',
+                    text: 'El domicilio fue eliminado correctamente.',
+                    timer: 1500,
+                    showConfirmButton: false
+                  });
+          } catch (error) {
+          console.error('Error al eliminar Domicilios:', error);
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'No se pudo eliminar el domicilio.',
+          });
+      }
     }
   }
 
