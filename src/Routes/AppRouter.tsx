@@ -28,8 +28,8 @@ import { Domicilio } from '../components/screens/Domicilio/Domicilio';
 import { Empresa } from '../components/screens/Empresa/Empresa';
 import { Nacionalidad } from '../components/screens/Nacionalidad/Nacionalidad';
 import HeaderAdmin from '../components/screens/HeaderAdmin/HeaderAdmin';
-import { ImgSistema } from '../components/ui/imgSistema/imgSistema';
 import ModalMedico from '../components/ui/ModalMedico/ModalMedico';
+import { ImgSistema } from '../components/ui/imgSistema/ImgSistema';
 
 export const AppRouter = () => {
   const { user } = useAuthStore();
