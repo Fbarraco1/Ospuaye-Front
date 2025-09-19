@@ -19,8 +19,14 @@ type Parentesco =
   | 'Grupo_Familiar_Completos'
   | 'Sin_Informacion';
 
+  type Sexo =
+  | 'MASCULINO'
+  | 'FEMENINO'
+  |'SIN_INFORMACION'
+  |'AMBOS_SEXOS'
+
 interface Familiar {
-  id?: number;
+  id?: number;  
   grupoFamiliar: { id: number };
   beneficiario: { id: number };
   nombre: string;
@@ -28,6 +34,9 @@ interface Familiar {
   dni: string;
   cuil: string;
   telefono: string;
+  correoElectronico?: string;
+  sexo: Sexo;
+  nacionalidad: {id: number, nombre: string};
   tipoParentesco: Parentesco;
 }
 
@@ -57,9 +66,14 @@ const ModalFamiliar: React.FC<ModalFamiliarProps> = ({
       dni: '',
       cuil: '',
       telefono: '',
+      correoElectronico: '',
+      sexo: 'SIN_INFORMACION',
+      nacionalidad: {id: 0, nombre: ''},
       tipoParentesco: 'Sin_Informacion'
     }
   );
+  const [nacionalidades, setNacionalidades] = useState<{ id: number; nombre: string }[]>([]);
+
 
   const token = useAuthStore((state) => state.token);
 
@@ -71,11 +85,33 @@ const ModalFamiliar: React.FC<ModalFamiliarProps> = ({
       beneficiario: { id: beneficiarioId }
       }));
     }
+    obtenerNacionalidades();
   }, [grupoFamiliarId, beneficiarioId, isOpen]);
+
+const obtenerNacionalidades = async () => {
+    try {
+      const response = await axios.get('http://localhost:9000/api/nacionalidades', {
+      });
+      setNacionalidades(response.data);
+    } catch (error) {
+      console.error('Error al obtener Nacionalidades:', error);
+    }
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFamiliar(prev => ({ ...prev, [name]: value }));
+    if (name === "nacionalidad") {
+      // Buscar el objeto nacionalidad seleccionado
+      const selected = nacionalidades.find(n => n.id === Number(value));
+      setFamiliar(prev => ({
+        ...prev,
+        nacionalidad: selected ? { id: selected.id, nombre: selected.nombre } : { id: 0, nombre: "" }
+      }));
+    } else if (name === "correoElectronico" || name === "email") {
+      setFamiliar(prev => ({ ...prev, correoElectronico: value }));
+    } else {
+      setFamiliar(prev => ({ ...prev, [name]: value }));
+    }
   };
 
   const createFamiliar = async (familiar: Familiar) => {
@@ -117,7 +153,7 @@ const ModalFamiliar: React.FC<ModalFamiliarProps> = ({
   };
 
   const handleClose = () => {
-    setFamiliar({ grupoFamiliar: { id: grupoFamiliarId ?? 0 }, beneficiario: { id: beneficiarioId }, nombre: '', apellido: '', dni: '', cuil: '', telefono: '', tipoParentesco: 'Sin_Informacion' });
+    setFamiliar({ grupoFamiliar: { id: grupoFamiliarId ?? 0 }, beneficiario: { id: beneficiarioId }, nombre: '', apellido: '', dni: '', cuil: '', telefono: '', correoElectronico: '', sexo: 'SIN_INFORMACION', nacionalidad: {id: 0, nombre:''}, tipoParentesco: 'Sin_Informacion' });
     onClose();
   };
 
@@ -134,6 +170,13 @@ const ModalFamiliar: React.FC<ModalFamiliarProps> = ({
     { value: 'Solo_Parentescos', label: 'Solo parentescos' },
     { value: 'Grupo_Familiar_Completos', label: 'Grupo familiar completos' },
     { value: 'Sin_Informacion', label: 'Sin información' },
+  ];
+
+    const sexoOptions: { value: Sexo; label: string }[] = [
+    { value: 'MASCULINO', label: 'Masculino' },
+    { value: 'FEMENINO', label: 'Femenino' },
+    { value: 'SIN_INFORMACION', label: 'Sin información' },
+    { value: 'AMBOS_SEXOS', label: 'Amos sexos' }
   ];
 
   if (!isOpen) return null;
@@ -183,6 +226,44 @@ const ModalFamiliar: React.FC<ModalFamiliarProps> = ({
             placeholder="Teléfono"
             required
           />
+          <input
+            type="email"
+            name="correoElectronico"
+            value={familiar.correoElectronico}
+            onChange={handleChange}
+            placeholder="Correo Electrónico"
+            required
+          />
+          
+          <label>Sexo:</label>
+          <select
+            name="sexo"
+            value={familiar.sexo}
+            onChange={handleChange}
+            required
+          >
+            <option value="">Seleccione sexo</option>
+            {sexoOptions.map(opt => (
+              <option key={opt.value} value={opt.value}>{opt.label}</option>
+            ))}
+          </select>  
+
+          <label>Nacionalidad:</label>
+          <select
+            name="nacionalidad"
+            value={familiar.nacionalidad.id}
+            onChange={handleChange}
+            required
+          >
+            <option value={0} disabled>Seleccione un país</option>
+            {nacionalidades.map((a) => (
+                <option key={a.id} value={a.id}>
+                {a.nombre}
+                </option>
+            ))}
+          </select>
+
+          <label>Parentesco:</label>
           <select
             name="tipoParentesco"
             value={familiar.tipoParentesco}

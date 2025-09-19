@@ -23,7 +23,6 @@ const ModalPedidoOrtopedia: React.FC<{ onPedidoAdded?: () => void }> = ({ onPedi
   const [fechaRevision, setFechaRevision] = useState('');
   const [observacionMedico, setObservacionMedico] = useState('');
   const [grupoFamiliarId, setGrupoFamiliarId] = useState('');
-  const [usuarioId, setUsuarioId] = useState('');
   const [pacienteId, setPacienteId] = useState('');
   const [documentos, setDocumentos] = useState<File[]>([]);
   const [familiaresFiltrados, setFamiliaresFiltrados] = useState<any[]>([]);
@@ -35,7 +34,7 @@ const ModalPedidoOrtopedia: React.FC<{ onPedidoAdded?: () => void }> = ({ onPedi
 
   const obtenerBeneficiarios = async () => {
     try {
-      const response = await axios.get('http://localhost:9000/api/beneficiarios/dto');
+      const response = await axios.get('http://localhost:9000/api/beneficiarios');
       setBeneficiarios(response.data);
     } catch (error) {
       console.error('Error al obtener Beneficiarios:', error);
@@ -58,7 +57,6 @@ const ModalPedidoOrtopedia: React.FC<{ onPedidoAdded?: () => void }> = ({ onPedi
     if (beneficiario) {
       setDni(beneficiario.dni);
       setTelefono(beneficiario.telefono);
-      setUsuarioId(beneficiario.usuarioId?.toString() || '');
       setGrupoFamiliarId(beneficiario.grupoFamiliarId?.toString() || '');
 
       try {
@@ -70,74 +68,70 @@ const ModalPedidoOrtopedia: React.FC<{ onPedidoAdded?: () => void }> = ({ onPedi
         setFamiliaresFiltrados([]);
       }
     } else {
-      setUsuarioId('');
       setGrupoFamiliarId('');
       setFamiliaresFiltrados([]);
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    const pedido: any = {
-      nombre,
-      dni: dni ? Number(dni) : null,
-      telefono: telefono ? Number(telefono) : null,
-      empresa,
-      delegacion,
-      motivoConsulta,
-      recetaMedica,
-      fechaRevision,
-      observacionMedico,
-      beneficiario: { id: Number(beneficiarioId) },
-      usuario: { id: Number(usuarioId) },
-      medico: { id: Number(medicoId) }
-    };
-      // 👇 Solo agregamos grupoFamiliar si hay valor
-      if (grupoFamiliarId && grupoFamiliarId.trim() !== '') {
-        pedido.grupoFamiliar = { id: Number(grupoFamiliarId) };
-      }
-
-      // 👇 Solo agregamos paciente si hay valor
-      if (pacienteId && pacienteId.trim() !== '') {
-        pedido.paciente = { id: Number(pacienteId) };
-      }
-
-    const formData = new FormData();
-    formData.append('pedido', JSON.stringify(pedido));
-    formData.append('usuario', JSON.stringify({ id: usuarioId }));
-
-    documentos.forEach(file => formData.append("documentos", file));
-
-    try {
-      await axios.post(
-        'http://localhost:9000/api/pedidos/ortopedia',
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-            Authorization: `Bearer ${token}`,
-          }
-        }
-      );
-      if (onPedidoAdded) onPedidoAdded();
-      navigate('/pedidos/ortopedia');
-            Swal.fire({
-              icon: 'success',
-              title: 'Pedido creado',
-              text: 'El pedido se creó correctamente.',
-              timer: 2000,
-              showConfirmButton: false
-            });
-    } catch (error) {
-      console.error('Error al crear pedido ortopedia:', error);
-            Swal.fire({
-              icon: 'error',
-              title: 'Error',
-              text: 'No se pudo crear el pedido.',
-            });
-    }
+  const pedido: any = {
+    nombre,
+    dni: dni ? Number(dni) : null,
+    telefono: telefono ? Number(telefono) : null,
+    empresa,
+    delegacion,
+    motivoConsulta,
+    recetaMedica,
+    fechaRevision,
+    observacionMedico,
+    beneficiario: { id: Number(beneficiarioId) },
+    medico: { id: Number(medicoId) }
   };
+
+  if (grupoFamiliarId && grupoFamiliarId.trim() !== '') {
+    pedido.grupoFamiliar = { id: Number(grupoFamiliarId) };
+  }
+
+  if (pacienteId && pacienteId.trim() !== '') {
+    pedido.paciente = { id: Number(pacienteId) };
+  }
+
+  const formData = new FormData();
+  formData.append('pedido', JSON.stringify(pedido));
+  documentos.forEach(file => formData.append("documentos", file));
+
+  try {
+    await axios.post(
+      'http://localhost:9000/api/pedidos/ortopedia',
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${token}`,
+        }
+      }
+    );
+    if (onPedidoAdded) onPedidoAdded();
+    navigate('/pedidos/ortopedia');
+    Swal.fire({
+      icon: 'success',
+      title: 'Pedido creado',
+      text: 'El pedido se creó correctamente.',
+      timer: 2000,
+      showConfirmButton: false
+    });
+  } catch (error) {
+    console.error('Error al crear pedido ortopedia:', error);
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: 'No se pudo crear el pedido.',
+    });
+  }
+};
+
 
   const handleVolver = () => {
     navigate('/pedidos/ortopedia');

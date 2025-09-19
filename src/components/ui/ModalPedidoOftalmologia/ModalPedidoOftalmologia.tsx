@@ -24,7 +24,6 @@ const ModalPedidoOftalmologia: React.FC<{ onPedidoAdded?: () => void }> = ({ onP
   const [fechaRevision, setFechaRevision] = useState('');
   const [observacionMedico, setObservacionMedico] = useState('');
   const [grupoFamiliarId, setGrupoFamiliarId] = useState('');
-  const [usuarioId, setUsuarioId] = useState('');
   const [pacienteId, setPacienteId] = useState('');
   const [documentos, setDocumentos] = useState<File[]>([]);
   const [familiaresFiltrados, setFamiliaresFiltrados] = useState<any[]>([]);
@@ -36,7 +35,7 @@ const ModalPedidoOftalmologia: React.FC<{ onPedidoAdded?: () => void }> = ({ onP
 
   const obtenerBeneficiarios = async () => {
     try {
-      const response = await axios.get('http://localhost:9000/api/beneficiarios/dto');
+      const response = await axios.get('http://localhost:9000/api/beneficiarios');
       setBeneficiarios(response.data);
     } catch (error) {
       console.error('Error al obtener Beneficiarios:', error);
@@ -59,7 +58,6 @@ const ModalPedidoOftalmologia: React.FC<{ onPedidoAdded?: () => void }> = ({ onP
     if (beneficiario) {
       setDni(beneficiario.dni);
       setTelefono(beneficiario.telefono);
-      setUsuarioId(beneficiario.usuarioId?.toString() || '');
       setGrupoFamiliarId(beneficiario.grupoFamiliarId?.toString() || '');
 
       try {
@@ -71,7 +69,6 @@ const ModalPedidoOftalmologia: React.FC<{ onPedidoAdded?: () => void }> = ({ onP
         setFamiliaresFiltrados([]);
       }
     } else {
-      setUsuarioId('');
       setGrupoFamiliarId('');
       setFamiliaresFiltrados([]);
     }
@@ -92,7 +89,6 @@ const ModalPedidoOftalmologia: React.FC<{ onPedidoAdded?: () => void }> = ({ onP
       fechaRevision,
       observacionMedico,
       beneficiario: { id: Number(beneficiarioId) },
-      usuario: { id: Number(usuarioId) },
       medico: { id: Number(medicoId) }
     };
       // 👇 Solo agregamos grupoFamiliar si hay valor
@@ -107,7 +103,6 @@ const ModalPedidoOftalmologia: React.FC<{ onPedidoAdded?: () => void }> = ({ onP
 
     const formData = new FormData();
     formData.append('pedido', JSON.stringify(pedido));
-    formData.append('usuario', JSON.stringify({ id: usuarioId }));
 
     documentos.forEach(file => formData.append("documentos", file));
 
@@ -150,7 +145,7 @@ const ModalPedidoOftalmologia: React.FC<{ onPedidoAdded?: () => void }> = ({ onP
       <button type="button" onClick={handleVolver} style={{ marginBottom: 10 }}>
         Volver
       </button>
-      <h2 className={styles.title}>Agregar Pedido Ortopedia</h2>
+      <h2 className={styles.title}>Agregar Pedido Oftalmologia</h2>
       <form onSubmit={handleSubmit}>
         <label>Beneficiario:</label>
         <select value={beneficiarioId} onChange={e => handleBeneficiarioChange(e.target.value)} required>

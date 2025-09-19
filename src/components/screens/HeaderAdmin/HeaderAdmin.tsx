@@ -98,6 +98,9 @@ const HeaderAdmin = () => {
                               <ul className="sub-menu collapse" id="submenu-1-4">
                                 <li className="nav-item" onClick={() => navigate("/")}>Alta Pedido Medico</li>
                                 <li className="nav-item" onClick={() => navigate("/")}>Gestion Pedido Medico</li>
+                                <li className="nav-item" onClick={() => navigate("/pedidos/oftalmologia")}>Pedidos Oftalmologia</li>
+                                <li className="nav-item" onClick={() => navigate("/pedidos/ortopedia")}>Pedidos Ortopedia</li>
+
                               </ul>                            
                         </li>                                                                        
                         </ul>
