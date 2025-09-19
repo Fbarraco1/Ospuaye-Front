@@ -26,7 +26,7 @@ export const useAuthStore = create<AuthState>()(
 
       startLogin: async (email, contrasena) => {
         try {
-          const response = await fetch('http://localhost:9000/api/auth/login', {
+          const response = await fetch('http://vps-5301866-x.dattaweb.com:9000/api/auth/login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, contrasena }),
@@ -53,7 +53,7 @@ export const useAuthStore = create<AuthState>()(
 
       startRegister: async (email, contrasena) => {
         try {
-          const response = await fetch('http://vps-5301866-x.dattaweb.com:9000//api/auth/register', {
+          const response = await fetch('http://vps-5301866-x.dattaweb.com:9000/api/auth/register', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, contrasena }),

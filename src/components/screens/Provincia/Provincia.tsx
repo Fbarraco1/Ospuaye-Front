@@ -32,7 +32,7 @@ export const Provincia = () => {
 
   const obtenerProvincias = async () => {
     try {
-      const response = await axios.get('http://localhost:9000/api/provincias', {});
+      const response = await axios.get('http://vps-5301866-x.dattaweb.com:9000/api/provincias', {});
       setProvincias(response.data);
     } catch (error) {
       console.error('Error al obtener Provincias:', error);
@@ -61,7 +61,7 @@ export const Provincia = () => {
 
     if (result.isConfirmed) {    
       try {
-          await axios.delete(`http://localhost:9000/api/provincias/${id}`, {
+          await axios.delete(`http://vps-5301866-x.dattaweb.com:9000/api/provincias/${id}`, {
               headers: {
               Authorization: `Bearer ${token}`,
               },

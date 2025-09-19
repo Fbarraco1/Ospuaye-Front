@@ -29,7 +29,7 @@ export const ModalRol: React.FC<ModalRolProps> = ({ isOpen, onClose, onRolAdded 
 
   const obtenerAreas = async () => {
     try {
-      const response = await axios.get('http://localhost:9000/api/areas', {
+      const response = await axios.get('http://vps-5301866-x.dattaweb.com:9000/api/areas', {
       });
       setAreas(response.data);
     } catch (error) {
@@ -43,7 +43,7 @@ export const ModalRol: React.FC<ModalRolProps> = ({ isOpen, onClose, onRolAdded 
   ) => {
         try {
       const response = await axios.post(
-        'http://localhost:9000/api/roles/crear',
+        'http://vps-5301866-x.dattaweb.com:9000/api/roles/crear',
         { nombre, area: { id: area } }, // <-- Cambia aquí
         {
           headers: {

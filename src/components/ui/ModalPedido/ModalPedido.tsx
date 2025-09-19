@@ -42,7 +42,7 @@ const ModalPedido: React.FC<ModalPedidoProps> = ({ isOpen, onClose, onPedidoAdde
 
   const fetchBeneficiarios = async () => {
     try {
-      const res = await axios.get('http://localhost:9000/api/beneficiarios');
+      const res = await axios.get('http://vps-5301866-x.dattaweb.com:9000/api/beneficiarios');
       setBeneficiarios(res.data);
     } catch (e) {
       setBeneficiarios([]);
@@ -51,7 +51,7 @@ const ModalPedido: React.FC<ModalPedidoProps> = ({ isOpen, onClose, onPedidoAdde
 
   const fetchMedicos = async () => {
     try {
-      const res = await axios.get('http://localhost:9000/api/medicos');
+      const res = await axios.get('http://vps-5301866-x.dattaweb.com:9000/api/medicos');
       setMedicos(res.data);
     } catch (e) {
       setMedicos([]);
@@ -61,7 +61,7 @@ const ModalPedido: React.FC<ModalPedidoProps> = ({ isOpen, onClose, onPedidoAdde
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:9000/api/pedidos', {
+      await axios.post('http://vps-5301866-x.dattaweb.com:9000/api/pedidos', {
         nombre,
         beneficiario_id: beneficiarioId,
         dni: parseInt(dni),

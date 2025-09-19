@@ -29,7 +29,7 @@ export const ModalProvincia: React.FC<ModalProvinciaProps> = ({ isOpen, onClose,
 
   const obtenerPaises = async () => {
     try {
-      const response = await axios.get('http://localhost:9000/api/paises', {
+      const response = await axios.get('http://vps-5301866-x.dattaweb.com:9000/api/paises', {
       });
       setPaises(response.data);
     } catch (error) {
@@ -43,7 +43,7 @@ export const ModalProvincia: React.FC<ModalProvinciaProps> = ({ isOpen, onClose,
   ) => {
         try {
       const response = await axios.post(
-        'http://localhost:9000/api/provincias/crear',
+        'http://vps-5301866-x.dattaweb.com:9000/api/provincias/crear',
         { nombre, pais: { id: pais } }, // <-- Cambia aquí
         {
           headers: {

@@ -25,7 +25,7 @@ export const Areas = () => {
 
   const obtenerAreas = async () => {
     try {
-      const response = await axios.get('http://localhost:9000/api/areas', {
+      const response = await axios.get('http://vps-5301866-x.dattaweb.com:9000/api/areas', {
       });
       setAreas(response.data);
     } catch (error) {
@@ -55,7 +55,7 @@ export const Areas = () => {
 
     if (result.isConfirmed) {    
       try {
-          await axios.delete(`http://localhost:9000/api/areas/${id}`, {
+          await axios.delete(`http://vps-5301866-x.dattaweb.com:9000/api/areas/${id}`, {
               headers: {
               Authorization: `Bearer ${token}`,
               },

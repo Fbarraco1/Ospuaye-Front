@@ -30,7 +30,7 @@ export const Beneficiarios: React.FC = () => {
 
   const obtenerBeneficiarios = async () => {
     try {
-      const response = await axios.get('http://localhost:9000/api/beneficiarios', {});
+      const response = await axios.get('http://vps-5301866-x.dattaweb.com:9000/api/beneficiarios', {});
       setBeneficiarios(response.data);
     } catch (error) {
       console.error('Error al obtener beneficiarios:', error);
@@ -51,7 +51,7 @@ export const Beneficiarios: React.FC = () => {
 
     if (result.isConfirmed) {
       try {
-        await axios.delete(`http://localhost:9000/api/beneficiarios/${id}`, {
+        await axios.delete(`http://vps-5301866-x.dattaweb.com:9000/api/beneficiarios/${id}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },

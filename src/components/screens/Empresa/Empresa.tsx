@@ -36,7 +36,7 @@ export const Empresa = () => {
 
   const obtenerEmpresas = async () => {
     try {
-      const response = await axios.get('http://localhost:9000/api/empresas', {});
+      const response = await axios.get('http://vps-5301866-x.dattaweb.com:9000/api/empresas', {});
       setEmpresas(response.data);
     } catch (error) {
       console.error('Error al obtener empresas:', error);
@@ -65,7 +65,7 @@ export const Empresa = () => {
 
     if (result.isConfirmed) {
       try {
-          await axios.delete(`http://localhost:9000/api/empresas/${id}`, {
+          await axios.delete(`http://vps-5301866-x.dattaweb.com:9000/api/empresas/${id}`, {
               headers: {
               Authorization: `Bearer ${token}`,
               },

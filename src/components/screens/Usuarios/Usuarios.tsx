@@ -28,7 +28,7 @@ export const Usuarios: React.FC = () => {
 
   const obtenerUsuarios = async () => {
     try {
-      const response = await axios.get('http://localhost:9000/api/usuarios');
+      const response = await axios.get('http://vps-5301866-x.dattaweb.com:9000/api/usuarios');
       setUsuarios(response.data);
     } catch (error) {
       console.error('Error al obtener usuarios:', error);
@@ -49,7 +49,7 @@ export const Usuarios: React.FC = () => {
 
     if (result.isConfirmed) {
       try {
-        await axios.delete(`http://localhost:9000/api/usuarios/${id}`, {
+        await axios.delete(`http://vps-5301866-x.dattaweb.com:9000/api/usuarios/${id}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },

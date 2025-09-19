@@ -35,7 +35,7 @@ export const ModalDomicilio: React.FC<ModalDomicilioProps> = ({ isOpen, onClose,
 
   const obtenerLocalidades = async () => {
     try {
-      const response = await axios.get('http://localhost:9000/api/localidades', {
+      const response = await axios.get('http://vps-5301866-x.dattaweb.com:9000/api/localidades', {
       });
       setLocalidades(response.data);
     } catch (error) {
@@ -56,7 +56,7 @@ export const ModalDomicilio: React.FC<ModalDomicilioProps> = ({ isOpen, onClose,
   ) => {
         try {
       const response = await axios.post(
-        'http://localhost:9000/api/domicilios/crear',
+        'http://vps-5301866-x.dattaweb.com:9000/api/domicilios/crear',
         { calle, numeracion, barrio, manzanaPiso, casaDepartamento, referencia, localidad: { id: localidad }, tipo }, // <-- Cambia aquí
         {
           headers: {

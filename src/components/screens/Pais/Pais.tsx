@@ -26,7 +26,7 @@ export const Pais = () => {
 
   const obtenerPaises = async () => {
     try {
-      const response = await axios.get('http://localhost:9000/api/paises', {
+      const response = await axios.get('http://vps-5301866-x.dattaweb.com:9000/api/paises', {
       });
       setPaises(response.data);
     } catch (error) {
@@ -56,7 +56,7 @@ export const Pais = () => {
 
     if (result.isConfirmed) {    
       try {
-          await axios.delete(`http://localhost:9000/api/paises/${id}`, {
+          await axios.delete(`http://vps-5301866-x.dattaweb.com:9000/api/paises/${id}`, {
               headers: {
               Authorization: `Bearer ${token}`,
               },

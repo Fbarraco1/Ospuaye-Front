@@ -31,7 +31,7 @@ const ModalMedico: React.FC<{ onMedicoAdded?: () => void }> = ({ onMedicoAdded }
 
   const fetchAreas = async () => {
     try {
-      const res = await axios.get('http://localhost:9000/api/areas');
+      const res = await axios.get('http://vps-5301866-x.dattaweb.com:9000/api/areas');
       setAreas(res.data);
     } catch (e) {
       setAreas([]);
@@ -42,7 +42,7 @@ const ModalMedico: React.FC<{ onMedicoAdded?: () => void }> = ({ onMedicoAdded }
     e.preventDefault();
     try {
       await axios.post(
-        'http://localhost:9000/api/auth/register/medico',
+        'http://vps-5301866-x.dattaweb.com:9000/api/auth/register/medico',
         {
           email,
           contrasena,

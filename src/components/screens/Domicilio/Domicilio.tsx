@@ -41,7 +41,7 @@ export const Domicilio = () => {
 
   const obtenerDomicilios = async () => {
     try {
-      const response = await axios.get('http://localhost:9000/api/domicilios', {});
+      const response = await axios.get('http://vps-5301866-x.dattaweb.com:9000/api/domicilios', {});
       setDomicilios(response.data);
     } catch (error) {
       console.error('Error al obtener Domicilios:', error);
@@ -70,7 +70,7 @@ export const Domicilio = () => {
 
     if (result.isConfirmed) {    
       try {
-          await axios.delete(`http://localhost:9000/api/domicilios/${id}`, {
+          await axios.delete(`http://vps-5301866-x.dattaweb.com:9000/api/domicilios/${id}`, {
               headers: {
               Authorization: `Bearer ${token}`,
               },

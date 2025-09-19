@@ -19,7 +19,7 @@ export const ModalPais: React.FC<ModalPaisProps> = ({ isOpen, onClose, onPaisesA
   ) => {
         try {
       const response = await axios.post(
-        'http://localhost:9000/api/paises/crear',
+        'http://vps-5301866-x.dattaweb.com:9000/api/paises/crear',
         { nombre },
         {
           headers: {

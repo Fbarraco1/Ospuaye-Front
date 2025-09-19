@@ -19,7 +19,7 @@ export const ModalNacionalidad: React.FC<ModalNacionalidadProps> = ({ isOpen, on
   ) => {
         try {
       const response = await axios.post(
-        'http://localhost:9000/api/nacionalidades/crear',
+        'http://vps-5301866-x.dattaweb.com:9000/api/nacionalidades/crear',
         { nombre },
         {
           headers: {

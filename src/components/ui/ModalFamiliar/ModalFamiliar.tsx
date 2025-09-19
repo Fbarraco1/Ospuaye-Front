@@ -90,7 +90,7 @@ const ModalFamiliar: React.FC<ModalFamiliarProps> = ({
 
 const obtenerNacionalidades = async () => {
     try {
-      const response = await axios.get('http://localhost:9000/api/nacionalidades', {
+      const response = await axios.get('http://vps-5301866-x.dattaweb.com:9000/api/nacionalidades', {
       });
       setNacionalidades(response.data);
     } catch (error) {
@@ -117,7 +117,7 @@ const obtenerNacionalidades = async () => {
   const createFamiliar = async (familiar: Familiar) => {
     try {
       const response = await axios.post(
-        'http://localhost:9000/api/familiares/crear',
+        'http://vps-5301866-x.dattaweb.com:9000/familiares/crear',
         familiar,
         {
           headers: {

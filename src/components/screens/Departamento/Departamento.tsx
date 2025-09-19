@@ -32,7 +32,7 @@ export const Departamento = () => {
 
   const obtenerDepartamentos = async () => {
     try {
-      const response = await axios.get('http://localhost:9000/api/departamentos', {});
+      const response = await axios.get('http://vps-5301866-x.dattaweb.com:9000/api/departamentos', {});
       setDepartamentos(response.data);
     } catch (error) {
       console.error('Error al obtener Departamentos:', error);
@@ -61,7 +61,7 @@ export const Departamento = () => {
     
       if (result.isConfirmed) {
         try {
-            await axios.delete(`http://localhost:9000/api/departamentos/${id}`, {
+            await axios.delete(`http://vps-5301866-x.dattaweb.com:9000/api/departamentos/${id}`, {
                 headers: {
                 Authorization: `Bearer ${token}`,
                 },

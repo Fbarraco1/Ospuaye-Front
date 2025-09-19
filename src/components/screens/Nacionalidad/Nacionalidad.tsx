@@ -26,7 +26,7 @@ export const Nacionalidad = () => {
 
   const obtenerNacionalidades = async () => {
     try {
-      const response = await axios.get('http://localhost:9000/api/nacionalidades', {
+      const response = await axios.get('http://vps-5301866-x.dattaweb.com:9000/api/nacionalidades', {
       });
       setNacionalidades(response.data);
     } catch (error) {
@@ -56,7 +56,7 @@ export const Nacionalidad = () => {
 
     if (result.isConfirmed) {    
       try {
-          await axios.delete(`http://localhost:9000/api/nacionalidades/${id}`, {
+          await axios.delete(`http://vps-5301866-x.dattaweb.com:9000/api/nacionalidades/${id}`, {
               headers: {
               Authorization: `Bearer ${token}`,
               },

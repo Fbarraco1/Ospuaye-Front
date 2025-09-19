@@ -29,7 +29,7 @@ export const ModalDepartamento: React.FC<ModalDepartamentoProps> = ({ isOpen, on
 
   const obtenerProvincias = async () => {
     try {
-      const response = await axios.get('http://localhost:9000/api/provincias', {
+      const response = await axios.get('http://vps-5301866-x.dattaweb.com:9000/api/provincias', {
       });
       setProvincias(response.data);
     } catch (error) {
@@ -43,7 +43,7 @@ export const ModalDepartamento: React.FC<ModalDepartamentoProps> = ({ isOpen, on
   ) => {
         try {
       const response = await axios.post(
-        'http://localhost:9000/api/departamentos/crear',
+        'http://vps-5301866-x.dattaweb.com:9000/api/departamentos/crear',
         { nombre, provincia: { id: provincia } }, // <-- Cambia aquí
         {
           headers: {

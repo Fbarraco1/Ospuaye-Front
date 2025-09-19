@@ -34,7 +34,7 @@ export const Localidad = () => {
 
   const obtenerLocalidades = async () => {
     try {
-      const response = await axios.get('http://localhost:9000/api/localidades', {});
+      const response = await axios.get('http://vps-5301866-x.dattaweb.com:9000/api/localidades', {});
       setLocalidades(response.data);
     } catch (error) {
       console.error('Error al obtener Localidades:', error);
@@ -63,7 +63,7 @@ export const Localidad = () => {
     
         if (result.isConfirmed) {
           try {
-              await axios.delete(`http://localhost:9000/api/localidades/${id}`, {
+              await axios.delete(`http://vps-5301866-x.dattaweb.com:9000/api/localidades/${id}`, {
                   headers: {
                   Authorization: `Bearer ${token}`,
                   },

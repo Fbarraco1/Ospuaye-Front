@@ -30,7 +30,7 @@ export const Roles = () => {
 
   const obtenerRoles = async () => {
     try {
-      const response = await axios.get('http://localhost:9000/api/roles', {});
+      const response = await axios.get('http://vps-5301866-x.dattaweb.com:9000/api/roles', {});
       setRoles(response.data);
     } catch (error) {
       console.error('Error al obtener Roles:', error);
@@ -59,7 +59,7 @@ export const Roles = () => {
 
     if (result.isConfirmed) {    
       try {
-          await axios.delete(`http://localhost:9000/api/roles/${id}`, {
+          await axios.delete(`http://vps-5301866-x.dattaweb.com:9000/api/roles/${id}`, {
               headers: {
               Authorization: `Bearer ${token}`,
               },

@@ -35,7 +35,7 @@ const ModalPedidoOftalmologia: React.FC<{ onPedidoAdded?: () => void }> = ({ onP
 
   const obtenerBeneficiarios = async () => {
     try {
-      const response = await axios.get('http://localhost:9000/api/beneficiarios');
+      const response = await axios.get('http://vps-5301866-x.dattaweb.com:9000/api/beneficiarios');
       setBeneficiarios(response.data);
     } catch (error) {
       console.error('Error al obtener Beneficiarios:', error);
@@ -44,7 +44,7 @@ const ModalPedidoOftalmologia: React.FC<{ onPedidoAdded?: () => void }> = ({ onP
 
   const obtenerMedicos = async () => {
     try {
-      const response = await axios.get('http://localhost:9000/api/medicos');
+      const response = await axios.get('http://vps-5301866-x.dattaweb.com:9000/api/medicos');
       setMedicos(response.data);
     } catch (error) {
       console.error('Error al obtener Médicos:', error);
@@ -62,7 +62,7 @@ const ModalPedidoOftalmologia: React.FC<{ onPedidoAdded?: () => void }> = ({ onP
 
       try {
         // Llamar al backend para traer solo los familiares de ese beneficiario
-        const resp = await axios.get(`http://localhost:9000/api/familiares/beneficiario/${id}`);
+        const resp = await axios.get(`http://vps-5301866-x.dattaweb.com:9000/api/familiares/beneficiario/${id}`);
         setFamiliaresFiltrados(resp.data);
       } catch (error) {
         console.error("Error al obtener familiares del beneficiario:", error);
@@ -108,7 +108,7 @@ const ModalPedidoOftalmologia: React.FC<{ onPedidoAdded?: () => void }> = ({ onP
 
     try {
       await axios.post(
-        'http://localhost:9000/api/pedidos/oftalmologia',
+        'http://vps-5301866-x.dattaweb.com:9000/api/pedidos/oftalmologia',
         formData,
         {
           headers: {

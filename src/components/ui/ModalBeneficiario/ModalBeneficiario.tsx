@@ -29,7 +29,7 @@ const ModalBeneficiario: React.FC<ModalBeneficiarioProps> = ({ isOpen, onClose, 
   ) => {
     try {
       const response = await axios.post(
-        'http://localhost:9000/api/auth/register/beneficiario',
+        'http://vps-5301866-x.dattaweb.com:9000/api/auth/register/beneficiario',
         { nombre, apellido, email, contrasena, dni, cuil, telefono },
         {
           headers: {

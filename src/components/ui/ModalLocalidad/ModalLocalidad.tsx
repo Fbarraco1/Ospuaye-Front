@@ -30,7 +30,7 @@ export const ModalLocalidad: React.FC<ModalLocalidadProps> = ({ isOpen, onClose,
 
   const obtenerDepartamentos = async () => {
     try {
-      const response = await axios.get('http://localhost:9000/api/departamentos', {
+      const response = await axios.get('http://vps-5301866-x.dattaweb.com:9000/api/departamentos', {
       });
       setDepartamentos(response.data);
     } catch (error) {
@@ -46,7 +46,7 @@ export const ModalLocalidad: React.FC<ModalLocalidadProps> = ({ isOpen, onClose,
   ) => {
         try {
       const response = await axios.post(
-        'http://localhost:9000/api/localidades',
+        'http://vps-5301866-x.dattaweb.com:9000/api/localidades',
         { nombre, codigoPostal, departamento: { id: departamento } }, // <-- Cambia aquí
         {
           headers: {

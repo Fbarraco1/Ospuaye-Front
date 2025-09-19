@@ -29,7 +29,7 @@ export default function RecuperarContra() {
 
     try {
       const res = await axios.post(
-        'http://localhost:9000/api/usuarios/cambiarContrasena',
+        'http://vps-5301866-x.dattaweb.com:9000/api/usuarios/cambiarContrasena',
         { email, actual, nueva },
         {
           headers: {

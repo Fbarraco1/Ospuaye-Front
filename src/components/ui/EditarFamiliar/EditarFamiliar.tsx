@@ -62,7 +62,7 @@ const EditarFamiliar: React.FC<EditarFamiliarProps> = ({
   const updateFamiliar = async (familiar: Familiar) => {
     try {
       const response = await axios.put(
-        `http://localhost:9000/api/familiares/actualizar`,
+        `http://vps-5301866-x.dattaweb.com:9000/api/familiares/actualizar`,
         familiar,
         {
           headers: {

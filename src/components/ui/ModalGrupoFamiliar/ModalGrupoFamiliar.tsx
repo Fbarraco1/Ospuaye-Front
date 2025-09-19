@@ -33,7 +33,7 @@ const ModalGrupoFamiliar: React.FC<ModalGrupoFamiliarProps> = ({
 
   const obtenerBeneficiarios = async () => {
     try {
-      const response = await axios.get('http://localhost:9000/api/beneficiarios', {
+      const response = await axios.get('http://vps-5301866-x.dattaweb.com:9000/api/beneficiarios', {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -50,7 +50,7 @@ const ModalGrupoFamiliar: React.FC<ModalGrupoFamiliarProps> = ({
   ) => {
     try {
       const response = await axios.post(
-        'http://localhost:9000/api/grupoFamiliar/crear',
+        'http://vps-5301866-x.dattaweb.com:9000/api/grupoFamiliar/crear',
         {
           nombreGrupo,
           titular: { id: titularId },

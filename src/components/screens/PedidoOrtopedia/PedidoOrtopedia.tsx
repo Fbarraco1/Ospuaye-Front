@@ -63,7 +63,7 @@ export const PedidoOrtopedia: React.FC = () => {
 
   const obtenerPedidos = async () => {
     try {
-      const response = await axios.get('http://localhost:9000/api/pedidos/ortopedia');
+      const response = await axios.get('http://vps-5301866-x.dattaweb.com:9000/api/pedidos/ortopedia');
       setPedidos(response.data);
     } catch (error) {
       console.error('Error al obtener pedidos de ortopedia:', error);
@@ -84,7 +84,7 @@ export const PedidoOrtopedia: React.FC = () => {
 
     if (result.isConfirmed) {
       try {
-        await axios.delete(`http://localhost:9000/api/pedidos/ortopedia/${id}`);
+        await axios.delete(`http://vps-5301866-x.dattaweb.com:9000/api/pedidos/ortopedia/${id}`);
         setPedidos((prev) => prev.filter((p) => p.id !== id));
         Swal.fire({
           icon: 'success',
@@ -110,7 +110,7 @@ export const PedidoOrtopedia: React.FC = () => {
 
   const verDocumentos = async (id: number) => {
     try {
-      const res = await axios.get(`http://localhost:9000/api/documentos/${id}`);
+      const res = await axios.get(`http://vps-5301866-x.dattaweb.com:9000/api/documentos/${id}`);
       setDocumentos([res.data]);
       setModalDocsOpen(true);
     } catch (error) {
@@ -120,7 +120,7 @@ export const PedidoOrtopedia: React.FC = () => {
 
   const verHistorial = async (id: number) => {
     try {
-      const res = await axios.get(`http://localhost:9000/api/historiales/${id}`);
+      const res = await axios.get(`http://vps-5301866-x.dattaweb.com:9000/api/historiales/${id}`);
       setHistorial([res.data]);
       setModalHistOpen(true);
     } catch (error) {

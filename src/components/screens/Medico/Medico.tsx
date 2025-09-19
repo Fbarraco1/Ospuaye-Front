@@ -33,7 +33,7 @@ export const Medico: React.FC = () => {
 
   const obtenerMedicos = async () => {
     try {
-      const response = await axios.get('http://localhost:9000/api/medicos');
+      const response = await axios.get('http://vps-5301866-x.dattaweb.com:9000/api/medicos');
       console.log(response.data);
       setMedicos(response.data);
     } catch (error) {
@@ -54,7 +54,7 @@ export const Medico: React.FC = () => {
     });
     if (result.isConfirmed) {
       try {
-        await axios.delete(`http://localhost:9000/api/medicos/${id}`, {
+        await axios.delete(`http://vps-5301866-x.dattaweb.com:9000/api/medicos/${id}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },

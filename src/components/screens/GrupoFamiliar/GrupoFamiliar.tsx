@@ -54,7 +54,7 @@ export const GrupoFamiliar: React.FC = () => {
 
   const obtenerGrupos = async () => {
     try {
-      const response = await axios.get('http://localhost:9000/api/grupoFamiliar');
+      const response = await axios.get('http://vps-5301866-x.dattaweb.com:9000/grupoFamiliar');
       setGrupos(response.data);
     } catch (error) {
       console.error('Error al obtener grupos familiares:', error);
@@ -75,7 +75,7 @@ export const GrupoFamiliar: React.FC = () => {
     
         if (result.isConfirmed) {
       try {
-        await axios.delete(`http://localhost:9000/api/grupoFamiliar/${id}`, {
+        await axios.delete(`http://vps-5301866-x.dattaweb.com:9000/api/grupoFamiliar/${id}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -122,7 +122,7 @@ export const GrupoFamiliar: React.FC = () => {
 
     const eliminarFamiliar= async (id: number) => {
     try {
-      await axios.delete(`http://localhost:9000/api/familiares/${id}`, {
+      await axios.delete(`http://vps-5301866-x.dattaweb.com:9000/api/familiares/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
