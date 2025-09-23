@@ -40,7 +40,7 @@ export const NavBar = () => {
                     {!isAuthenticated ? (
                       <ul>
                         <li>
-                          <span style={{ cursor: "pointer", color: "white" }} onClick={() => navigate("/login")}>
+                          <span style={{ cursor: "pointer", color: "white" }} onClick={() => navigate("/")}>
                             <i className="lni lni-enter" style={{ color: "white" }}></i> Ingresar
                           </span>
                         </li>

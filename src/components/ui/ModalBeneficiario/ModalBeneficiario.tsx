@@ -2,14 +2,10 @@ import React, { useState } from 'react';
 import styles from './modalBeneficiario.module.css';
 import axios from 'axios';
 import Swal from 'sweetalert2';
+import { useNavigate } from 'react-router-dom';
 
-interface ModalBeneficiarioProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onBeneficiarioAdded?: () => void;
-}
 
-const ModalBeneficiario: React.FC<ModalBeneficiarioProps> = ({ isOpen, onClose, onBeneficiarioAdded }) => {
+const ModalBeneficiario: React.FC<{ onBeneficiarioAdded?: () => void }> = ({ onBeneficiarioAdded }) => {
   const [nombre, setNombre] = useState('');
   const [email, setEmail] = useState('');
   const [contrasena, setContrasena] = useState('');
@@ -17,6 +13,11 @@ const ModalBeneficiario: React.FC<ModalBeneficiarioProps> = ({ isOpen, onClose, 
   const [dni, setDni] = useState('');
   const [cuil, setCuil] = useState('');
   const [telefono, setTelefono] = useState('');
+  const [afiliadoSindical, setafiliadoSindical] = useState(false);
+  const [esJubilado, setEsJubilado] = useState(false);
+  
+  const navigate = useNavigate();
+
 
   const createBene = async (
     nombre: string,
@@ -25,12 +26,14 @@ const ModalBeneficiario: React.FC<ModalBeneficiarioProps> = ({ isOpen, onClose, 
     contrasena: string,
     dni: string,
     cuil: string,
-    telefono: string
+    telefono: string,
+    afiliadoSindical: boolean,
+    esJubilado: boolean
   ) => {
     try {
       const response = await axios.post(
         'http://vps-5301866-x.dattaweb.com:9000/api/auth/register/beneficiario',
-        { nombre, apellido, email, contrasena, dni, cuil, telefono },
+        { nombre, apellido, email, contrasena, dni, cuil, telefono, afiliadoSindical, esJubilado },
         {
           headers: {
             'Content-Type': 'application/json'
@@ -59,31 +62,33 @@ const ModalBeneficiario: React.FC<ModalBeneficiarioProps> = ({ isOpen, onClose, 
     e.preventDefault();
 
     try {
-      await createBene(nombre, apellido, email, contrasena, dni, cuil, telefono);
+      await createBene(nombre, apellido, email, contrasena, dni, cuil, telefono, afiliadoSindical, esJubilado);
     
       if (onBeneficiarioAdded) onBeneficiarioAdded();
-      onClose();
+      handleVolver();
     } catch (error) {
       console.error('Error al crear beneficiario:', error);
     }
-    handleClose();
+    handleVolver();
   };
 
-  const handleClose = () => {
-    setNombre('');
-    setApellido('');
-    setDni('');
-    setCuil('');
-    setTelefono('');
-    setEmail('');
-    setContrasena('');
-    onClose();
+  // const handleClose = () => {
+  //   setNombre('');
+  //   setApellido('');
+  //   setDni('');
+  //   setCuil('');
+  //   setTelefono('');
+  //   setEmail('');
+  //   setContrasena('');
+  // };
+    const handleVolver = () => {
+    navigate('/beneficiarios');
   };
-
-  if (!isOpen) return null;
-
   return (
-    <div className={styles.overlay}>
+    <div className={styles.container}>
+      <button type="button" onClick={handleVolver} style={{ marginBottom: 10 }}>
+        Volver
+      </button>
       <div className={styles.modal}>
         <h2>Agregar Beneficiario</h2>
         <form onSubmit={handleSubmit}>
@@ -141,9 +146,23 @@ const ModalBeneficiario: React.FC<ModalBeneficiarioProps> = ({ isOpen, onClose, 
             required
           />
 
+          <label>¿Es Afiliado Sindical?:</label>
+          <input
+            type="checkbox"
+            checked={afiliadoSindical}
+            onChange={(e) => setafiliadoSindical(e.target.checked)}
+          />
+
+          <label>¿Es Jubilado?:</label>
+          <input
+            type="checkbox"
+            checked={esJubilado}
+            onChange={(e) => setEsJubilado(e.target.checked)}
+          />                    
+
           <div className={styles.actions}>
             <button type="submit">Agregar</button>
-            <button type="button" onClick={handleClose}>Cancelar</button>
+            <button type="button" onClick={handleVolver}>Cancelar</button>
           </div>
         </form>
       </div>

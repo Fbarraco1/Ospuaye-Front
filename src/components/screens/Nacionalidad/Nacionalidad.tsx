@@ -153,7 +153,7 @@ export const Nacionalidad = () => {
           {currentItems.map((b) => (
             <tr key={b.id}>
               <td>{b.nombre}</td>
-              <td>{b.activo}</td>
+              <td>{b.activo ? 'Si' : 'No'}</td>
               <td className={styles.actions}>
                 <FaEdit
                   className={styles.editIcon}

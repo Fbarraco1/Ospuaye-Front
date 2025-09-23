@@ -30,6 +30,8 @@ import { Nacionalidad } from '../components/screens/Nacionalidad/Nacionalidad';
 import HeaderAdmin from '../components/screens/HeaderAdmin/HeaderAdmin';
 import ModalMedico from '../components/ui/ModalMedico/ModalMedico';
 import { ImgSistema } from '../components/ui/imgSistema/ImgSistema';
+import ModalBeneficiario from '../components/ui/ModalBeneficiario/ModalBeneficiario';
+import ScrollToTop from './ScrollToTop';
 
 export const AppRouter = () => {
   const { user } = useAuthStore();
@@ -51,14 +53,15 @@ export const AppRouter = () => {
 
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <NavBar />
       {/* Menú según el rol */}
       {renderMenuByRole()}
       <Routes>
         {/* Rutas públicas */}
-        <Route path="/login" element={<Login />} />
+        <Route path="/" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/" element={<MainScreen />} />
+        <Route path="/main" element={<MainScreen />} />
         {/* Pantallas de recuperación de contraseña */}
         <Route path="/recuperar-contra" element={<RecuperarContra />} />
         <Route path="/perdi-contra" element={<PerdiContra />} />
@@ -119,6 +122,11 @@ export const AppRouter = () => {
           <PrivateRoutes roles={['ADMIN', 'ADMINOFTALMOLOGIA', 'ADMINORTOPEDIA']}>
             <Beneficiarios /> 
           </PrivateRoutes>} /> 
+
+        <Route path="/beneficiario/nuevo" element={
+          <PrivateRoutes roles={['ADMIN', 'ADMINOFTALMOLOGIA', 'ADMINORTOPEDIA']}>
+            <ModalBeneficiario /> 
+          </PrivateRoutes>} />           
 
         <Route path="/medicos" element={
           <PrivateRoutes roles={['ADMIN', 'ADMINOFTALMOLOGIA', 'ADMINORTOPEDIA']}>

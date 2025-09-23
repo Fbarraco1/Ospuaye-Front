@@ -54,7 +54,7 @@ export const GrupoFamiliar: React.FC = () => {
 
   const obtenerGrupos = async () => {
     try {
-      const response = await axios.get('http://vps-5301866-x.dattaweb.com:9000/grupoFamiliar');
+      const response = await axios.get('http://vps-5301866-x.dattaweb.com:9000/api/grupoFamiliar');
       setGrupos(response.data);
     } catch (error) {
       console.error('Error al obtener grupos familiares:', error);

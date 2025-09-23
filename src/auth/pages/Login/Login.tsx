@@ -30,7 +30,7 @@ export const Login = () => {
       } else if (loggedUser.rol === 'ADMINORTOPEDIA') {
         navigate('/admin/Ortopedia');
       } else {
-        navigate('/beneficiarios');
+        navigate('/main');
       }
     } catch (error) {
       console.log('Credenciales inválidas', error);

@@ -62,6 +62,7 @@ const HeaderAdmin = () => {
                               aria-label="Toggle navigation">Domicilios</a>
                               <ul className="sub-menu collapse" id="submenu-1-3">
                                 <li className="nav-item" onClick={() => navigate("/pais")}>ABM Pais</li>
+                                <li className="nav-item" onClick={() => navigate("/nacionalidades")}>ABM Nacionalidad</li>
                                 <li className="nav-item" onClick={() => navigate("/provincia")}>ABM Provincia</li>
                                 <li className="nav-item" onClick={() => navigate("/departamento")}>ABM Departamento</li>
                                 <li className="nav-item" onClick={() => navigate("/localidad")}>ABM Localidad</li>

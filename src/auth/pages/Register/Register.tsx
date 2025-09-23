@@ -14,7 +14,7 @@ export const Register = () => {
     e.preventDefault();
     try {
       await startRegister(email, contrasena);
-      navigate('/');
+      navigate('/main');
     } catch (error) {
       console.log('Credenciales inválidas', error);
     }
@@ -63,7 +63,7 @@ export const Register = () => {
                     </button>
                   </div>
                   <p className={styles['outer-link']}>
-                    ¿Ya tenés cuenta? <a href="/login">Inicia Sesión</a>
+                    ¿Ya tenés cuenta? <a href="/">Inicia Sesión</a>
                   </p>
                 </form>
               </div>

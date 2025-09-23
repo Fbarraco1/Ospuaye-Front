@@ -103,18 +103,17 @@ export const Roles = () => {
       .includes(search.toLowerCase())
   );
 
-  // 🔹 Lógica de paginación
+  // --- PAGINADO ---
   const totalPages = Math.ceil(rolesFiltrados.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const rolesPaginados = rolesFiltrados.slice(startIndex, endIndex);
+  const currentItems = rolesFiltrados.slice(startIndex, startIndex + itemsPerPage);
 
-  const nextPage = () => {
-    if (currentPage < totalPages) setCurrentPage(currentPage + 1);
+  const handlePrevPage = () => {
+    if (currentPage > 1) setCurrentPage((prev) => prev - 1);
   };
 
-  const prevPage = () => {
-    if (currentPage > 1) setCurrentPage(currentPage - 1);
+  const handleNextPage = () => {
+    if (currentPage < totalPages) setCurrentPage((prev) => prev + 1);
   };
 
   return (
@@ -154,7 +153,7 @@ export const Roles = () => {
           </tr>
         </thead>
         <tbody>
-          {rolesPaginados.map((b) => (
+          {currentItems.map((b) => (
             <tr key={b.id}>
               <td>{b.nombre}</td>
               <td>{/* @ts-ignore */ b.area.nombre}</td>
@@ -174,25 +173,39 @@ export const Roles = () => {
       </table>
 
       {/* 🔹 Controles de paginación */}
-      <div className={styles.pagination}>
-        <button 
-          onClick={prevPage} 
-          disabled={currentPage === 1}
-          className={styles.pageButton}
-        >
-          Anterior
-        </button>
-        <span className={styles.pageInfo}>
-          Página {currentPage} de {totalPages || 1}
-        </span>
-        <button 
-          onClick={nextPage} 
-          disabled={currentPage === totalPages || totalPages === 0}
-          className={styles.pageButton}
-        >
-          Siguiente
-        </button>
-      </div>
+      {totalPages > 1 && (
+        <div style={{ marginTop: '15px', display: 'flex', justifyContent: 'center', gap: '10px' }}>
+          <button
+            onClick={handlePrevPage}
+            disabled={currentPage === 1}
+            style={{
+              padding: '5px 10px',
+              borderRadius: '8px',
+              border: '1px solid #ccc',
+              background: currentPage === 1 ? '#88C250' : '#88C250',
+              cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+            }}
+          >
+            ◀
+          </button>
+          <span style={{ alignSelf: 'center', fontSize: '14px', color: '#555' }}>
+            Página {currentPage} de {totalPages}
+          </span>
+          <button
+            onClick={handleNextPage}
+            disabled={currentPage === totalPages}
+            style={{
+              padding: '5px 10px',
+              borderRadius: '8px',
+              border: '1px solid #ccc',
+              background: currentPage === totalPages ? '#88C250' : '#88C250',
+              cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+            }}
+          >
+            ▶
+          </button>
+        </div>
+      )}
 
       <ModalRol
         isOpen={isModalOpen}

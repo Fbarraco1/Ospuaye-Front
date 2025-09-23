@@ -3,8 +3,8 @@ import axios from 'axios';
 import { FaEdit, FaTrash, FaPlus } from 'react-icons/fa';
 import styles from './Beneficiarios.module.css';
 import { useAuthStore } from '../../../auth/store/authStore';
-import ModalBeneficiario from '../../ui/ModalBeneficiario/ModalBeneficiario'; // Importa el modal
 import Swal from 'sweetalert2';
+import { useNavigate } from 'react-router-dom';
 
 interface Beneficiario {
   id: number;
@@ -13,14 +13,21 @@ interface Beneficiario {
   dni: number;
   cuil: number;
   telefono: number;
+  afiliadoSindical: boolean;
+  esJubilado: boolean;
+  grupoFamiliarId: {
+    id: number;
+    nombre: string;
+  };
 }
 
 export const Beneficiarios: React.FC = () => {
   const [beneficiarios, setBeneficiarios] = useState<Beneficiario[]>([]);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [search, setSearch] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5; // mostramos 5 por página
+  const navigate = useNavigate();
+
 
   const token = useAuthStore((state) => state.token);
 
@@ -81,15 +88,7 @@ export const Beneficiarios: React.FC = () => {
   };
 
   const agregarBeneficiario = () => {
-    setIsModalOpen(true);
-  };
-
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-  };
-
-  const handleBeneficiarioAdded = () => {
-    obtenerBeneficiarios();
+    navigate('/beneficiario/nuevo');
   };
 
   // --- FILTRADO ---
@@ -154,6 +153,9 @@ export const Beneficiarios: React.FC = () => {
             <th>DNI</th>
             <th>CUIL</th>
             <th>Teléfono</th>
+            <th>Afiliado Sindical</th>
+            <th>¿Es Jubilado?</th>
+            <th>Grupo Familiar</th>
             <th>Acciones</th>
           </tr>
         </thead>
@@ -165,6 +167,9 @@ export const Beneficiarios: React.FC = () => {
               <td>{b.dni}</td>
               <td>{b.cuil}</td>
               <td>{b.telefono}</td>
+              <td>{b.afiliadoSindical ? 'Sí' : 'No'}</td>
+              <td>{b.esJubilado ? 'Sí' : 'No'}</td>
+              <td>{b.grupoFamiliarId ? b.grupoFamiliarId.nombre : 'N/A'}</td>
               <td className={styles.actions}>
                 <FaEdit
                   className={styles.editIcon}
@@ -215,11 +220,6 @@ export const Beneficiarios: React.FC = () => {
         </div>
       )}
 
-      <ModalBeneficiario
-        isOpen={isModalOpen}
-        onClose={handleCloseModal}
-        onBeneficiarioAdded={handleBeneficiarioAdded}
-      />
     </div>
     </div>
   );
