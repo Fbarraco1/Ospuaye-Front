@@ -32,6 +32,9 @@ import ModalMedico from '../components/ui/ModalMedico/ModalMedico';
 import { ImgSistema } from '../components/ui/imgSistema/ImgSistema';
 import ModalBeneficiario from '../components/ui/ModalBeneficiario/ModalBeneficiario';
 import ScrollToTop from './ScrollToTop';
+import HeaderBeneficiario from '../components/screens/HeaderBeneficiario/HeaderBeneficiario';
+import { PedidoOftalmologiaUser } from '../components/screens/PedidoOftalmologiaUser/PedidoOftalmologiaUser';
+import ModalPedidoOftalmologiaUser from '../components/ui/ModalPedidoOftalmologiaUser/ModalPedidoOftalmologiaUser';
 
 export const AppRouter = () => {
   const { user } = useAuthStore();
@@ -46,6 +49,10 @@ export const AppRouter = () => {
         return <AdminOftalmologia />;
       case 'ADMINORTOPEDIA':
         return <AdminOrtopedia />;
+      case 'USER':
+        return <HeaderBeneficiario />;  
+      case 'MEDICO':
+        return <HeaderBeneficiario />;    
       default:
         return null;
     }
@@ -177,6 +184,16 @@ export const AppRouter = () => {
           <PrivateRoutes roles={['ADMIN', 'ADMINORTOPEDIA']}>
             <ModalPedidoOrtopedia /> 
           </PrivateRoutes>} />
+
+        <Route path="/pedidos/oftalmologia/user" element={
+          <PrivateRoutes roles={['USER']}>
+            <PedidoOftalmologiaUser /> 
+          </PrivateRoutes>} /> 
+
+        <Route path="/pedidos/oftalmologia/user/nuevo" element={
+          <PrivateRoutes roles={['USER']}>
+            <ModalPedidoOftalmologiaUser /> 
+          </PrivateRoutes>} /> 
       </Routes>
       <div>
         <span><br /><br /><br /></span>
