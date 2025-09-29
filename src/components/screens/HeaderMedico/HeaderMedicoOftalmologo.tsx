@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import logo from "../../../assets/images/logo/logo1.svg"
 
-const HeaderMedico = () => {
+const HeaderMedicoOftalmologo = () => {
   const navigate = useNavigate();
 
   return (
@@ -13,7 +13,7 @@ const HeaderMedico = () => {
                 <div className="nav-inner">
                     {/* Start Navbar */}
                     <nav className="navbar navbar-expand-lg">
-                    <a className="navbar-brand" href="/admin">
+                    <a className="navbar-brand" href="/main">
                         <img src={logo} alt="Logo" />
                     </a>
                     <button
@@ -48,10 +48,7 @@ const HeaderMedico = () => {
                               aria-controls="navbarSupportedContent" aria-expanded="false"
                               aria-label="Toggle navigation">Reintegros</a>
                               <ul className="sub-menu collapse" id="submenu-1-4">
-                                <li className="nav-item" onClick={() => navigate("/")}>Alta Pedido Medico</li>
-                                <li className="nav-item" onClick={() => navigate("/")}>Gestion Pedido Medico</li>
-                                <li className="nav-item" onClick={() => navigate("/pedidos/oftalmologia/nuevo")}>Pedidos Oftalmologia</li>
-                                <li className="nav-item" onClick={() => navigate("/pedidos/ortopedia/nuevo")}>Pedidos Ortopedia</li>
+                                <li className="nav-item" onClick={() => navigate("/pedidos/oftalmologia/medico")}>Pedidos Oftalmologia</li>
                               </ul>                            
                         </li>                                                                        
                         </ul>
@@ -67,4 +64,4 @@ const HeaderMedico = () => {
   );
 };
 
-export default HeaderMedico;
+export default HeaderMedicoOftalmologo;

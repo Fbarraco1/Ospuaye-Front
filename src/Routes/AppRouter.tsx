@@ -35,6 +35,11 @@ import ScrollToTop from './ScrollToTop';
 import HeaderBeneficiario from '../components/screens/HeaderBeneficiario/HeaderBeneficiario';
 import { PedidoOftalmologiaUser } from '../components/screens/PedidoOftalmologiaUser/PedidoOftalmologiaUser';
 import ModalPedidoOftalmologiaUser from '../components/ui/ModalPedidoOftalmologiaUser/ModalPedidoOftalmologiaUser';
+import { PedidoOrtopediaUser } from '../components/screens/PedidoOrtopediaUser/PedidoOrtopediaUser';
+import ModalPedidoOrtopediaUser from '../components/ui/ModalPedidoOrtopediaUser/ModalPedidoOrtopedia';
+import { GestionDeCuenta } from '../components/screens/GestionDeCuenta/GestionDeCuenta';
+import HeaderMedicoOftalmologo from '../components/screens/HeaderMedico/HeaderMedicoOftalmologo';
+import HeaderMedicoOrtopedia from '../components/screens/HeaderMedico/HeaderMedicoOrtopedia';
 
 export const AppRouter = () => {
   const { user } = useAuthStore();
@@ -51,8 +56,10 @@ export const AppRouter = () => {
         return <AdminOrtopedia />;
       case 'USER':
         return <HeaderBeneficiario />;  
-      case 'MEDICO':
-        return <HeaderBeneficiario />;    
+      case 'MEDICO OFTALMOLOGO':
+        return <HeaderMedicoOftalmologo />;    
+      case 'MEDICO ORTOPEDIA':
+        return <HeaderMedicoOrtopedia />;  
       default:
         return null;
     }
@@ -194,7 +201,33 @@ export const AppRouter = () => {
           <PrivateRoutes roles={['USER']}>
             <ModalPedidoOftalmologiaUser /> 
           </PrivateRoutes>} /> 
-      </Routes>
+
+        <Route path="/pedidos/ortopedia/user" element={
+          <PrivateRoutes roles={['USER']}>
+            <PedidoOrtopediaUser /> 
+          </PrivateRoutes>} /> 
+
+        <Route path="/pedidos/ortopedia/user/nuevo" element={
+          <PrivateRoutes roles={['USER']}>
+            <ModalPedidoOrtopediaUser /> 
+          </PrivateRoutes>} />  
+
+        <Route path="/gestionCuenta" element={
+          <PrivateRoutes roles={['USER', 'MEDICO OFTALMOLOGO', 'MEDICO ORTOPEDIA']}>
+            <GestionDeCuenta /> 
+          </PrivateRoutes>} />  
+
+        <Route path="/pedidos/oftalmologia/medico" element={
+          <PrivateRoutes roles={['MEDICO OFTALMOLOGO']}>
+            <GestionDeCuenta /> 
+          </PrivateRoutes>} />  
+
+        <Route path="/pedidos/ortopedia/medico" element={
+          <PrivateRoutes roles={['MEDICO ORTOPEDIA']}>
+            <GestionDeCuenta /> 
+          </PrivateRoutes>} />          
+
+    </Routes>
       <div>
         <span><br /><br /><br /></span>
       </div>

@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import logo from "../../../assets/images/logo/logo1.svg"
 
-const HeaderBeneficiario = () => {
+const HeaderMedicoOrtopedia = () => {
   const navigate = useNavigate();
 
   return (
@@ -38,7 +38,7 @@ const HeaderBeneficiario = () => {
                               aria-controls="navbarSupportedContent" aria-expanded="false"
                               aria-label="Toggle navigation">Mi cuenta</a>
                               <ul className="sub-menu collapse" id="submenu-1-1">
-                                <li className="nav-item" onClick={() => navigate("/gestionCuenta")}>Gestion de Cuenta</li>
+                                <li className="nav-item" onClick={() => navigate("/")}>Gestion de Cuenta</li>
                               </ul>                            
                         </li>
 
@@ -48,8 +48,7 @@ const HeaderBeneficiario = () => {
                               aria-controls="navbarSupportedContent" aria-expanded="false"
                               aria-label="Toggle navigation">Reintegros</a>
                               <ul className="sub-menu collapse" id="submenu-1-4">
-                                <li className="nav-item" onClick={() => navigate("/pedidos/oftalmologia/user")}>Pedidos Oftalmologia</li>
-                                <li className="nav-item" onClick={() => navigate("/pedidos/ortopedia/user")}>Pedidos Ortopedia</li>
+                                <li className="nav-item" onClick={() => navigate("/pedidos/ortopedia/medico")}>Pedidos Ortopedia</li>
                               </ul>                            
                         </li>                                                                        
                         </ul>
@@ -65,4 +64,4 @@ const HeaderBeneficiario = () => {
   );
 };
 
-export default HeaderBeneficiario;
+export default HeaderMedicoOrtopedia;

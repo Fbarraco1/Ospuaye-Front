@@ -18,6 +18,17 @@ interface AuthState {
 
   startLogin: (email: string, contrasena: string) => Promise<User | null>;
   startRegister: (email: string, contrasena: string) => Promise<User | null>;
+  startRegisterBeneficiario: (
+    nombre: string,
+        apellido: string,
+        email: string,
+        contrasena: string,
+        dni: string,
+        cuil: string,
+        telefono: string,
+        afiliadoSindical: boolean,
+        esJubilado: boolean
+  ) => Promise<void | null>;
   logout: () => void;
 }
 
@@ -86,7 +97,7 @@ export const useAuthStore = create<AuthState>()(
           Swal.fire({
             icon: 'error',
             title: 'Error de registro',
-            text: 'Hubo un error al intentar .',
+            text: 'Hubo un error al intentar registrarse.',
           });          
           return null;
         }
