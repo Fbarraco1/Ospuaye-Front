@@ -10,7 +10,6 @@ export const Login = () => {
 
   const [email, setEmail] = useState('');
   const [contrasena, setContrasena] = useState('');
-  const [rememberMe, setRememberMe] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -80,18 +79,6 @@ export const Login = () => {
                   <div className={styles['check-and-pass']}>
                     <div className="row align-items-center">
                       <div className="col-lg-6 col-md-6 col-12">
-                        <div className={styles['form-check']}>
-                          <input
-                            type="checkbox"
-                            className={`${styles['form-check-input']} ${styles['width-auto']}`}
-                            id="rememberMe"
-                            checked={rememberMe}
-                            onChange={() => setRememberMe(!rememberMe)}
-                          />
-                          <label className={styles['form-check-label']} htmlFor="rememberMe">
-                            Recordarme
-                          </label>
-                        </div>
                       </div>
                       <div className="col-lg-6 col-md-6 col-12">
                         <span onClick={olvideContrasena} className={styles['lost-pass']}>

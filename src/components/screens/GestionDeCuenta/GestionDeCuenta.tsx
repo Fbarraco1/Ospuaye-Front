@@ -3,10 +3,12 @@ import axios from "axios";
 import styles from "./GestionDeCuenta.module.css";
 import { useAuthStore } from "../../../auth/store/authStore";
 import Swal from "sweetalert2";
+import { useNavigate } from "react-router-dom";
 
 export const GestionDeCuenta = () => {
   const token = useAuthStore((state) => state.token);
   const user = useAuthStore((state) => state.user);
+  const navigate = useNavigate();
   const [beneficiario, setBeneficiario] = useState({
     nombre: "",
     apellido: "",
@@ -91,6 +93,7 @@ export const GestionDeCuenta = () => {
   return (
     <div className={styles.container}>
       <h2 className={styles.title}>Editar mis datos</h2>
+      <p onClick={() => navigate('/recuperar-contra')}><s>Cambiar contraseña</s></p>
       <form onSubmit={handleSubmit} className={styles.form}>
         <label className={styles.label}>Nombre:</label>
         <input
