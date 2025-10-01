@@ -120,7 +120,7 @@ export const PedidoOrtopedia: React.FC = () => {
 
   const verHistorial = async (id: number) => {
     try {
-      const res = await axios.get(`http://vps-5301866-x.dattaweb.com:9000/api/historiales/${id}`);
+      const res = await axios.get(`http://vps-5301866-x.dattaweb.com:9000/api/historial-movimientos/${id}`);
       setHistorial([res.data]);
       setModalHistOpen(true);
     } catch (error) {

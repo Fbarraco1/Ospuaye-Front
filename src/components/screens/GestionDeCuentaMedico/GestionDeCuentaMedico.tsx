@@ -9,37 +9,36 @@ export const GestionDeCuenta = () => {
   const token = useAuthStore((state) => state.token);
   const user = useAuthStore((state) => state.user);
   const navigate = useNavigate();
-  const [beneficiario, setBeneficiario] = useState({
+  const [medico, setMedico] = useState({
     nombre: "",
     apellido: "",
     dni: "",
     cuil: "",
     telefono: "",
-    afiliadoSindical: false,
-    esJubilado: false,
+    matricula: "",
   });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (user?.idBeneficiario) {
-      cargarDatosBeneficiario(user.idBeneficiario);
+    if (user?.idMedico) {
+      cargarDatosMedico(user.idMedico);
     }
   }, [user]);
 
-  const cargarDatosBeneficiario = async (id: number) => {
+  const cargarDatosMedico = async (id: number) => {
     try {
       const response = await axios.get(
-        `http://localhost:9000/api/beneficiarios/${id}`,
+        `http://localhost:9000/api/medicos/${id}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
-      setBeneficiario(response.data);
+      setMedico(response.data);
     } catch (error) {
       Swal.fire({
         icon: "error",
         title: "Error",
-        text: "No se pudieron cargar los datos del beneficiario.",
+        text: "No se pudieron cargar los datos del medico.",
       });
     } finally {
       setLoading(false);
@@ -48,7 +47,7 @@ export const GestionDeCuenta = () => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
-    setBeneficiario((prev) => ({
+    setMedico((prev) => ({
       ...prev,
       [name]: type === "checkbox" ? checked : value,
     }));
@@ -58,12 +57,13 @@ export const GestionDeCuenta = () => {
     e.preventDefault();
     try {
       await axios.put(
-        `http://vps-5301866-x.dattaweb.com:9000/api/beneficiarios/${user?.idBeneficiario}`,
+        `http://vps-5301866-x.dattaweb.com:9000/api/medicos/${user?.idMedico}`,
         {
-          ...beneficiario,
-          dni: beneficiario.dni ? Number(beneficiario.dni) : null,
-          cuil: beneficiario.cuil ? Number(beneficiario.cuil) : null,
-          telefono: beneficiario.telefono ? Number(beneficiario.telefono) : null,
+          ...medico,
+          dni: medico.dni ? Number(medico.dni) : null,
+          cuil: medico.cuil ? Number(medico.cuil) : null,
+          telefono: medico.telefono ? Number(medico.telefono) : null,
+          matricula: medico.matricula ? String(medico.matricula) : null,
         },
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -104,7 +104,7 @@ export const GestionDeCuenta = () => {
           className={styles.input}
           type="text"
           name="nombre"
-          value={beneficiario.nombre}
+          value={medico.nombre}
           onChange={handleChange}
           required
         />
@@ -114,7 +114,7 @@ export const GestionDeCuenta = () => {
           className={styles.input}
           type="text"
           name="apellido"
-          value={beneficiario.apellido}
+          value={medico.apellido}
           onChange={handleChange}
           required
         />
@@ -124,7 +124,7 @@ export const GestionDeCuenta = () => {
           className={styles.input}
           type="number"
           name="dni"
-          value={beneficiario.dni}
+          value={medico.dni}
           onChange={handleChange}
           required
         />
@@ -134,7 +134,7 @@ export const GestionDeCuenta = () => {
           className={styles.input}
           type="number"
           name="cuil"
-          value={beneficiario.cuil}
+          value={medico.cuil}
           onChange={handleChange}
           required
         />
@@ -144,27 +144,19 @@ export const GestionDeCuenta = () => {
           className={styles.input}
           type="number"
           name="telefono"
-          value={beneficiario.telefono}
+          value={medico.telefono}
           onChange={handleChange}
           required
         />
 
-        <label className={styles.label}>Afiliado Sindical:</label>
+        <label className={styles.label}>Matrícula:</label>
         <input
-          className={styles.checkbox}
-          type="checkbox"
-          name="afiliadoSindical"
-          checked={beneficiario.afiliadoSindical}
+          className={styles.input}
+          type="text"
+          name="telefono"
+          value={medico.matricula}
           onChange={handleChange}
-        />
-
-        <label className={styles.label}>¿Es Jubilado?</label>
-        <input
-          className={styles.checkbox}
-          type="checkbox"
-          name="esJubilado"
-          checked={beneficiario.esJubilado}
-          onChange={handleChange}
+          required
         />
 
         <button className={styles.addButton} type="submit">

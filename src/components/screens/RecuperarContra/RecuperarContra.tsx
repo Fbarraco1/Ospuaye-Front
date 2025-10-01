@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import styles from "./RecuperarContra.module.css";
 import axios from "axios";
 import { useAuthStore } from "../../../auth/store/authStore";
+import Swal from "sweetalert2";
 
 export default function RecuperarContra() {
   const [email, setEmail] = useState("");
@@ -14,13 +15,18 @@ export default function RecuperarContra() {
   const [showNueva, setShowNueva] = useState(false);
   const [showRepetir, setShowRepetir] = useState(false);
   const token = useAuthStore((state) => state.token);
-  
+  const userId = useAuthStore((state) => state.user?.idUser || 0);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setMensaje("");
 
     if (nueva !== repetirNueva) {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Las contraseñas nuevas no coinciden.",
+      });
       setMensaje("Las contraseñas nuevas no coinciden.");
       return;
     }
@@ -28,8 +34,8 @@ export default function RecuperarContra() {
     setLoading(true);
 
     try {
-      const res = await axios.post(
-        'http://vps-5301866-x.dattaweb.com:9000/api/usuarios/cambiarContrasena',
+      const res = await axios.put(
+        `http://vps-5301866-x.dattaweb.com:9000/api/usuarios/cambiarContrasena/${userId}`,
         { email, actual, nueva },
         {
           headers: {
@@ -39,11 +45,25 @@ export default function RecuperarContra() {
         }
       );
 
-      if (res.status < 200 || res.status >= 300) throw new Error('Error al crear Area');
-      // if (!res.ok) throw new Error(text);
+      if (res.status < 200 || res.status >= 300) throw new Error('Error al cambiar la contraseña');
 
-      // setMensaje(text);
+      Swal.fire({
+        icon: "success",
+        title: "Contraseña actualizada",
+        text: "La contraseña se cambió correctamente.",
+        timer: 2000,
+        showConfirmButton: false,
+      });
+      setMensaje("");
+      setActual("");
+      setNueva("");
+      setRepetirNueva("");
     } catch (err: any) {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: err.message || "Error al actualizar la contraseña.",
+      });
       setMensaje(err.message || "Error al actualizar la contraseña.");
     }
     setLoading(false);

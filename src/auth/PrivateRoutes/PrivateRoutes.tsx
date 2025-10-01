@@ -11,7 +11,7 @@ export const PrivateRoutes = ({ children, roles }: PrivateRouteProps) => {
   const { isAuthenticated, user } = useAuthStore();
 
   if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/" replace />;
   }
 
   if (roles && (!user || !roles.includes(user.rol))) {

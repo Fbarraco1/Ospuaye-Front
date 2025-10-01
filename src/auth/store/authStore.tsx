@@ -9,6 +9,7 @@ interface User {
   rol: string;
   idBeneficiario?: number;
   idMedico?: number;
+  idUser?: number;
 }
 
 interface AuthState {
@@ -51,7 +52,13 @@ export const useAuthStore = create<AuthState>()(
 
           const data = await response.json();
 
-          const newUser = { email: data.email, rol: data.rol, idBeneficiario: data.idBeneficiario, idMedico: data.idMedico };
+          const newUser = { 
+            email, 
+            rol: data.rol, 
+            idBeneficiario: data.idBeneficiario, 
+            idMedico: data.idMedico,
+            idUser: data.idUser 
+          };
 
           set({
             token: data.token,

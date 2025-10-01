@@ -2,6 +2,7 @@ import styles from './ModalEstado.module.css';
 import { useState } from 'react';
 import axios from 'axios';
 import Swal from 'sweetalert2';
+import { useAuthStore } from '../../../auth/store/authStore';
 
 interface ModalEstadoProps {
     isOpen: boolean;
@@ -24,6 +25,8 @@ export const ModalEstadoOrtopedia: React.FC<ModalEstadoProps> = ({
     onChangeEstado
 }) => {
     const [nuevoEstado, setNuevoEstado] = useState('');
+    const token = useAuthStore((state) => state.token);
+    
 
     if (!isOpen) return null;
 
@@ -31,9 +34,15 @@ export const ModalEstadoOrtopedia: React.FC<ModalEstadoProps> = ({
         e.preventDefault();
         try {
             await axios.put(
-                `http://vps-5301866-x.dattaweb.com:9000/api/pedidos/ortopedia/${idPedido}`,
-                { estado: nuevoEstado }
-            );
+                            `http://vps-5301866-x.dattaweb.com:9000/api/pedidos/ortopedia/actualizar/${idPedido}`,
+                            { estado: nuevoEstado }, // 🔹 cuerpo
+                            {
+                                headers: {
+                                'Content-Type': 'application/json',
+                                Authorization: `Bearer ${token}`,
+                                },
+                            }
+                            );
             Swal.fire({
                 icon: 'success',
                 title: 'Estado actualizado',

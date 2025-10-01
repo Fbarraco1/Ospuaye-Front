@@ -117,7 +117,7 @@ const obtenerNacionalidades = async () => {
   const createFamiliar = async (familiar: Familiar) => {
     try {
       const response = await axios.post(
-        'http://vps-5301866-x.dattaweb.com:9000/familiares/crear',
+        'http://vps-5301866-x.dattaweb.com:9000/api/familiares/crear',
         familiar,
         {
           headers: {

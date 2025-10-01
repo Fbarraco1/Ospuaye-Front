@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import {FaFileAlt, FaHistory } from 'react-icons/fa';
-import styles from './PedidoOftalmologiaMedico.module.css';
+import styles from './PedidoOrtopediaMedico.module.css';
 import ModalDocumento from '../../ui/ModalDocumento/ModalDocumento';
 import HistorialMovimiento from '../../ui/HistorialMovimiento/HistorialMovimiento';
 import { useAuthStore } from '../../../auth/store/authStore';
@@ -65,7 +65,7 @@ export const PedidoOrtopediaMedico: React.FC = () => {
 
   const obtenerPedidos = async (id: number) => {
     try {
-      const response = await axios.get(`http://vps-5301866-x.dattaweb.com:9000/api/pedidos/ortopedia/${id}`);
+      const response = await axios.get(`http://vps-5301866-x.dattaweb.com:9000/api/pedidos/ortopedia/medico/${id}`);
       setPedidos(response.data);
     } catch (error) {
       console.error('Error al obtener pedidos de ortopedia:', error);
@@ -119,7 +119,7 @@ export const PedidoOrtopediaMedico: React.FC = () => {
 
   const verHistorial = async (id: number) => {
     try {
-      const res = await axios.get(`http://vps-5301866-x.dattaweb.com:9000/api/historiales/${id}`);
+      const res = await axios.get(`http://vps-5301866-x.dattaweb.com:9000/api/historial-movimientos/${id}`);
       setHistorial([res.data]);
       setModalHistOpen(true);
     } catch (error) {

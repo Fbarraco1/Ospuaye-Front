@@ -38,7 +38,7 @@ const HeaderMedicoOrtopedia = () => {
                               aria-controls="navbarSupportedContent" aria-expanded="false"
                               aria-label="Toggle navigation">Mi cuenta</a>
                               <ul className="sub-menu collapse" id="submenu-1-1">
-                                <li className="nav-item" onClick={() => navigate("/")}>Gestion de Cuenta</li>
+                                <li className="nav-item" onClick={() => navigate("/gestionCuenta")}>Gestion de Cuenta</li>
                               </ul>                            
                         </li>
 

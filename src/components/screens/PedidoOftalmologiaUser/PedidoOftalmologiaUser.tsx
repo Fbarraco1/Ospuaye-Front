@@ -64,7 +64,7 @@ export const PedidoOftalmologiaUser: React.FC = () => {
 
   const obtenerPedidos = async (id: number) => {
     try {
-      const response = await axios.get(`http://vps-5301866-x.dattaweb.com:9000/api/pedidos/oftalmologia/${id}`);
+      const response = await axios.get(`http://vps-5301866-x.dattaweb.com:9000/api/pedidos/oftalmologia/beneficiario/${id}`);
       setPedidos(response.data);
     } catch (error) {
       console.error('Error al obtener pedidos de oftalmología:', error);
@@ -118,7 +118,7 @@ export const PedidoOftalmologiaUser: React.FC = () => {
 
   const verHistorial = async (id: number) => {
     try {
-      const res = await axios.get(`http://vps-5301866-x.dattaweb.com:9000/api/historiales/${id}`);
+      const res = await axios.get(`http://vps-5301866-x.dattaweb.com:9000/api/historial-movimientos/${id}`);
       setHistorial([res.data]);
       setModalHistOpen(true);
     } catch (error) {

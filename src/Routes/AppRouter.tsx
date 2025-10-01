@@ -40,6 +40,8 @@ import ModalPedidoOrtopediaUser from '../components/ui/ModalPedidoOrtopediaUser/
 import { GestionDeCuenta } from '../components/screens/GestionDeCuenta/GestionDeCuenta';
 import HeaderMedicoOftalmologo from '../components/screens/HeaderMedico/HeaderMedicoOftalmologo';
 import HeaderMedicoOrtopedia from '../components/screens/HeaderMedico/HeaderMedicoOrtopedia';
+import { PedidoOftalmologiaMedico } from '../components/screens/PedidosOftalmologiaMedico/PedidosOftalmologiaMedico';
+import { PedidoOrtopediaMedico } from '../components/screens/PedidoOrtopediaMedico/PedidoOrtopediaMedico';
 
 export const AppRouter = () => {
   const { user } = useAuthStore();
@@ -219,12 +221,12 @@ export const AppRouter = () => {
 
         <Route path="/pedidos/oftalmologia/medico" element={
           <PrivateRoutes roles={['MEDICO OFTALMOLOGO']}>
-            <GestionDeCuenta /> 
+            <PedidoOftalmologiaMedico /> 
           </PrivateRoutes>} />  
 
         <Route path="/pedidos/ortopedia/medico" element={
           <PrivateRoutes roles={['MEDICO ORTOPEDIA']}>
-            <GestionDeCuenta /> 
+            <PedidoOrtopediaMedico /> 
           </PrivateRoutes>} />          
 
     </Routes>
