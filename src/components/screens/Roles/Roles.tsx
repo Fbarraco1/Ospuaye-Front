@@ -10,6 +10,7 @@ interface Rol {
     id: number;
     nombre: string;
     area: {
+        id: number; 
         nombre: string;
     }
 }
@@ -18,6 +19,7 @@ export const Roles = () => {
   const [roles, setRoles] = useState<Rol[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [search, setSearch] = useState('');
+  const [rolEdit, setRolEdit] = useState<Rol | undefined>(undefined);
   const token = useAuthStore((state) => state.token);
 
   // 🔹 Estados para paginación
@@ -38,11 +40,14 @@ export const Roles = () => {
   };
     
   const agregarRol = () => {
+    setRolEdit(undefined);
     setIsModalOpen(true);
   }
 
   const editarRol = (id: number) => {
-    console.log('Editar Area con ID:', id);
+    const rol = roles.find(r => r.id === id);
+    setRolEdit(rol);
+    setIsModalOpen(true);
   }
 
   const eliminarRol= async (id: number) => {
@@ -85,6 +90,7 @@ export const Roles = () => {
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
+    setRolEdit(undefined);
   };
 
   const handleAreaAdded = () => {
@@ -211,6 +217,7 @@ export const Roles = () => {
         isOpen={isModalOpen}
         onClose={handleCloseModal}
         onRolAdded={handleAreaAdded}
+        rolEdit={rolEdit}
       />
     </div>
     </div>

@@ -16,6 +16,7 @@ export const Areas = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [search, setSearch] = useState('');
   const [currentPage, setCurrentPage] = useState(1); // estado para paginación
+  const [areaEdit, setAreaEdit] = useState<Area | undefined>(undefined);
   const itemsPerPage = 5;
   const token = useAuthStore((state) => state.token);
   
@@ -34,11 +35,14 @@ export const Areas = () => {
   };
     
   const agregarArea = () => {
+    setAreaEdit(undefined);
     setIsModalOpen(true);
   }
 
   const editarArea = (id: number) => {
-    console.log('Editar Area con ID:', id);
+    const area = areas.find(a => a.id === id);
+    setAreaEdit(area);
+    setIsModalOpen(true);
   }
 
   const eliminarArea = async (id: number) => {
@@ -81,6 +85,7 @@ export const Areas = () => {
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
+    setAreaEdit(undefined);
   };
 
   const handleAreaAdded = () => {
@@ -169,12 +174,12 @@ export const Areas = () => {
       {/* Controles de paginación */}
       {totalPages > 1 && (
         <div style={{ marginTop: '10px', display: 'flex', justifyContent: 'center', gap: '10px' }}>
-          <button onClick={handlePrevPage} disabled={currentPage === 1}>
-            Anterior
+          <button onClick={handlePrevPage} className={styles.pageButton} disabled={currentPage === 1}>
+            ◀
           </button>
           <span>Página {currentPage} de {totalPages}</span>
-          <button onClick={handleNextPage} disabled={currentPage === totalPages}>
-            Siguiente
+          <button onClick={handleNextPage} className={styles.pageButton} disabled={currentPage === totalPages}>
+            ▶
           </button>
         </div>
       )}
@@ -183,6 +188,7 @@ export const Areas = () => {
         isOpen={isModalOpen}
         onClose={handleCloseModal}
         onAreaAdded={handleAreaAdded}
+        areaEdit={areaEdit}
       />
     </div>
     </div>

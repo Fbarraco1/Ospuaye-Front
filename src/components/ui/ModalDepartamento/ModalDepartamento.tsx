@@ -8,6 +8,11 @@ interface ModalDepartamentoProps {
   isOpen: boolean;
   onClose: () => void;
   onDepartamentoAdded?: () => void;
+  departamentoEdit?: {
+    id: number;
+    nombre: string;
+    provincia: { id: number; nombre: string };
+  };
 }
 
 interface Provincia {
@@ -16,16 +21,30 @@ interface Provincia {
 }
 
 
-export const ModalDepartamento: React.FC<ModalDepartamentoProps> = ({ isOpen, onClose, onDepartamentoAdded }) => {
+export const ModalDepartamento: React.FC<ModalDepartamentoProps> = ({
+  isOpen,
+  onClose,
+  onDepartamentoAdded,
+  departamentoEdit
+}) => {
   const [nombre, setNombre] = useState('');
   const [provincias, setProvincias] = useState<Provincia[]>([]);
   const [provincia, setProvincia] = useState<number>(0);
-  
   const token = useAuthStore((state) => state.token);
 
-    useEffect(() => {
+  useEffect(() => {
     obtenerProvincias();
   }, []);
+
+  useEffect(() => {
+    if (departamentoEdit) {
+      setNombre(departamentoEdit.nombre);
+      setProvincia(departamentoEdit.provincia.id);
+    } else {
+      setNombre('');
+      setProvincia(0);
+    }
+  }, [departamentoEdit, isOpen]);
 
   const obtenerProvincias = async () => {
     try {
@@ -72,19 +91,56 @@ export const ModalDepartamento: React.FC<ModalDepartamentoProps> = ({ isOpen, on
     }
   }
 
+  const updateDepartamento = async (
+    id: number,
+    nombre: string,
+    provincia: number
+  ) => {
+    try {
+      const response = await axios.put(
+        `http://vps-5301866-x.dattaweb.com:9000/api/departamentos/${id}`,
+        { nombre, provincia: { id: provincia } },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      if (response.status < 200 || response.status >= 300) throw new Error('Error al editar Departamento');
+      Swal.fire({
+        icon: 'success',
+        title: 'Departamento editado',
+        text: 'El departamento se editó correctamente.',
+        timer: 2000,
+        showConfirmButton: false
+      });
+    } catch (error) {
+      console.error('error:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'No se pudo editar el departamento.',
+      });
+    } 
+  }
+
     const handleSubmit = async (e: React.FormEvent) => {
-      e.preventDefault();
-  
-      try {
-        await createDepartamento(nombre, provincia);
-      
-        if (onDepartamentoAdded) onDepartamentoAdded();
-        onClose();
-      } catch (error) {
-        console.error('Error al crear Provincia:', error);
-      }
-      handleClose();
-    };
+  e.preventDefault();
+
+  try {
+    if (departamentoEdit) {
+      await updateDepartamento(departamentoEdit.id, nombre, provincia);
+    } else {
+      await createDepartamento(nombre, provincia);
+    }
+    if (onDepartamentoAdded) onDepartamentoAdded();
+    onClose();
+  } catch (error) {
+    console.error('Error al guardar Departamento:', error);
+  }
+  handleClose();
+};
   
     const handleClose = () => {
       setNombre('');
@@ -97,7 +153,7 @@ export const ModalDepartamento: React.FC<ModalDepartamentoProps> = ({ isOpen, on
   return (
     <div className={styles.overlay}>
       <div className={styles.modal}>
-        <h2>Agregar Departamento</h2>
+        <h2>{departamentoEdit ? 'Editar Departamento' : 'Agregar Departamento'}</h2>
         <form onSubmit={handleSubmit}>
           <label>Nombre:</label>
           <input
@@ -121,7 +177,7 @@ export const ModalDepartamento: React.FC<ModalDepartamentoProps> = ({ isOpen, on
            </select>
 
           <div className={styles.actions}>
-            <button type="submit">Agregar</button>
+            <button type="submit">{departamentoEdit ? 'Guardar cambios' : 'Agregar'}</button>
             <button type="button" onClick={handleClose}>Cancelar</button>
           </div>
         </form>

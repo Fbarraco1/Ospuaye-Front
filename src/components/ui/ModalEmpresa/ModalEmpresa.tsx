@@ -8,6 +8,13 @@ interface ModalEmpresaProps {
   isOpen: boolean;
   onClose: () => void;
   onEmpresaAdded?: () => void;
+  empresaEdit?: {
+    id: number;
+    nombre: string;
+    cuit: string;
+    razonSocial: string;
+    domicilio: { id: number; calle: string; numeracion: string; codigoPostal: string };
+  };
 }
 interface Domicilio {
     id: number;
@@ -16,7 +23,12 @@ interface Domicilio {
 }
 
 
-export const ModalEmpresa: React.FC<ModalEmpresaProps> = ({ isOpen, onClose, onEmpresaAdded }) => {
+export const ModalEmpresa: React.FC<ModalEmpresaProps> = ({
+  isOpen,
+  onClose,
+  onEmpresaAdded,
+  empresaEdit
+}) => {
   const [nombre, setNombre] = useState('');
   const [cuit, setCuit] = useState('');
   const [razonSocial, setRazonSocial] = useState('');
@@ -24,9 +36,23 @@ export const ModalEmpresa: React.FC<ModalEmpresaProps> = ({ isOpen, onClose, onE
   const [domicilio, setDomicilio] = useState<number>(0);  
   const token = useAuthStore((state) => state.token);
 
-    useEffect(() => {
+  useEffect(() => {
     obtenerDomicilios();
   }, []);
+
+  useEffect(() => {
+    if (empresaEdit) {
+      setNombre(empresaEdit.nombre);
+      setCuit(empresaEdit.cuit);
+      setRazonSocial(empresaEdit.razonSocial);
+      setDomicilio(empresaEdit.domicilio.id);
+    } else {
+      setNombre('');
+      setCuit('');
+      setRazonSocial('');
+      setDomicilio(0);
+    }
+  }, [empresaEdit, isOpen]);
 
   const obtenerDomicilios = async () => {
     try {
@@ -75,16 +101,55 @@ export const ModalEmpresa: React.FC<ModalEmpresaProps> = ({ isOpen, onClose, onE
     }
   }
 
+    const updateEmpresa = async (
+    id: number,
+    nombre: string,
+    cuit: string,
+    razonSocial: string,
+    domicilio: number
+  ) => {
+    try {
+      const response = await axios.put(
+        `http://vps-5301866-x.dattaweb.com:9000/api/empresas/${id}`,
+        { nombre, cuit, razonSocial, domicilio: { id: domicilio } },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      if (response.status < 200 || response.status >= 300) throw new Error('Error al editar Empresa');
+      Swal.fire({
+        icon: 'success',
+        title: 'Empresa editada',
+        text: 'La empresa se editó correctamente.',
+        timer: 2000,
+        showConfirmButton: false
+      });
+    } catch (error) {
+      console.error('error:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'No se pudo editar la empresa.',
+      });
+    }
+  }
+
     const handleSubmit = async (e: React.FormEvent) => {
       e.preventDefault();
   
       try {
-        await createEmpresa(nombre, cuit, razonSocial, domicilio);
-      
+        if (empresaEdit) {
+          await updateEmpresa(empresaEdit.id, nombre, cuit, razonSocial, domicilio);
+        } else {
+          await createEmpresa(nombre, cuit, razonSocial, domicilio);
+        }
         if (onEmpresaAdded) onEmpresaAdded();
         onClose();
       } catch (error) {
-        console.error('Error al crear Empresa:', error);
+        console.error('Error al guardar Empresa:', error);
       }
       handleClose();
     };
@@ -102,7 +167,7 @@ export const ModalEmpresa: React.FC<ModalEmpresaProps> = ({ isOpen, onClose, onE
   return (
     <div className={styles.overlay}>
       <div className={styles.modal}>
-        <h2>Agregar Empresa</h2>
+        <h2>{empresaEdit ? 'Editar Empresa' : 'Agregar Empresa'}</h2>
         <form onSubmit={handleSubmit}>
           <label>Nombre:</label>
           <input
@@ -140,7 +205,7 @@ export const ModalEmpresa: React.FC<ModalEmpresaProps> = ({ isOpen, onClose, onE
            </select>
 
           <div className={styles.actions}>
-            <button type="submit">Agregar</button>
+            <button type="submit">{empresaEdit ? 'Guardar cambios' : 'Agregar'}</button>
             <button type="button" onClick={handleClose}>Cancelar</button>
           </div>
         </form>

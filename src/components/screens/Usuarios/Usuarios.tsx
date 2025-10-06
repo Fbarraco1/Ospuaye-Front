@@ -38,7 +38,7 @@ export const Usuarios: React.FC = () => {
   const eliminarUsuario = async (id: number) => {
     const result = await Swal.fire({
       title: '¿Estás seguro?',
-      text: 'Esta acción eliminará el usuario de forma permanente.',
+      text: 'Esta acción eliminará el usuario.',
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#d33',
@@ -49,7 +49,7 @@ export const Usuarios: React.FC = () => {
 
     if (result.isConfirmed) {
       try {
-        await axios.delete(`http://vps-5301866-x.dattaweb.com:9000/api/usuarios/${id}`, {
+        await axios.patch(`http://vps-5301866-x.dattaweb.com:9000/api/usuarios/${id}/estado`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -161,8 +161,9 @@ export const Usuarios: React.FC = () => {
           <button
             disabled={currentPage === 1}
             onClick={() => setCurrentPage((prev) => prev - 1)}
+            className={styles.pageButton}
           >
-            ← Anterior
+            ◀
           </button>
           <span>
             Página {currentPage} de {totalPages}
@@ -170,8 +171,9 @@ export const Usuarios: React.FC = () => {
           <button
             disabled={currentPage === totalPages}
             onClick={() => setCurrentPage((prev) => prev + 1)}
+            className={styles.pageButton}
           >
-            Siguiente →
+            ▶
           </button>
         </div>
       )}

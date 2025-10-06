@@ -19,6 +19,7 @@ export const Nacionalidad = () => {
   const [currentPage, setCurrentPage] = useState(1); // estado para paginación
   const itemsPerPage = 5;
   const token = useAuthStore((state) => state.token);
+  const [nacionalidadEdit, setNacionalidadEdit] = useState<Nacionalidad | undefined>(undefined);
   
   useEffect(() => {
     obtenerNacionalidades();
@@ -35,17 +36,20 @@ export const Nacionalidad = () => {
   };
     
   const agregarNacionalidad = () => {
+    setNacionalidadEdit(undefined);
     setIsModalOpen(true);
   }
 
   const editarNacionalidad = (id: number) => {
-    console.log('Editar Area con ID:', id);
+    const nac = nacionalidades.find(n => n.id === id);
+    setNacionalidadEdit(nac);
+    setIsModalOpen(true);
   }
 
   const eliminarNacionalidad = async (id: number) => {
     const result = await Swal.fire({
       title: '¿Estás seguro?',
-      text: 'Esta acción eliminará la nacionalidad de forma permanente.',
+      text: 'Esta acción eliminará la nacionalidad.',
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#d33',
@@ -56,7 +60,7 @@ export const Nacionalidad = () => {
 
     if (result.isConfirmed) {    
       try {
-          await axios.delete(`http://vps-5301866-x.dattaweb.com:9000/api/nacionalidades/${id}`, {
+          await axios.patch(`http://vps-5301866-x.dattaweb.com:9000/api/nacionalidades/${id}/estado`, {
               headers: {
               Authorization: `Bearer ${token}`,
               },
@@ -82,6 +86,7 @@ export const Nacionalidad = () => {
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
+    setNacionalidadEdit(undefined);
   };
 
   const handleNacionalidadAdded = () => {
@@ -172,12 +177,12 @@ export const Nacionalidad = () => {
       {/* Controles de paginación */}
       {totalPages > 1 && (
         <div style={{ marginTop: '10px', display: 'flex', justifyContent: 'center', gap: '10px' }}>
-          <button onClick={handlePrevPage} disabled={currentPage === 1}>
-            Anterior
+          <button onClick={handlePrevPage} className={styles.pageButton} disabled={currentPage === 1}>
+            ◀
           </button>
           <span>Página {currentPage} de {totalPages}</span>
-          <button onClick={handleNextPage} disabled={currentPage === totalPages}>
-            Siguiente
+          <button onClick={handleNextPage} className={styles.pageButton} disabled={currentPage === totalPages}>
+            ▶
           </button>
         </div>
       )}
@@ -186,6 +191,7 @@ export const Nacionalidad = () => {
         isOpen={isModalOpen}
         onClose={handleCloseModal}
         onNacionalidadAdded={handleNacionalidadAdded}
+        nacionalidadEdit={nacionalidadEdit}
       />
     </div>
     </div>

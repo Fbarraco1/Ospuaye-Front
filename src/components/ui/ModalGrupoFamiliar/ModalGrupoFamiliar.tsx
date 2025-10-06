@@ -8,6 +8,14 @@ interface ModalGrupoFamiliarProps {
   isOpen: boolean;
   onClose: () => void;
   onGrupoFamiliarAdded?: () => void;
+  grupoEdit?: {
+    id: number;
+    nombreGrupo: string;
+    titular: { id: number; nombre: string; apellido: string };
+    fechaAlta: string;
+    activo: boolean;
+    familiares: any[];
+  };
 }
 
 interface Beneficiario {
@@ -20,16 +28,26 @@ const ModalGrupoFamiliar: React.FC<ModalGrupoFamiliarProps> = ({
   isOpen,
   onClose,
   onGrupoFamiliarAdded,
+  grupoEdit
 }) => {
   const [nombreGrupo, setNombreGrupo] = useState('');
   const [beneficiarios, setBeneficiarios] = useState<Beneficiario[]>([]);
   const [titular, setTitular] = useState<number>(0);
-
   const token = useAuthStore((state) => state.token);
 
   useEffect(() => {
     if (isOpen) obtenerBeneficiarios();
   }, [isOpen]);
+
+  useEffect(() => {
+    if (grupoEdit) {
+      setNombreGrupo(grupoEdit.nombreGrupo);
+      setTitular(grupoEdit.titular.id);
+    } else {
+      setNombreGrupo('');
+      setTitular(0);
+    }
+  }, [grupoEdit, isOpen]);
 
   const obtenerBeneficiarios = async () => {
     try {
@@ -86,16 +104,59 @@ const ModalGrupoFamiliar: React.FC<ModalGrupoFamiliarProps> = ({
     }
   };
 
+  const updateGrupoFamiliar = async (
+    id: number,
+    nombreGrupo: string,
+    titularId: number
+  ) => {
+    try {
+      const response = await axios.put(
+        `http://vps-5301866-x.dattaweb.com:9000/api/grupoFamiliar/${id}`,
+        {
+          nombreGrupo,
+          titular: { id: titularId },
+          fechaAlta: new Date(),
+          activo: true
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      if (response.status < 200 || response.status >= 300)
+        throw new Error('Error al editar Grupo Familiar');
+      Swal.fire({
+        icon: 'success',
+        title: 'Grupo familiar editado',
+        text: 'El grupo familiar se editó correctamente.',
+        timer: 2000,
+        showConfirmButton: false
+      });
+    } catch (error) {
+      console.error('error:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'No se pudo editar el grupo familiar.',
+      });
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     try {
-      await createGrupoFamiliar(nombreGrupo, titular);
-
+      if (grupoEdit) {
+        await updateGrupoFamiliar(grupoEdit.id, nombreGrupo, titular);
+      } else {
+        await createGrupoFamiliar(nombreGrupo, titular);
+      }
       if (onGrupoFamiliarAdded) onGrupoFamiliarAdded();
       handleClose();
     } catch (error) {
-      console.error('Error al crear Grupo Familiar:', error);
+      console.error('Error al guardar Grupo Familiar:', error);
     }
   };
 
@@ -110,7 +171,7 @@ const ModalGrupoFamiliar: React.FC<ModalGrupoFamiliarProps> = ({
   return (
     <div className={styles.overlay}>
       <div className={styles.modal}>
-        <h2>Agregar Grupo Familiar</h2>
+        <h2>{grupoEdit ? 'Editar Grupo Familiar' : 'Agregar Grupo Familiar'}</h2>
         <form onSubmit={handleSubmit}>
           <label>Nombre del Grupo:</label>
           <input
@@ -135,10 +196,8 @@ const ModalGrupoFamiliar: React.FC<ModalGrupoFamiliarProps> = ({
             ))}
           </select>
           <div className={styles.actions}>
-            <button type="submit">Agregar</button>
-            <button type="button" onClick={handleClose}>
-              Cancelar
-            </button>
+            <button type="submit">{grupoEdit ? 'Guardar cambios' : 'Agregar'}</button>
+            <button type="button" onClick={handleClose}>Cancelar</button>
           </div>
         </form>
       </div>

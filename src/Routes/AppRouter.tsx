@@ -227,7 +227,17 @@ export const AppRouter = () => {
         <Route path="/pedidos/ortopedia/medico" element={
           <PrivateRoutes roles={['MEDICO ORTOPEDIA']}>
             <PedidoOrtopediaMedico /> 
-          </PrivateRoutes>} />          
+          </PrivateRoutes>} />         
+
+        <Route path="/pedidos/oftalmologia/editar/:id" element={
+          <PrivateRoutes roles={['ADMIN', 'ADMINOFTALMOLOGIA']}>
+            <ModalPedidoOftalmologia modo="editar" />
+          </PrivateRoutes>} />
+
+          <Route path="/pedidos/ortopedia/editar/:id" element={
+          <PrivateRoutes roles={['ADMIN', 'ADMINORTOPEDIA']}>
+            <ModalPedidoOrtopedia modo="editar" />
+          </PrivateRoutes>} />
 
     </Routes>
       <div>

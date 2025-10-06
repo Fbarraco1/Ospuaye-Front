@@ -8,6 +8,11 @@ interface ModalProvinciaProps {
   isOpen: boolean;
   onClose: () => void;
   onProvinciaAdded?: () => void;
+  provinciaEdit?: {
+    id: number;
+    nombre: string;
+    pais: { id: number; nombre: string };
+  };
 }
 
 interface Pais {
@@ -16,16 +21,30 @@ interface Pais {
 }
 
 
-export const ModalProvincia: React.FC<ModalProvinciaProps> = ({ isOpen, onClose, onProvinciaAdded }) => {
+export const ModalProvincia: React.FC<ModalProvinciaProps> = ({
+  isOpen,
+  onClose,
+  onProvinciaAdded,
+  provinciaEdit
+}) => {
   const [nombre, setNombre] = useState('');
   const [paises, setPaises] = useState<Pais[]>([]);
   const [pais, setPais] = useState<number>(0);
-  
   const token = useAuthStore((state) => state.token);
 
-    useEffect(() => {
+  useEffect(() => {
     obtenerPaises();
   }, []);
+
+  useEffect(() => {
+    if (provinciaEdit) {
+      setNombre(provinciaEdit.nombre);
+      setPais(provinciaEdit.pais.id);
+    } else {
+      setNombre('');
+      setPais(0);
+    }
+  }, [provinciaEdit, isOpen]);
 
   const obtenerPaises = async () => {
     try {
@@ -72,16 +91,53 @@ export const ModalProvincia: React.FC<ModalProvinciaProps> = ({ isOpen, onClose,
     }
   }
 
+  const updateProvincia = async (
+    id: number,
+    nombre: string,
+    pais: number
+  ) => {
+    try {
+      const response = await axios.put(
+        `http://vps-5301866-x.dattaweb.com:9000/api/provincias/${id}`,
+        { nombre, pais: { id: pais } },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      if (response.status < 200 || response.status >= 300) throw new Error('Error al editar Provincia');
+      Swal.fire({
+        icon: 'success',
+        title: 'Provincia editada',
+        text: 'La provincia se editó correctamente.',
+        timer: 2000,
+        showConfirmButton: false
+      });
+    } catch (error) {
+      console.error('error:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'No se pudo editar la provincia.',
+      });
+    }
+  }
+
     const handleSubmit = async (e: React.FormEvent) => {
       e.preventDefault();
   
       try {
-        await createProvincia(nombre, pais);
-      
+        if (provinciaEdit) {
+          await updateProvincia(provinciaEdit.id, nombre, pais);
+        } else {
+          await createProvincia(nombre, pais);
+        }
         if (onProvinciaAdded) onProvinciaAdded();
         onClose();
       } catch (error) {
-        console.error('Error al crear Provincia:', error);
+        console.error('Error al guardar Provincia:', error);
       }
       handleClose();
     };
@@ -97,7 +153,7 @@ export const ModalProvincia: React.FC<ModalProvinciaProps> = ({ isOpen, onClose,
   return (
     <div className={styles.overlay}>
       <div className={styles.modal}>
-        <h2>Agregar Provincia</h2>
+        <h2>{provinciaEdit ? 'Editar Provincia' : 'Agregar Provincia'}</h2>
         <form onSubmit={handleSubmit}>
           <label>Nombre:</label>
           <input
@@ -106,22 +162,21 @@ export const ModalProvincia: React.FC<ModalProvinciaProps> = ({ isOpen, onClose,
             onChange={(e) => setNombre(e.target.value)}
             required
           />
-            <label>Area:</label>
+          <label>Pais:</label>
           <select
             value={pais}
             onChange={(e) => setPais(Number(e.target.value))}
             required
-            >
+          >
             <option value={0} disabled>Seleccione un pais</option>
             {paises.map((a) => (
-                <option key={a.id} value={a.id}>
+              <option key={a.id} value={a.id}>
                 {a.nombre}
-                </option>
+              </option>
             ))}
-           </select>
-
+          </select>
           <div className={styles.actions}>
-            <button type="submit">Agregar</button>
+            <button type="submit">{provinciaEdit ? 'Guardar cambios' : 'Agregar'}</button>
             <button type="button" onClick={handleClose}>Cancelar</button>
           </div>
         </form>

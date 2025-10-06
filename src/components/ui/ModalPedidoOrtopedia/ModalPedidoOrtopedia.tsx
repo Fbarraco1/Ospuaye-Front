@@ -2,10 +2,11 @@ import React, { useEffect, useState } from 'react';
 import styles from './ModalPedidoOrtopedia.module.css';
 import axios from 'axios';
 import { useAuthStore } from '../../../auth/store/authStore';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import Swal from 'sweetalert2';
 
-const ModalPedidoOrtopedia: React.FC<{ onPedidoAdded?: () => void }> = ({ onPedidoAdded }) => {
+const ModalPedidoOrtopedia: React.FC<{modo?: 'editar' | 'crear', onPedidoAdded?: () => void }> = ({ modo = 'crear', onPedidoAdded }) => {
+  const { id } = useParams();
   const token = useAuthStore((state) => state.token);
   const navigate = useNavigate();
 
@@ -30,7 +31,10 @@ const ModalPedidoOrtopedia: React.FC<{ onPedidoAdded?: () => void }> = ({ onPedi
   useEffect(() => {
     obtenerBeneficiarios();
     obtenerMedicos();
-  }, []);
+    if (modo === 'editar' && id) {
+        cargarPedido(id);
+      }
+    }, [id, modo]);
 
   const obtenerBeneficiarios = async () => {
     try {
@@ -47,6 +51,30 @@ const ModalPedidoOrtopedia: React.FC<{ onPedidoAdded?: () => void }> = ({ onPedi
       setMedicos(response.data);
     } catch (error) {
       console.error('Error al obtener Médicos:', error);
+    }
+  };
+
+  
+  const cargarPedido = async (pedidoId: string) => {
+    try {
+      const resp = await axios.get(`http://vps-5301866-x.dattaweb.com:9000/api/pedidos/ortopedia/${pedidoId}`);
+      const pedido = resp.data;
+      setNombre(pedido.nombre || '');
+      setBeneficiarioId(pedido.beneficiario?.id?.toString() || '');
+      setDni(pedido.dni?.toString() || '');
+      setTelefono(pedido.telefono?.toString() || '');
+      setEmpresa(pedido.empresa || '');
+      setDelegacion(pedido.delegacion || '');
+      setMotivoConsulta(pedido.motivoConsulta || '');
+      setRecetaMedica(!!pedido.recetaMedica);
+      setFechaRevision(pedido.fechaRevision ? pedido.fechaRevision.slice(0,10) : '');
+      setObservacionMedico(pedido.observacionMedico || '');
+      setGrupoFamiliarId(pedido.grupoFamiliar?.id?.toString() || '');
+      setPacienteId(pedido.paciente?.id?.toString() || '');
+      setMedicoId(pedido.medico?.id?.toString() || '');
+      // Si quieres cargar documentos, deberías hacer otra petición aquí
+    } catch (error) {
+      console.error('Error al cargar pedido:', error);
     }
   };
 
@@ -103,6 +131,25 @@ const ModalPedidoOrtopedia: React.FC<{ onPedidoAdded?: () => void }> = ({ onPedi
   documentos.forEach(file => formData.append("documentos", file));
 
   try {
+    if (modo === 'editar' && id) {
+        await axios.put(
+          `http://vps-5301866-x.dattaweb.com:9000/api/pedidos/ortopedia/${id}`,
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+              Authorization: `Bearer ${token}`,
+            }
+          }
+        );
+        Swal.fire({
+          icon: 'success',
+          title: 'Pedido actualizado',
+          text: 'El pedido se actualizó correctamente.',
+          timer: 2000,
+          showConfirmButton: false
+        });
+      } else {
     await axios.post(
       'http://vps-5301866-x.dattaweb.com:9000/api/pedidos/ortopedia',
       formData,
@@ -122,6 +169,7 @@ const ModalPedidoOrtopedia: React.FC<{ onPedidoAdded?: () => void }> = ({ onPedi
       timer: 2000,
       showConfirmButton: false
     });
+    }
   } catch (error) {
     console.error('Error al crear pedido ortopedia:', error);
     Swal.fire({

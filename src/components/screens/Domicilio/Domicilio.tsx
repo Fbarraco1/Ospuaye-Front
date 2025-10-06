@@ -29,6 +29,7 @@ export const Domicilio = () => {
   const [domicilios, setDomicilios] = useState<Domicilio[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [search, setSearch] = useState('');
+  const [edit, setEdit] = useState<Domicilio | undefined>(undefined);
   const token = useAuthStore((state) => state.token);
 
   // 🔹 Estados para paginación
@@ -53,13 +54,14 @@ export const Domicilio = () => {
   }
 
   const editarDomicilio = (id: number) => {
-    console.log('Editar Domicilio con ID:', id);
-  }
+    const dom = domicilios.find(d => d.id === id);
+    setEdit(dom);
+    setIsModalOpen(true);  }
 
   const eliminarDomicilio= async (id: number) => {
     const result = await Swal.fire({
       title: '¿Estás seguro?',
-      text: 'Esta acción eliminará el domicilio de forma permanente.',
+      text: 'Esta acción eliminará el domicilio.',
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#d33',
@@ -70,7 +72,7 @@ export const Domicilio = () => {
 
     if (result.isConfirmed) {    
       try {
-          await axios.delete(`http://vps-5301866-x.dattaweb.com:9000/api/domicilios/${id}`, {
+          await axios.patch(`http://vps-5301866-x.dattaweb.com:9000/api/domicilios/${id}/estado`, {
               headers: {
               Authorization: `Bearer ${token}`,
               },
@@ -96,6 +98,7 @@ export const Domicilio = () => {
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
+    setEdit(undefined);
   };
 
   const handleDomicilioAdded = () => {
@@ -209,7 +212,7 @@ export const Domicilio = () => {
           disabled={currentPage === 1}
           className={styles.pageButton}
         >
-          Anterior
+          ◀
         </button>
         <span className={styles.pageInfo}>
           Página {currentPage} de {totalPages || 1}
@@ -219,7 +222,7 @@ export const Domicilio = () => {
           disabled={currentPage === totalPages || totalPages === 0}
           className={styles.pageButton}
         >
-          Siguiente
+          ▶
         </button>
       </div>
 
@@ -227,6 +230,7 @@ export const Domicilio = () => {
         isOpen={isModalOpen}
         onClose={handleCloseModal}
         onDomicilioAdded={handleDomicilioAdded}
+        domicilioEdit={edit}
       />
     </div>
     </div>

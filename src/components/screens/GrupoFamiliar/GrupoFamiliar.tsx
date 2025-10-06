@@ -44,6 +44,7 @@ export const GrupoFamiliar: React.FC = () => {
   const itemsPerPage = 5; // mostramos 5 por página
   const [isModalEditarFamiliarOpen, setIsModalEditarFamiliarOpen] = useState(false);
   const [selectedFamiliar, setSelectedFamiliar] = useState<any>(undefined);
+  const [grupoEdit, setGrupoEdit] = useState<GrupoFamiliar | undefined>(undefined);
 
 
   const token = useAuthStore((state) => state.token);
@@ -64,7 +65,7 @@ export const GrupoFamiliar: React.FC = () => {
   const eliminarGrupo = async (id: number) => {
     const result = await Swal.fire({
           title: '¿Estás seguro?',
-          text: 'Esta acción eliminará el grupo familiar de forma permanente.',
+          text: 'Esta acción eliminará el grupo familiar.',
           icon: 'warning',
           showCancelButton: true,
           confirmButtonColor: '#d33',
@@ -75,7 +76,7 @@ export const GrupoFamiliar: React.FC = () => {
     
         if (result.isConfirmed) {
       try {
-        await axios.delete(`http://vps-5301866-x.dattaweb.com:9000/api/grupoFamiliar/${id}`, {
+        await axios.patch(`http://vps-5301866-x.dattaweb.com:9000/api/grupoFamiliar/${id}/estado`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -100,8 +101,9 @@ export const GrupoFamiliar: React.FC = () => {
   };
 
   const editarGrupo = (id: number) => {
-    console.log('Editar grupo con ID:', id);
-    // Lógica para abrir modal de edición futura
+    const grupo = grupos.find(g => g.id === id);
+    setGrupoEdit(grupo);
+    setIsModalGrupoOpen(true);
   };
 
   const handleExpandRow = (id: number) => {
@@ -121,19 +123,45 @@ export const GrupoFamiliar: React.FC = () => {
   };
 
     const eliminarFamiliar= async (id: number) => {
-    try {
-      await axios.delete(`http://vps-5301866-x.dattaweb.com:9000/api/familiares/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-    } catch (error) {
-      console.error('Error al eliminar familiar:', error);
-    }
-  };
+      const result = await Swal.fire({
+          title: '¿Estás seguro?',
+          text: 'Esta acción eliminará el familiar.',
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#d33',
+          cancelButtonColor: '#3085d6',
+          confirmButtonText: 'Sí, eliminar',
+          cancelButtonText: 'Cancelar'
+        });
+    
+        if (result.isConfirmed) {
+          try {
+            await axios.patch(`http://vps-5301866-x.dattaweb.com:9000/api/familiares/${id}/estado`, {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            });
+            Swal.fire({
+                  icon: 'success',
+                  title: 'Eliminado',
+                  text: 'El familiar fue eliminado correctamente.',
+                  timer: 1500,
+                  showConfirmButton: false
+                });
+          } catch (error) {
+            console.error('Error al eliminar familiar:', error);
+                  Swal.fire({
+                  icon: 'error',
+                  title: 'Error',
+                  text: 'No se pudo eliminar el familiar.',
+                });
+          }
+        }
+    };
 
   const handleCloseModalGrupo = () => {
     setIsModalGrupoOpen(false);
+    setGrupoEdit(undefined);
   };
 
   const handleCloseModalFamiliar = () => {
@@ -348,6 +376,7 @@ export const GrupoFamiliar: React.FC = () => {
         isOpen={isModalGrupoOpen}
         onClose={handleCloseModalGrupo}
         onGrupoFamiliarAdded={handleFamiliarAdded}
+        grupoEdit={grupoEdit}
       />
 
       <EditarFamiliar

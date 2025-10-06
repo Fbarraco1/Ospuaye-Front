@@ -20,6 +20,7 @@ export const Provincia = () => {
   const [provincias, setProvincias] = useState<Provincia[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [search, setSearch] = useState('');
+  const [provinciaEdit, setProvinciaEdit] = useState<Provincia | undefined>(undefined);
   const token = useAuthStore((state) => state.token);
 
   // 🔹 Estados para paginación
@@ -40,17 +41,20 @@ export const Provincia = () => {
   };
     
   const agregarProvincia = () => {
+    setProvinciaEdit(undefined);
     setIsModalOpen(true);
   }
 
   const editarProvincia = (id: number) => {
-    console.log('Editar Provinvcia con ID:', id);
+    const provincia = provincias.find(p => p.id === id);
+    setProvinciaEdit(provincia);
+    setIsModalOpen(true);
   }
 
   const eliminarProvincia= async (id: number) => {
     const result = await Swal.fire({
       title: '¿Estás seguro?',
-      text: 'Esta acción eliminará la provincia de forma permanente.',
+      text: 'Esta acción eliminará la provincia.',
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#d33',
@@ -61,7 +65,7 @@ export const Provincia = () => {
 
     if (result.isConfirmed) {    
       try {
-          await axios.delete(`http://vps-5301866-x.dattaweb.com:9000/api/provincias/${id}`, {
+          await axios.patch(`http://vps-5301866-x.dattaweb.com:9000/api/provincias/${id}/estado`, {
               headers: {
               Authorization: `Bearer ${token}`,
               },
@@ -87,6 +91,7 @@ export const Provincia = () => {
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
+    setProvinciaEdit(undefined);
   };
 
   const handleProvinciaAdded = () => {
@@ -200,6 +205,7 @@ export const Provincia = () => {
         isOpen={isModalOpen}
         onClose={handleCloseModal}
         onProvinciaAdded={handleProvinciaAdded}
+        provinciaEdit={provinciaEdit}
       />
     </div>
     </div>

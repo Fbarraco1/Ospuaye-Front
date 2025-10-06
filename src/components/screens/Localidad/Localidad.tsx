@@ -22,6 +22,7 @@ export const Localidad = () => {
   const [localidades, setLocalidades] = useState<Localidad[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [search, setSearch] = useState('');
+  const [localidadEdit, setLocalidadEdit] = useState<Localidad | undefined>(undefined);
   const token = useAuthStore((state) => state.token);
 
   // 🔹 Estados para paginación
@@ -46,13 +47,15 @@ export const Localidad = () => {
   }
 
   const editarLocalidad = (id: number) => {
-    console.log('Editar Localidad con ID:', id);
+    const loc = localidades.find(l => l.id === id);
+    setLocalidadEdit(loc);
+    setIsModalOpen(true);
   }
 
   const eliminarLocalidad= async (id: number) => {
     const result = await Swal.fire({
           title: '¿Estás seguro?',
-          text: 'Esta acción eliminará la localidad de forma permanente.',
+          text: 'Esta acción eliminará la localidad.',
           icon: 'warning',
           showCancelButton: true,
           confirmButtonColor: '#d33',
@@ -63,7 +66,7 @@ export const Localidad = () => {
     
         if (result.isConfirmed) {
           try {
-              await axios.delete(`http://vps-5301866-x.dattaweb.com:9000/api/localidades/${id}`, {
+              await axios.patch(`http://vps-5301866-x.dattaweb.com:9000/api/localidades/${id}/estado`, {
                   headers: {
                   Authorization: `Bearer ${token}`,
                   },
@@ -89,6 +92,7 @@ export const Localidad = () => {
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
+    setLocalidadEdit(undefined);
   };
 
   const handleLocalidadAdded = () => {
@@ -187,7 +191,7 @@ export const Localidad = () => {
           disabled={currentPage === 1}
           className={styles.pageButton}
         >
-          Anterior
+          ◀
         </button>
         <span className={styles.pageInfo}>
           Página {currentPage} de {totalPages || 1}
@@ -197,7 +201,7 @@ export const Localidad = () => {
           disabled={currentPage === totalPages || totalPages === 0}
           className={styles.pageButton}
         >
-          Siguiente
+          ▶
         </button>
       </div>
 
@@ -205,6 +209,7 @@ export const Localidad = () => {
         isOpen={isModalOpen}
         onClose={handleCloseModal}
         onLocalidadAdded={handleLocalidadAdded}
+        localidadEdit={localidadEdit}
       />
     </div>
     </div>

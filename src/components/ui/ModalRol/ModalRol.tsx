@@ -8,6 +8,11 @@ interface ModalRolProps {
   isOpen: boolean;
   onClose: () => void;
   onRolAdded?: () => void;
+  rolEdit?: {
+    id: number;
+    nombre: string;
+    area: { id: number; nombre: string };
+  };
 }
 
 interface Area {
@@ -16,16 +21,30 @@ interface Area {
 }
 
 
-export const ModalRol: React.FC<ModalRolProps> = ({ isOpen, onClose, onRolAdded }) => {
+export const ModalRol: React.FC<ModalRolProps> = ({
+  isOpen,
+  onClose,
+  onRolAdded,
+  rolEdit
+}) => {
   const [nombre, setNombre] = useState('');
   const [areas, setAreas] = useState<Area[]>([]);
   const [area, setArea] = useState<number>(0);
-  
   const token = useAuthStore((state) => state.token);
 
-    useEffect(() => {
+  useEffect(() => {
     obtenerAreas();
   }, []);
+
+  useEffect(() => {
+    if (rolEdit) {
+      setNombre(rolEdit.nombre);
+      setArea(rolEdit.area.id);
+    } else {
+      setNombre('');
+      setArea(0);
+    }
+  }, [rolEdit, isOpen]);
 
   const obtenerAreas = async () => {
     try {
@@ -37,14 +56,15 @@ export const ModalRol: React.FC<ModalRolProps> = ({ isOpen, onClose, onRolAdded 
     }
   };
 
-  const createRol = async (
-    nombre: string, 
+  const updateRol = async (
+    id: number,
+    nombre: string,
     area: number
   ) => {
-        try {
-      const response = await axios.post(
-        'http://vps-5301866-x.dattaweb.com:9000/api/roles/crear',
-        { nombre, area: { id: area } }, // <-- Cambia aquí
+    try {
+      const response = await axios.put(
+        `http://vps-5301866-x.dattaweb.com:9000/api/roles/${id}`,
+        { nombre, area: { id: area } },
         {
           headers: {
             'Content-Type': 'application/json',
@@ -52,53 +72,86 @@ export const ModalRol: React.FC<ModalRolProps> = ({ isOpen, onClose, onRolAdded 
           },
         }
       );
-
-      if (response.status < 200 || response.status >= 300) throw new Error('Error al crear Rol');
-      
-            Swal.fire({
-              icon: 'success',
-              title: 'Rol creado',
-              text: 'El rol se creó correctamente.',
-              timer: 2000,
-              showConfirmButton: false
-            });
-      // const data = response.data;
+      if (response.status < 200 || response.status >= 300) throw new Error('Error al editar Rol');
+      Swal.fire({
+        icon: 'success',
+        title: 'Rol editado',
+        text: 'El rol se editó correctamente.',
+        timer: 2000,
+        showConfirmButton: false
+      });
     } catch (error) {
       console.error('error:', error);
-            Swal.fire({
-              icon: 'error',
-              title: 'Error',
-              text: 'No se pudo crear el rol.',
-            });
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'No se pudo editar el rol.',
+      });
     }
   }
 
-    const handleSubmit = async (e: React.FormEvent) => {
-      e.preventDefault();
-  
-      try {
+  const createRol = async (
+    nombre: string, 
+    area: number
+  ) => {
+    try {
+      const response = await axios.post(
+        'http://vps-5301866-x.dattaweb.com:9000/api/roles/crear',
+        { nombre, area: { id: area } },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      if (response.status < 200 || response.status >= 300) throw new Error('Error al crear Rol');
+      Swal.fire({
+        icon: 'success',
+        title: 'Rol creado',
+        text: 'El rol se creó correctamente.',
+        timer: 2000,
+        showConfirmButton: false
+      });
+    } catch (error) {
+      console.error('error:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'No se pudo crear el rol.',
+      });
+    }
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    try {
+      if (rolEdit) {
+        await updateRol(rolEdit.id, nombre, area);
+      } else {
         await createRol(nombre, area);
-      
-        if (onRolAdded) onRolAdded();
-        onClose();
-      } catch (error) {
-        console.error('Error al crear beneficiario:', error);
       }
-      handleClose();
-    };
-  
-    const handleClose = () => {
-      setNombre('');
-      setArea(0);
+      if (onRolAdded) onRolAdded();
       onClose();
-    };
-  
-    if (!isOpen) return null;
+    } catch (error) {
+      console.error('Error al guardar Rol:', error);
+    }
+    handleClose();
+  };
+
+  const handleClose = () => {
+    setNombre('');
+    setArea(0);
+    onClose();
+  };
+
+  if (!isOpen) return null;
 
   return (
     <div className={styles.overlay}>
       <div className={styles.modal}>
-        <h2>Agregar Rol</h2>
+        <h2>{rolEdit ? 'Editar Rol' : 'Agregar Rol'}</h2>
         <form onSubmit={handleSubmit}>
           <label>Nombre:</label>
           <input
@@ -107,22 +160,21 @@ export const ModalRol: React.FC<ModalRolProps> = ({ isOpen, onClose, onRolAdded 
             onChange={(e) => setNombre(e.target.value)}
             required
           />
-            <label>Area:</label>
+          <label>Area:</label>
           <select
             value={area}
             onChange={(e) => setArea(Number(e.target.value))}
             required
-            >
+          >
             <option value={0} disabled>Seleccione un área</option>
             {areas.map((a) => (
-                <option key={a.id} value={a.id}>
+              <option key={a.id} value={a.id}>
                 {a.nombre}
-                </option>
+              </option>
             ))}
-           </select>
-
+          </select>
           <div className={styles.actions}>
-            <button type="submit">Agregar</button>
+            <button type="submit">{rolEdit ? 'Guardar cambios' : 'Agregar'}</button>
             <button type="button" onClick={handleClose}>Cancelar</button>
           </div>
         </form>

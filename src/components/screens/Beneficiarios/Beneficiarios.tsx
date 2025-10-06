@@ -47,7 +47,7 @@ export const Beneficiarios: React.FC = () => {
   const eliminarBeneficiario = async (id: number) => {
     const result = await Swal.fire({
       title: '¿Estás seguro?',
-      text: 'Esta acción eliminará el beneficiario de forma permanente.',
+      text: 'Esta acción eliminará el beneficiario.',
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#d33',
@@ -58,7 +58,7 @@ export const Beneficiarios: React.FC = () => {
 
     if (result.isConfirmed) {
       try {
-        await axios.delete(`http://vps-5301866-x.dattaweb.com:9000/api/beneficiarios/${id}`, {
+        await axios.patch(`http://vps-5301866-x.dattaweb.com:9000/api/beneficiarios/${id}/estado`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },

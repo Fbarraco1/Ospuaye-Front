@@ -17,6 +17,7 @@ export const Pais = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [search, setSearch] = useState('');
   const [currentPage, setCurrentPage] = useState(1); // estado para paginación
+  const [paisEdit, setPaisEdit] = useState<Pais | undefined>(undefined);
   const itemsPerPage = 5;
   const token = useAuthStore((state) => state.token);
   
@@ -35,17 +36,20 @@ export const Pais = () => {
   };
     
   const agregarPais = () => {
+    setPaisEdit(undefined);
     setIsModalOpen(true);
   }
 
   const editarPais = (id: number) => {
-    console.log('Editar Area con ID:', id);
+    const pais = paises.find(p => p.id === id);
+    setPaisEdit(pais);
+    setIsModalOpen(true);
   }
 
   const eliminarPais = async (id: number) => {
     const result = await Swal.fire({
       title: '¿Estás seguro?',
-      text: 'Esta acción eliminará el pais de forma permanente.',
+      text: 'Esta acción eliminará el pai.',
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#d33',
@@ -56,7 +60,7 @@ export const Pais = () => {
 
     if (result.isConfirmed) {    
       try {
-          await axios.delete(`http://vps-5301866-x.dattaweb.com:9000/api/paises/${id}`, {
+          await axios.patch(`http://vps-5301866-x.dattaweb.com:9000/api/paises/${id}/estado`, {
               headers: {
               Authorization: `Bearer ${token}`,
               },
@@ -82,6 +86,7 @@ export const Pais = () => {
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
+    setPaisEdit(undefined);
   };
 
   const handlePaisesAdded = () => {
@@ -172,12 +177,12 @@ export const Pais = () => {
       {/* Controles de paginación */}
       {totalPages > 1 && (
         <div style={{ marginTop: '10px', display: 'flex', justifyContent: 'center', gap: '10px' }}>
-          <button onClick={handlePrevPage} disabled={currentPage === 1}>
-            Anterior
+          <button onClick={handlePrevPage} className={styles.pageButton} disabled={currentPage === 1}>
+            ◀
           </button>
           <span>Página {currentPage} de {totalPages}</span>
-          <button onClick={handleNextPage} disabled={currentPage === totalPages}>
-            Siguiente
+          <button onClick={handleNextPage} className={styles.pageButton} disabled={currentPage === totalPages}>
+            ▶
           </button>
         </div>
       )}
@@ -186,6 +191,7 @@ export const Pais = () => {
         isOpen={isModalOpen}
         onClose={handleCloseModal}
         onPaisesAdded={handlePaisesAdded}
+        paisEdit={paisEdit}
       />
     </div>
     </div>

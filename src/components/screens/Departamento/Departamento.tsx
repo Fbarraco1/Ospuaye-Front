@@ -20,6 +20,7 @@ export const Departamento = () => {
   const [departamentos, setDepartamentos] = useState<Departamento[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [search, setSearch] = useState('');
+  const [departamentoEdit, setDepartamentoEdit] = useState<Departamento | undefined>(undefined);
   const token = useAuthStore((state) => state.token);
 
   // 🔹 Estados para paginación
@@ -44,13 +45,15 @@ export const Departamento = () => {
   }
 
   const editarDepartamento = (id: number) => {
-    console.log('Editar Departamento con ID:', id);
+    const depto = departamentos.find(d => d.id === id);
+    setDepartamentoEdit(depto);
+    setIsModalOpen(true);
   }
 
   const eliminarDepartamento= async (id: number) => {
     const result = await Swal.fire({
           title: '¿Estás seguro?',
-          text: 'Esta acción eliminará el beneficiario de forma permanente.',
+          text: 'Esta acción eliminará el beneficiario.',
           icon: 'warning',
           showCancelButton: true,
           confirmButtonColor: '#d33',
@@ -61,7 +64,7 @@ export const Departamento = () => {
     
       if (result.isConfirmed) {
         try {
-            await axios.delete(`http://vps-5301866-x.dattaweb.com:9000/api/departamentos/${id}`, {
+            await axios.patch(`http://vps-5301866-x.dattaweb.com:9000/api/departamentos/${id}/estado`, {
                 headers: {
                 Authorization: `Bearer ${token}`,
                 },
@@ -87,6 +90,7 @@ export const Departamento = () => {
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
+    setDepartamentoEdit(undefined);
   };
 
   const handleDepartamentoAdded = () => {
@@ -182,7 +186,7 @@ export const Departamento = () => {
           disabled={currentPage === 1}
           className={styles.pageButton}
         >
-          Anterior
+          ◀
         </button>
         <span className={styles.pageInfo}>
           Página {currentPage} de {totalPages || 1}
@@ -192,7 +196,7 @@ export const Departamento = () => {
           disabled={currentPage === totalPages || totalPages === 0}
           className={styles.pageButton}
         >
-          Siguiente
+          ▶
         </button>
       </div>
 
@@ -200,6 +204,7 @@ export const Departamento = () => {
         isOpen={isModalOpen}
         onClose={handleCloseModal}
         onDepartamentoAdded={handleDepartamentoAdded}
+        departamentoEdit={departamentoEdit}
       />
     </div>
     </div>

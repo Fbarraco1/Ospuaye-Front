@@ -2,10 +2,11 @@ import React, { useEffect, useState } from 'react';
 import styles from './ModalPedidoOftalmologia.module.css';
 import axios from 'axios';
 import { useAuthStore } from '../../../auth/store/authStore';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import Swal from 'sweetalert2';
 
-const ModalPedidoOftalmologia: React.FC<{ onPedidoAdded?: () => void }> = ({ onPedidoAdded }) => {
+const ModalPedidoOftalmologia: React.FC<{ modo?: 'editar' | 'crear', onPedidoAdded?: () => void }> = ({ modo = 'crear', onPedidoAdded }) => {
+  const { id } = useParams();
   const token = useAuthStore((state) => state.token);
   const navigate = useNavigate();
 
@@ -31,7 +32,10 @@ const ModalPedidoOftalmologia: React.FC<{ onPedidoAdded?: () => void }> = ({ onP
   useEffect(() => {
     obtenerBeneficiarios();
     obtenerMedicos();
-  }, []);
+    if (modo === 'editar' && id) {
+      cargarPedido(id);
+    }
+  }, [id, modo]);
 
   const obtenerBeneficiarios = async () => {
     try {
@@ -48,6 +52,30 @@ const ModalPedidoOftalmologia: React.FC<{ onPedidoAdded?: () => void }> = ({ onP
       setMedicos(response.data);
     } catch (error) {
       console.error('Error al obtener Médicos:', error);
+    }
+  };
+
+  const cargarPedido = async (pedidoId: string) => {
+    try {
+      const resp = await axios.get(`http://vps-5301866-x.dattaweb.com:9000/api/pedidos/oftalmologia/${pedidoId}`);
+      const pedido = resp.data;
+      setNombre(pedido.nombre || '');
+      setBeneficiarioId(pedido.beneficiario?.id?.toString() || '');
+      setDni(pedido.dni?.toString() || '');
+      setTelefono(pedido.telefono?.toString() || '');
+      setEmpresa(pedido.empresa || '');
+      setDelegacion(pedido.delegacion || '');
+      setMotivoConsulta(pedido.motivoConsulta || '');
+      setUsaLentes(!!pedido.usaLentes);
+      setRecetaMedica(!!pedido.recetaMedica);
+      setFechaRevision(pedido.fechaRevision ? pedido.fechaRevision.slice(0,10) : '');
+      setObservacionMedico(pedido.observacionMedico || '');
+      setGrupoFamiliarId(pedido.grupoFamiliar?.id?.toString() || '');
+      setPacienteId(pedido.paciente?.id?.toString() || '');
+      setMedicoId(pedido.medico?.id?.toString() || '');
+      // Si quieres cargar documentos, deberías hacer otra petición aquí
+    } catch (error) {
+      console.error('Error al cargar pedido:', error);
     }
   };
 
@@ -91,48 +119,64 @@ const ModalPedidoOftalmologia: React.FC<{ onPedidoAdded?: () => void }> = ({ onP
       beneficiario: { id: Number(beneficiarioId) },
       medico: { id: Number(medicoId) }
     };
-      // 👇 Solo agregamos grupoFamiliar si hay valor
-      if (grupoFamiliarId && grupoFamiliarId.trim() !== '') {
-        pedido.grupoFamiliar = { id: Number(grupoFamiliarId) };
-      }
-
-      // 👇 Solo agregamos paciente si hay valor
-      if (pacienteId && pacienteId.trim() !== '') {
-        pedido.paciente = { id: Number(pacienteId) };
-      }
+    if (grupoFamiliarId && grupoFamiliarId.trim() !== '') {
+      pedido.grupoFamiliar = { id: Number(grupoFamiliarId) };
+    }
+    if (pacienteId && pacienteId.trim() !== '') {
+      pedido.paciente = { id: Number(pacienteId) };
+    }
 
     const formData = new FormData();
     formData.append('pedido', JSON.stringify(pedido));
-
     documentos.forEach(file => formData.append("documentos", file));
 
     try {
-      await axios.post(
-        'http://vps-5301866-x.dattaweb.com:9000/api/pedidos/oftalmologia',
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-            Authorization: `Bearer ${token}`,
+      if (modo === 'editar' && id) {
+        await axios.put(
+          `http://vps-5301866-x.dattaweb.com:9000/api/pedidos/oftalmologia/${id}`,
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+              Authorization: `Bearer ${token}`,
+            }
           }
-        }
-      );
+        );
+        Swal.fire({
+          icon: 'success',
+          title: 'Pedido actualizado',
+          text: 'El pedido se actualizó correctamente.',
+          timer: 2000,
+          showConfirmButton: false
+        });
+      } else {
+        await axios.post(
+          'http://vps-5301866-x.dattaweb.com:9000/api/pedidos/oftalmologia',
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+              Authorization: `Bearer ${token}`,
+            }
+          }
+        );
+        Swal.fire({
+          icon: 'success',
+          title: 'Pedido creado',
+          text: 'El pedido se creó correctamente.',
+          timer: 2000,
+          showConfirmButton: false
+        });
+      }
       if (onPedidoAdded) onPedidoAdded();
       navigate('/pedidos/oftalmologia');
-            Swal.fire({
-              icon: 'success',
-              title: 'Pedido creado',
-              text: 'El pedido se creó correctamente.',
-              timer: 2000,
-              showConfirmButton: false
-            });
     } catch (error) {
-      console.error('Error al crear pedido oftalmologia:', error);
-            Swal.fire({
-              icon: 'error',
-              title: 'Error',
-              text: 'No se pudo crear el pedido.',
-            });
+      console.error('Error al guardar pedido oftalmologia:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'No se pudo guardar el pedido.',
+      });
     }
   };
 

@@ -12,7 +12,13 @@
   margin-bottom: 20px;
   color: #333333;
 }
-
+.pageButton{
+  padding: '5px 10px';
+  border-radius: '8px';
+  border: '1px solid #ccc';
+  background: #88C250;
+  cursor: 'pointer';
+}
 .addButton {
   background-color: #4caf50;
   color: white;

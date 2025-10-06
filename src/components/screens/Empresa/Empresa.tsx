@@ -24,6 +24,7 @@ export const Empresa = () => {
   const [empresas, setEmpresas] = useState<Empresa[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [search, setSearch] = useState('');
+  const [empresaEdit, setEmpresaEdit] = useState<Empresa | undefined>(undefined);
   const token = useAuthStore((state) => state.token);
 
   // 🔹 Estados para paginación
@@ -48,13 +49,15 @@ export const Empresa = () => {
   }
 
   const editarEmpresa = (id: number) => {
-    console.log('Editar Empresa con ID:', id);
+    const emp = empresas.find(e => e.id === id);
+    setEmpresaEdit(emp);
+    setIsModalOpen(true);
   }
 
   const eliminarEmpresa= async (id: number) => {
     const result = await Swal.fire({
       title: '¿Estás seguro?',
-      text: 'Esta acción eliminará la empresa de forma permanente.',
+      text: 'Esta acción eliminará la empresa.',
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#d33',
@@ -65,7 +68,7 @@ export const Empresa = () => {
 
     if (result.isConfirmed) {
       try {
-          await axios.delete(`http://vps-5301866-x.dattaweb.com:9000/api/empresas/${id}`, {
+          await axios.patch(`http://vps-5301866-x.dattaweb.com:9000/api/empresas/${id}/estado`, {
               headers: {
               Authorization: `Bearer ${token}`,
               },
@@ -91,6 +94,7 @@ export const Empresa = () => {
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
+    setEmpresaEdit(undefined);
   };
 
   const handleEmpresaAdded = () => {
@@ -196,7 +200,7 @@ export const Empresa = () => {
           disabled={currentPage === 1}
           className={styles.pageButton}
         >
-          Anterior
+          ◀
         </button>
         <span className={styles.pageInfo}>
           Página {currentPage} de {totalPages || 1}
@@ -206,7 +210,7 @@ export const Empresa = () => {
           disabled={currentPage === totalPages || totalPages === 0}
           className={styles.pageButton}
         >
-          Siguiente
+          ▶
         </button>
       </div>
 
@@ -214,6 +218,7 @@ export const Empresa = () => {
         isOpen={isModalOpen}
         onClose={handleCloseModal}
         onEmpresaAdded={handleEmpresaAdded}
+        empresaEdit={empresaEdit}
       />
     </div>
     </div>

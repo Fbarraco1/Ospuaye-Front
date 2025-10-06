@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuthStore } from '../../../auth/store/authStore';
 import styles from './ModalNacionalidad.module.css';
 import axios from 'axios';
@@ -8,16 +8,34 @@ interface ModalNacionalidadProps {
   isOpen: boolean;
   onClose: () => void;
   onNacionalidadAdded?: () => void;
+  nacionalidadEdit?: {
+    id: number;
+    nombre: string;
+    activo: boolean;
+  };
 }
 
-export const ModalNacionalidad: React.FC<ModalNacionalidadProps> = ({ isOpen, onClose, onNacionalidadAdded }) => {
+export const ModalNacionalidad: React.FC<ModalNacionalidadProps> = ({
+  isOpen,
+  onClose,
+  onNacionalidadAdded,
+  nacionalidadEdit
+}) => {
   const [nombre, setNombre] = useState('');
   const token = useAuthStore((state) => state.token);
+
+  useEffect(() => {
+    if (nacionalidadEdit) {
+      setNombre(nacionalidadEdit.nombre);
+    } else {
+      setNombre('');
+    }
+  }, [nacionalidadEdit, isOpen]);
 
   const createNacionalidad = async (
     nombre: string
   ) => {
-        try {
+    try {
       const response = await axios.post(
         'http://vps-5301866-x.dattaweb.com:9000/api/nacionalidades/crear',
         { nombre },
@@ -28,51 +46,85 @@ export const ModalNacionalidad: React.FC<ModalNacionalidadProps> = ({ isOpen, on
           },
         }
       );
-
       if (response.status < 200 || response.status >= 300) throw new Error('Error al crear Nacionalidad');
-            Swal.fire({
-              icon: 'success',
-              title: 'Localidad creada',
-              text: 'La localidad se creó correctamente.',
-              timer: 2000,
-              showConfirmButton: false
-            });
-      // const data = response.data;
+      Swal.fire({
+        icon: 'success',
+        title: 'Nacionalidad creada',
+        text: 'La nacionalidad se creó correctamente.',
+        timer: 2000,
+        showConfirmButton: false
+      });
     } catch (error) {
       console.error('error:', error);
-            Swal.fire({
-              icon: 'error',
-              title: 'Error',
-              text: 'No se pudo crear la nacionalidad.',
-            });
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'No se pudo crear la nacionalidad.',
+      });
     }
   }
 
-    const handleSubmit = async (e: React.FormEvent) => {
-      e.preventDefault();
-  
-      try {
+  const updateNacionalidad = async (
+    id: number,
+    nombre: string
+  ) => {
+    try {
+      const response = await axios.put(
+        `http://vps-5301866-x.dattaweb.com:9000/api/nacionalidades/${id}`,
+        { nombre },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      if (response.status < 200 || response.status >= 300) throw new Error('Error al editar Nacionalidad');
+      Swal.fire({
+        icon: 'success',
+        title: 'Nacionalidad editada',
+        text: 'La nacionalidad se editó correctamente.',
+        timer: 2000,
+        showConfirmButton: false
+      });
+    } catch (error) {
+      console.error('error:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'No se pudo editar la nacionalidad.',
+      });
+    }
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    try {
+      if (nacionalidadEdit) {
+        await updateNacionalidad(nacionalidadEdit.id, nombre);
+      } else {
         await createNacionalidad(nombre);
-      
-        if (onNacionalidadAdded) onNacionalidadAdded();
-        onClose();
-      } catch (error) {
-        console.error('Error al crear Nacionalidad:', error);
       }
-      handleClose();
-    };
-  
-    const handleClose = () => {
-      setNombre('');
+      if (onNacionalidadAdded) onNacionalidadAdded();
       onClose();
-    };
-  
-    if (!isOpen) return null;
+    } catch (error) {
+      console.error('Error al guardar Nacionalidad:', error);
+    }
+    handleClose();
+  };
+
+  const handleClose = () => {
+    setNombre('');
+    onClose();
+  };
+
+  if (!isOpen) return null;
 
   return (
     <div className={styles.overlay}>
       <div className={styles.modal}>
-        <h2>Agregar Nacionalidad</h2>
+        <h2>{nacionalidadEdit ? 'Editar Nacionalidad' : 'Agregar Nacionalidad'}</h2>
         <form onSubmit={handleSubmit}>
           <label>Nombre:</label>
           <input
@@ -81,9 +133,8 @@ export const ModalNacionalidad: React.FC<ModalNacionalidadProps> = ({ isOpen, on
             onChange={(e) => setNombre(e.target.value)}
             required
           />
-
           <div className={styles.actions}>
-            <button type="submit">Agregar</button>
+            <button type="submit">{nacionalidadEdit ? 'Guardar cambios' : 'Agregar'}</button>
             <button type="button" onClick={handleClose}>Cancelar</button>
           </div>
         </form>

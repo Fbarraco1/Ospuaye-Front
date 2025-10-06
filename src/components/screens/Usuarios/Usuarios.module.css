@@ -22,6 +22,13 @@ tr:nth-child(even) {
 tr:hover {
   background-color: #f1f1f1;
 }
+.pageButton{
+  padding: '5px 10px';
+  border-radius: '8px';
+  border: '1px solid #ccc';
+  background: #88C250;
+  cursor: 'pointer';
+}
 
 button {
   background-color: #28a745;

@@ -73,7 +73,7 @@ export const PedidoOftalmologia: React.FC = () => {
   const eliminarPedido = async (id: number) => {
     const result = await Swal.fire({
       title: '¿Estás seguro?',
-      text: 'Esta acción eliminará el pedido de forma permanente.',
+      text: 'Esta acción eliminará el pedido.',
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#d33',
@@ -84,7 +84,7 @@ export const PedidoOftalmologia: React.FC = () => {
 
     if (result.isConfirmed) {    
       try {
-        await axios.delete(`http://vps-5301866-x.dattaweb.com:9000/api/pedidos/oftalmologia/${id}`);
+        await axios.patch(`http://vps-5301866-x.dattaweb.com:9000/api/pedidos/oftalmologia/${id}/estado`);
         setPedidos((prev) => prev.filter((p) => p.id !== id));
           Swal.fire({
             icon: 'success',
@@ -105,7 +105,7 @@ export const PedidoOftalmologia: React.FC = () => {
   };
 
   const editarPedido = (id: number) => {
-    console.log('Editar pedido:', id);
+    navigate(`/pedidos/oftalmologia/editar/${id}`);
   };
 
   const verDocumentos = async (id: number) => {

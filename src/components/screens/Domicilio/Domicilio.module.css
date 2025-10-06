@@ -79,3 +79,11 @@
 .deleteIcon:hover {
   color: darkred;
 }
+
+.pageButton{
+  padding: '5px 10px';
+  border-radius: '8px';
+  border: '1px solid #ccc';
+  background: #88C250;
+  cursor: 'pointer';
+}
