@@ -39,7 +39,6 @@ const HeaderAdmin = () => {
                               aria-label="Toggle navigation">Usuario</a>
                               <ul className="sub-menu collapse" id="submenu-1-1">
                                 <li className="nav-item" onClick={() => navigate("/usuarios")}>ABM Usuarios</li>
-                                <li className="nav-item" onClick={() => navigate("/")}>Modificacion Clave</li>
                               </ul>                            
                         </li>
 

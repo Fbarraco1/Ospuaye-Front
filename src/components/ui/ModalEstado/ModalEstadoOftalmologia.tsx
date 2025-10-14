@@ -80,7 +80,7 @@ export const ModalEstadoOftalmologia: React.FC<ModalEstadoProps> = ({
                         ))}
                     </select>
                     <div className={styles.actions}>
-                        <button type="submit" className={styles.addButton}>Guardar</button>
+                        <button type="submit" className={styles.addButton}>Aceptar</button>
                         <button type="button" className={styles.addButton} style={{backgroundColor:'#888'}} onClick={onClose}>Cancelar</button>
                     </div>
                 </form>

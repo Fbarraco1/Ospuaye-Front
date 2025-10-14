@@ -128,7 +128,7 @@ export const ModalArea: React.FC<ModalAreaProps> = ({ isOpen, onClose, onAreaAdd
             required
           />
           <div className={styles.actions}>
-            <button type="submit">{areaEdit ? 'Guardar cambios' : 'Agregar'}</button>
+            <button type="submit">Aceptar</button>
             <button type="button" onClick={handleClose}>Cancelar</button>
           </div>
         </form>

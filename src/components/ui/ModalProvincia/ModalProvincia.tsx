@@ -176,7 +176,7 @@ export const ModalProvincia: React.FC<ModalProvinciaProps> = ({
             ))}
           </select>
           <div className={styles.actions}>
-            <button type="submit">{provinciaEdit ? 'Guardar cambios' : 'Agregar'}</button>
+            <button type="submit">Aceptar</button>
             <button type="button" onClick={handleClose}>Cancelar</button>
           </div>
         </form>

@@ -269,7 +269,7 @@ export const ModalDomicilio: React.FC<ModalDomicilioProps> = ({ isOpen, onClose,
            </select>
 
           <div className={styles.actions}>
-            <button type="submit">{domicilioEdit ? 'Guardar cambios' : 'Agregar'}</button>
+            <button type="submit">Aceptar</button>
             <button type="button" onClick={handleClose}>Cancelar</button>
           </div>
         </form>

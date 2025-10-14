@@ -10,10 +10,9 @@ interface ModalEmpresaProps {
   onEmpresaAdded?: () => void;
   empresaEdit?: {
     id: number;
-    nombre: string;
     cuit: string;
     razonSocial: string;
-    domicilio: { id: number; calle: string; numeracion: string; codigoPostal: string };
+    domicilio: { id: number; calle: string; numeracion: string; localidad: {id: number, codigoPostal: string }};
   };
 }
 interface Domicilio {
@@ -29,7 +28,6 @@ export const ModalEmpresa: React.FC<ModalEmpresaProps> = ({
   onEmpresaAdded,
   empresaEdit
 }) => {
-  const [nombre, setNombre] = useState('');
   const [cuit, setCuit] = useState('');
   const [razonSocial, setRazonSocial] = useState('');
   const [domicilios, setDomicilios] = useState<Domicilio[]>([]);
@@ -42,12 +40,10 @@ export const ModalEmpresa: React.FC<ModalEmpresaProps> = ({
 
   useEffect(() => {
     if (empresaEdit) {
-      setNombre(empresaEdit.nombre);
       setCuit(empresaEdit.cuit);
       setRazonSocial(empresaEdit.razonSocial);
       setDomicilio(empresaEdit.domicilio.id);
     } else {
-      setNombre('');
       setCuit('');
       setRazonSocial('');
       setDomicilio(0);
@@ -65,7 +61,6 @@ export const ModalEmpresa: React.FC<ModalEmpresaProps> = ({
   };
 
   const createEmpresa = async (
-    nombre: string,
     cuit: string,
     razonSocial: string,
     domicilio: number
@@ -73,7 +68,7 @@ export const ModalEmpresa: React.FC<ModalEmpresaProps> = ({
         try {
       const response = await axios.post(
         'http://vps-5301866-x.dattaweb.com:9000/api/empresas/crear',
-        { nombre, cuit, razonSocial, domicilio: { id: domicilio } }, // <-- Cambia aquí
+        {  cuit, razonSocial, domicilio: { id: domicilio } }, // <-- Cambia aquí
         {
           headers: {
             'Content-Type': 'application/json',
@@ -103,7 +98,6 @@ export const ModalEmpresa: React.FC<ModalEmpresaProps> = ({
 
     const updateEmpresa = async (
     id: number,
-    nombre: string,
     cuit: string,
     razonSocial: string,
     domicilio: number
@@ -111,7 +105,7 @@ export const ModalEmpresa: React.FC<ModalEmpresaProps> = ({
     try {
       const response = await axios.put(
         `http://vps-5301866-x.dattaweb.com:9000/api/empresas/${id}`,
-        { nombre, cuit, razonSocial, domicilio: { id: domicilio } },
+        { cuit, razonSocial, domicilio: { id: domicilio } },
         {
           headers: {
             'Content-Type': 'application/json',
@@ -142,9 +136,9 @@ export const ModalEmpresa: React.FC<ModalEmpresaProps> = ({
   
       try {
         if (empresaEdit) {
-          await updateEmpresa(empresaEdit.id, nombre, cuit, razonSocial, domicilio);
+          await updateEmpresa(empresaEdit.id, cuit, razonSocial, domicilio);
         } else {
-          await createEmpresa(nombre, cuit, razonSocial, domicilio);
+          await createEmpresa(cuit, razonSocial, domicilio);
         }
         if (onEmpresaAdded) onEmpresaAdded();
         onClose();
@@ -155,7 +149,6 @@ export const ModalEmpresa: React.FC<ModalEmpresaProps> = ({
     };
   
     const handleClose = () => {
-      setNombre('');
       setCuit('');
       setRazonSocial('');
       setDomicilio(0);
@@ -169,13 +162,6 @@ export const ModalEmpresa: React.FC<ModalEmpresaProps> = ({
       <div className={styles.modal}>
         <h2>{empresaEdit ? 'Editar Empresa' : 'Agregar Empresa'}</h2>
         <form onSubmit={handleSubmit}>
-          <label>Nombre:</label>
-          <input
-            type="text"
-            value={nombre}
-            onChange={(e) => setNombre(e.target.value)}
-            required
-          />
           <label>Cuit:</label>
           <input
             type="number"
@@ -205,7 +191,7 @@ export const ModalEmpresa: React.FC<ModalEmpresaProps> = ({
            </select>
 
           <div className={styles.actions}>
-            <button type="submit">{empresaEdit ? 'Guardar cambios' : 'Agregar'}</button>
+            <button type="submit">Aceptar</button>
             <button type="button" onClick={handleClose}>Cancelar</button>
           </div>
         </form>

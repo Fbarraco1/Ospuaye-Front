@@ -178,7 +178,7 @@ const EditarFamiliar: React.FC<EditarFamiliarProps> = ({
           </select>
 
           <div className={styles.actions}>
-            <button type="submit" className={styles.saveButton}>Guardar Cambios</button>
+            <button type="submit" className={styles.saveButton}>Aceptar</button>
             <button type="button" onClick={handleClose} className={styles.cancelButton}>Cancelar</button>
           </div>
         </form>

@@ -16,6 +16,7 @@ interface Familiar {
   cuil: string;
   telefono: string;
   tipoParentesco: string;
+  activo: boolean;
 }
 
 interface GrupoFamiliar {
@@ -76,12 +77,13 @@ export const GrupoFamiliar: React.FC = () => {
     
         if (result.isConfirmed) {
       try {
-        await axios.patch(`http://vps-5301866-x.dattaweb.com:9000/api/grupoFamiliar/${id}/estado`, {
+        await axios.patch(`http://vps-5301866-x.dattaweb.com:9000/api/grupoFamiliar/${id}/estado`, 
+          {}, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
-        setGrupos((prev) => prev.filter((g) => g.id !== id));
+        obtenerGrupos(); // refrescar la lista
                 Swal.fire({
                   icon: 'success',
                   title: 'Eliminado',
@@ -285,6 +287,7 @@ export const GrupoFamiliar: React.FC = () => {
                               <th>Nombre</th>
                               <th>Apellido</th>
                               <th>Parentesco</th>
+                              <th>Activo</th>
                               <th>Acciones</th>
                             </tr>
                           </thead>
@@ -294,6 +297,7 @@ export const GrupoFamiliar: React.FC = () => {
                                 <td>{f.nombre}</td>
                                 <td>{f.apellido}</td>
                                 <td>{f.tipoParentesco}</td>
+                                <td>{f.activo ? 'Sí' : 'No'}</td>
                                 <td className={styles.actions}>
                                   <FaEdit
                                     className={styles.editIcon}

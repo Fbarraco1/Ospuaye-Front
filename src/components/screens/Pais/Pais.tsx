@@ -49,7 +49,7 @@ export const Pais = () => {
   const eliminarPais = async (id: number) => {
     const result = await Swal.fire({
       title: '¿Estás seguro?',
-      text: 'Esta acción eliminará el pai.',
+      text: 'Esta acción eliminará el pais.',
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#d33',
@@ -60,12 +60,13 @@ export const Pais = () => {
 
     if (result.isConfirmed) {    
       try {
-          await axios.patch(`http://vps-5301866-x.dattaweb.com:9000/api/paises/${id}/estado`, {
+          await axios.patch(`http://vps-5301866-x.dattaweb.com:9000/api/paises/${id}/estado`, 
+            {}, {
               headers: {
               Authorization: `Bearer ${token}`,
               },
           });
-          setPaises(prev => prev.filter(b => b.id !== id));
+          obtenerPaises(); // refrescar la lista
           Swal.fire({
             icon: 'success',
             title: 'Eliminado',
@@ -74,7 +75,7 @@ export const Pais = () => {
             showConfirmButton: false
           });          
           } catch (error) {
-          console.error('Error al eliminar beneficiario:', error);
+          console.error('Error al eliminar pais:', error);
           Swal.fire({
             icon: 'error',
             title: 'Error',
@@ -158,7 +159,7 @@ export const Pais = () => {
           {currentItems.map((b) => (
             <tr key={b.id}>
               <td>{b.nombre}</td>
-              <td>{b.activo}</td>
+              <td>{b.activo ? 'Sí' : 'No'}</td>
               <td className={styles.actions}>
                 <FaEdit
                   className={styles.editIcon}

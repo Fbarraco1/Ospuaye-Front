@@ -150,7 +150,7 @@ const ModalPedido: React.FC<ModalPedidoProps> = ({ isOpen, onClose, onPedidoAdde
           </select>
 
           <div className={styles.actions}>
-            <button type="submit">Agregar</button>
+            <button type="submit">Aceptar</button>
             <button type="button" onClick={handleClose}>Cancelar</button>
           </div>
         </form>

@@ -22,7 +22,6 @@ interface Domicilio {
         activo: boolean;
     },
     tipo: 'URBANO' | 'RURAL';
-
 }
 
 export const Domicilio = () => {
@@ -72,12 +71,13 @@ export const Domicilio = () => {
 
     if (result.isConfirmed) {    
       try {
-          await axios.patch(`http://vps-5301866-x.dattaweb.com:9000/api/domicilios/${id}/estado`, {
+          await axios.patch(`http://vps-5301866-x.dattaweb.com:9000/api/domicilios/${id}/estado`, 
+            {}, {
               headers: {
               Authorization: `Bearer ${token}`,
               },
           });
-          setDomicilios(prev => prev.filter(b => b.id !== id));
+          obtenerDomicilios(); // refrescar la lista
                   Swal.fire({
                     icon: 'success',
                     title: 'Eliminado',
@@ -172,10 +172,11 @@ export const Domicilio = () => {
             <th>Numeracion</th>
             <th>Barrio</th>
             <th>Manzana/Piso</th>
-            <th>Casa/Departamento</th>
+            <th>Casa/Dpto</th>
             <th>Referencia</th>
             <th>Localidad</th>
             <th>Tipo</th>
+            <th>Activo</th>
             <th>Acciones</th>
           </tr>
         </thead>
@@ -190,6 +191,7 @@ export const Domicilio = () => {
               <td>{b.referencia}</td>
               <td>{b.tipo}</td>
               <td>{/* @ts-ignore */ b.localidad.nombre}</td>
+              <td>{b.activo ? 'Sí' : 'No'}</td>
               <td className={styles.actions}>
                 <FaEdit
                   className={styles.editIcon}

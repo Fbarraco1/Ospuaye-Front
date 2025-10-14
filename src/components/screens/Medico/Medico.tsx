@@ -15,6 +15,7 @@ interface Medico {
     id: number;
     nombre: string;
   };
+  activo: boolean;
 }
 
 export const Medico: React.FC = () => {
@@ -54,12 +55,14 @@ export const Medico: React.FC = () => {
     });
     if (result.isConfirmed) {
       try {
-        await axios.patch(`http://vps-5301866-x.dattaweb.com:9000/api/medicos/${id}/estado`, {
+        await axios.patch(`http://vps-5301866-x.dattaweb.com:9000/api/medicos/${id}/estado`, 
+          {},
+          {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
-        setMedicos(prev => prev.filter(m => m.id !== id));
+        obtenerMedicos(); // refrescar lista
         Swal.fire({
           icon: 'success',
           title: 'Eliminado',
@@ -152,6 +155,7 @@ export const Medico: React.FC = () => {
             <th>Apellido</th>
             <th>Matrícula</th>
             <th>Área</th>
+            <th>Activo</th>
             <th>Acciones</th>
           </tr>
         </thead>
@@ -163,6 +167,7 @@ export const Medico: React.FC = () => {
               <td>{m.apellido}</td>
               <td>{m.matricula}</td>
               <td>{m.area?.nombre}</td> 
+              <td>{m.activo ? 'Sí' : 'No'}</td>
               <td className={styles.actions}>
                 <FaEdit
                   className={styles.editIcon}

@@ -60,12 +60,13 @@ export const Nacionalidad = () => {
 
     if (result.isConfirmed) {    
       try {
-          await axios.patch(`http://vps-5301866-x.dattaweb.com:9000/api/nacionalidades/${id}/estado`, {
+          await axios.patch(`http://vps-5301866-x.dattaweb.com:9000/api/nacionalidades/${id}/estado`, 
+            {}, {
               headers: {
               Authorization: `Bearer ${token}`,
               },
           });
-          setNacionalidades(prev => prev.filter(b => b.id !== id));
+          obtenerNacionalidades(); // refrescar la lista
           Swal.fire({
             icon: 'success',
             title: 'Eliminado',

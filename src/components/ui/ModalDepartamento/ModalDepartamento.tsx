@@ -162,7 +162,7 @@ export const ModalDepartamento: React.FC<ModalDepartamentoProps> = ({
             onChange={(e) => setNombre(e.target.value)}
             required
           />
-            <label>Area:</label>
+            <label>Provincia:</label>
           <select
             value={provincia}
             onChange={(e) => setProvincia(Number(e.target.value))}
@@ -177,7 +177,7 @@ export const ModalDepartamento: React.FC<ModalDepartamentoProps> = ({
            </select>
 
           <div className={styles.actions}>
-            <button type="submit">{departamentoEdit ? 'Guardar cambios' : 'Agregar'}</button>
+            <button type="submit">Aceptar</button>
             <button type="button" onClick={handleClose}>Cancelar</button>
           </div>
         </form>

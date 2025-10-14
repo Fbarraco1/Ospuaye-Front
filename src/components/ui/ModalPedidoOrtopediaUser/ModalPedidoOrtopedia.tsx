@@ -182,7 +182,7 @@ const ModalPedidoOrtopediaUser: React.FC<{ onPedidoAdded?: () => void }> = ({ on
         <input type="file" multiple onChange={e => setDocumentos(Array.from(e.target.files || []))} />
 
         <div className={styles.actions}>
-          <button type="submit">Agregar</button>
+          <button type="submit">Aceptar</button>
           <button type="button" onClick={handleVolver}>Cancelar</button>
         </div>
       </form>

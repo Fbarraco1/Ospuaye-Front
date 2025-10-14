@@ -9,6 +9,7 @@ import Swal from 'sweetalert2';
 interface Area {
     id: number;
     nombre: string;
+    activo: boolean;
 }
 
 export const Areas = () => {
@@ -149,6 +150,7 @@ export const Areas = () => {
         <thead>
           <tr>
             <th>Nombre</th>
+            <th>Activo</th>
             <th>Acciones</th>
           </tr>
         </thead>
@@ -156,6 +158,7 @@ export const Areas = () => {
           {currentItems.map((b) => (
             <tr key={b.id}>
               <td>{b.nombre}</td>
+              <td>{b.activo ? 'Sí' : 'No'}</td>
               <td className={styles.actions}>
                 <FaEdit
                   className={styles.editIcon}

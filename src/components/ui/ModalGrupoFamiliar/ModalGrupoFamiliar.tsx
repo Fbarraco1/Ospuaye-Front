@@ -196,7 +196,7 @@ const ModalGrupoFamiliar: React.FC<ModalGrupoFamiliarProps> = ({
             ))}
           </select>
           <div className={styles.actions}>
-            <button type="submit">{grupoEdit ? 'Guardar cambios' : 'Agregar'}</button>
+            <button type="submit">Aceptar</button>
             <button type="button" onClick={handleClose}>Cancelar</button>
           </div>
         </form>

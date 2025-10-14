@@ -10,7 +10,9 @@ import Swal from 'sweetalert2';
 interface Usuario {
   id: number;
   email: string;
-  rol: { nombre: string };
+  contrasena: string;
+  rol: { id: number, nombre: string };
+  activo: boolean;
   [key: string]: any; // Para permitir más campos dinámicamente
 }
 
@@ -18,6 +20,7 @@ export const Usuarios: React.FC = () => {
   const [usuarios, setUsuarios] = useState<Usuario[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [search, setSearch] = useState('');
+  const [usuarioEdit, setUsuarioEdit] = useState<Usuario | undefined>(undefined);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
   const token = useAuthStore((state) => state.token);
@@ -49,12 +52,14 @@ export const Usuarios: React.FC = () => {
 
     if (result.isConfirmed) {
       try {
-        await axios.patch(`http://vps-5301866-x.dattaweb.com:9000/api/usuarios/${id}/estado`, {
+        await axios.patch(`http://vps-5301866-x.dattaweb.com:9000/api/usuarios/${id}/estado`, 
+          {},
+          {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        });
-        setUsuarios((prev) => prev.filter((usuario) => usuario.id !== id));
+          });
+        obtenerUsuarios();
         Swal.fire({
           icon: 'success',
           title: 'Eliminado',
@@ -74,11 +79,19 @@ export const Usuarios: React.FC = () => {
   };
 
   const editarUsuario = (id: number) => {
-    console.log('Editar usuario con ID:', id);
+    const usuario = usuarios.find(u => u.id === id);
+    setUsuarioEdit(usuario);
+    setIsModalOpen(true);
   };
 
   const agregarUsuario = () => {
+    setUsuarioEdit(undefined);
     setIsModalOpen(true);
+  };
+
+    const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setUsuarioEdit(undefined);
   };
 
   // Filtra por cualquier campo del usuario
@@ -132,6 +145,7 @@ export const Usuarios: React.FC = () => {
           <tr>
             <th>Email</th>
             <th>Rol</th>
+            <th>Activo</th>
             <th>Acciones</th>
           </tr>
         </thead>
@@ -140,6 +154,7 @@ export const Usuarios: React.FC = () => {
             <tr key={usuario.id}>
               <td>{usuario.email}</td>
               <td>{usuario.rol?.nombre}</td>
+              <td>{usuario.activo ? 'Sí' : 'No'}</td>
               <td className={styles.actions}>
                 <FaEdit
                   style={{ cursor: 'pointer', marginRight: '10px' }}
@@ -180,11 +195,12 @@ export const Usuarios: React.FC = () => {
 
       <ModalUsuario
         isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
+        onClose={handleCloseModal}
         onUserAdded={() => {
           obtenerUsuarios();
           setIsModalOpen(false);
         }}
+        usuarioEdit={usuarioEdit}
       />
     </div>
     </div>

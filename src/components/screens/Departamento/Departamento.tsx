@@ -14,6 +14,7 @@ interface Departamento {
         nombre: string;
         activo: boolean;
     }
+    activo: boolean;
 }
 
 export const Departamento = () => {
@@ -64,12 +65,13 @@ export const Departamento = () => {
     
       if (result.isConfirmed) {
         try {
-            await axios.patch(`http://vps-5301866-x.dattaweb.com:9000/api/departamentos/${id}/estado`, {
+            await axios.patch(`http://vps-5301866-x.dattaweb.com:9000/api/departamentos/${id}/estado`, 
+              {}, {
                 headers: {
                 Authorization: `Bearer ${token}`,
                 },
             });
-            setDepartamentos(prev => prev.filter(b => b.id !== id));
+            obtenerDepartamentos(); // refrescar la lista
             Swal.fire({
                       icon: 'success',
                       title: 'Eliminado',
@@ -148,7 +150,7 @@ export const Departamento = () => {
         style={{ marginBottom: '10px', padding: '5px', width: '250px' }}
       />
       <button className={styles.addButton} onClick={agregarDepartamento}>
-        <FaPlus /> Agregar Roles
+        <FaPlus /> Agregar Departamentos
       </button>
 
       <table className={styles.table}>
@@ -156,6 +158,7 @@ export const Departamento = () => {
           <tr>
             <th>Nombre</th>
             <th>Provincia</th>
+            <th>Activo</th>
             <th>Acciones</th>
           </tr>
         </thead>
@@ -164,6 +167,7 @@ export const Departamento = () => {
             <tr key={b.id}>
               <td>{b.nombre}</td>
               <td>{/* @ts-ignore */ b.provincia.nombre}</td>
+              <td>{b.activo ? 'Sí' : 'No'}</td>
               <td className={styles.actions}>
                 <FaEdit
                   className={styles.editIcon}

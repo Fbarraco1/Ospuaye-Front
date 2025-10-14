@@ -19,6 +19,7 @@ interface Beneficiario {
     id: number;
     nombre: string;
   };
+  activo: boolean;
 }
 
 export const Beneficiarios: React.FC = () => {
@@ -58,12 +59,13 @@ export const Beneficiarios: React.FC = () => {
 
     if (result.isConfirmed) {
       try {
-        await axios.patch(`http://vps-5301866-x.dattaweb.com:9000/api/beneficiarios/${id}/estado`, {
+        await axios.patch(`http://vps-5301866-x.dattaweb.com:9000/api/beneficiarios/${id}/estado`, 
+          {}, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
-        setBeneficiarios((prev) => prev.filter((b) => b.id !== id));
+        obtenerBeneficiarios(); // refrescar la lista
         Swal.fire({
           icon: 'success',
           title: 'Eliminado',
@@ -156,6 +158,7 @@ export const Beneficiarios: React.FC = () => {
             <th>Afiliado Sindical</th>
             <th>¿Es Jubilado?</th>
             <th>Grupo Familiar</th>
+            <th>Activo</th>
             <th>Acciones</th>
           </tr>
         </thead>
@@ -169,7 +172,8 @@ export const Beneficiarios: React.FC = () => {
               <td>{b.telefono}</td>
               <td>{b.afiliadoSindical ? 'Sí' : 'No'}</td>
               <td>{b.esJubilado ? 'Sí' : 'No'}</td>
-              <td>{b.grupoFamiliarId ? b.grupoFamiliarId.nombre : 'N/A'}</td>
+              <td>{b.grupoFamiliarId ? b.grupoFamiliarId.id : 'N/A'}</td>
+              <td>{b.activo ? 'Sí' : 'No'}</td>
               <td className={styles.actions}>
                 <FaEdit
                   className={styles.editIcon}

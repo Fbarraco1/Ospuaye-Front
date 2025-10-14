@@ -7,6 +7,12 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
+.pagination {
+  margin-top: 10px;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
 .title {
   font-size: 24px;
   margin-bottom: 20px;
@@ -30,6 +36,14 @@
 
 .addButton:hover {
   background-color: #45a049;
+}
+
+.pageButton{
+  padding: '5px 10px';
+  border-radius: '8px';
+  border: '1px solid #ccc';
+  background: #88C250;
+  cursor: 'pointer';
 }
 
 .table {

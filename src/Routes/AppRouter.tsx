@@ -42,6 +42,7 @@ import HeaderMedicoOftalmologo from '../components/screens/HeaderMedico/HeaderMe
 import HeaderMedicoOrtopedia from '../components/screens/HeaderMedico/HeaderMedicoOrtopedia';
 import { PedidoOftalmologiaMedico } from '../components/screens/PedidosOftalmologiaMedico/PedidosOftalmologiaMedico';
 import { PedidoOrtopediaMedico } from '../components/screens/PedidoOrtopediaMedico/PedidoOrtopediaMedico';
+import NotFound from '../components/screens/NotFound/NotFound';
 
 export const AppRouter = () => {
   const { user } = useAuthStore();
@@ -82,7 +83,9 @@ export const AppRouter = () => {
         <Route path="/recuperar-contra" element={<RecuperarContra />} />
         <Route path="/perdi-contra" element={<PerdiContra />} />
 
-
+        {/* Error 404  */}
+          <Route path="*" element={<NotFound />} />
+          
          {/* Rutas Admin */}
         <Route path="/admin" element={
           <PrivateRoutes roles={['ADMIN']}>

@@ -134,7 +134,7 @@ export const ModalNacionalidad: React.FC<ModalNacionalidadProps> = ({
             required
           />
           <div className={styles.actions}>
-            <button type="submit">{nacionalidadEdit ? 'Guardar cambios' : 'Agregar'}</button>
+            <button type="submit">Aceptar</button>
             <button type="button" onClick={handleClose}>Cancelar</button>
           </div>
         </form>

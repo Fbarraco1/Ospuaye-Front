@@ -8,7 +8,6 @@ import Swal from 'sweetalert2';
 
 interface Empresa {
     id: number;
-    nombre: string;
     cuit: string;
     razonSocial: string;
     activo: boolean;
@@ -16,7 +15,10 @@ interface Empresa {
         id: number;
         calle: string;
         numeracion: string;
-        codigoPostal: string;
+        localidad: {
+            id: number;
+            codigoPostal: string;
+        }
     }
 }
 
@@ -68,12 +70,13 @@ export const Empresa = () => {
 
     if (result.isConfirmed) {
       try {
-          await axios.patch(`http://vps-5301866-x.dattaweb.com:9000/api/empresas/${id}/estado`, {
+          await axios.patch(`http://vps-5301866-x.dattaweb.com:9000/api/empresas/${id}/estado`, 
+            {}, {
               headers: {
               Authorization: `Bearer ${token}`,
               },
           });
-          setEmpresas(prev => prev.filter(b => b.id !== id));
+          obtenerEmpresas(); // refrescar la lista  
                   Swal.fire({
                     icon: 'success',
                     title: 'Eliminado',
@@ -105,12 +108,12 @@ export const Empresa = () => {
   const provinciasFiltrados = empresas.filter((r) =>
     [
       r.id,
-      r.nombre,
       r.cuit,
       r.razonSocial,
       r.domicilio?.calle,
       r.domicilio?.numeracion,
-      r.domicilio?.codigoPostal
+      r.domicilio?.localidad?.codigoPostal,
+      r.activo ? 'sí' : 'no'
     ]
       .join(' ')
       .toLowerCase()
@@ -162,22 +165,22 @@ export const Empresa = () => {
       <table className={styles.table}>
         <thead>
           <tr>
-            <th>Nombre</th>
-            <th>Cuit</th>
             <th>Razon Social</th>
+            <th>Cuit</th>
             <th>Domicilio</th>
             <th>Codigo Postal</th>
+            <th>Activo</th>
             <th>Acciones</th>
           </tr>
         </thead>
         <tbody>
           {rolesPaginados.map((b) => (
             <tr key={b.id}>
-              <td>{b.nombre}</td>
-              <td>{b.cuit}</td>
               <td>{b.razonSocial}</td>
+              <td>{b.cuit}</td>
               <td>{`${b.domicilio.calle} ${b.domicilio.numeracion}`}</td>
-              <td>{b.domicilio.codigoPostal}</td>
+              <td>{`${b.domicilio.localidad.codigoPostal}`}</td>
+              <td>{b.activo ? 'Sí' : 'No'}</td>
               <td className={styles.actions}>
                 <FaEdit
                   className={styles.editIcon}

@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import ModalDocumento from '../../ui/ModalDocumento/ModalDocumento';
 import HistorialMovimiento from '../../ui/HistorialMovimiento/HistorialMovimiento';
 import Swal from 'sweetalert2';
+import { useAuthStore } from '../../../auth/store/authStore';
 
 interface Beneficiario {
   nombre: string;
@@ -27,6 +28,7 @@ interface PedidoOrtopedia {
   fechaIngreso: string;
   estado: string;
   medico: Medico;
+  activo: boolean;
 }
 
 interface Documento {
@@ -56,6 +58,8 @@ export const PedidoOrtopedia: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
   const navigate = useNavigate();
+    const token = useAuthStore((state) => state.token);
+  
 
   useEffect(() => {
     obtenerPedidos();
@@ -70,39 +74,44 @@ export const PedidoOrtopedia: React.FC = () => {
     }
   };
 
-  const eliminarPedido = async (id: number) => {
-    const result = await Swal.fire({
-      title: '¿Estás seguro?',
-      text: 'Esta acción eliminará el pedido.',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#d33',
-      cancelButtonColor: '#3085d6',
-      confirmButtonText: 'Sí, eliminar',
-      cancelButtonText: 'Cancelar'
-    });
+const eliminarPedido = async (id: number) => {
+      const result = await Swal.fire({
+        title: '¿Estás seguro?',
+        text: 'Esta acción eliminará el pedido.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar'
+      });
 
-    if (result.isConfirmed) {
-      try {
-        await axios.patch(`http://vps-5301866-x.dattaweb.com:9000/api/pedidos/ortopedia/${id}/estado`);
-        setPedidos((prev) => prev.filter((p) => p.id !== id));
-        Swal.fire({
-          icon: 'success',
-          title: 'Eliminado',
-          text: 'El pedido fue eliminado correctamente.',
-          timer: 1500,
-          showConfirmButton: false
-        });        
-      } catch (error) {
-        console.error('Error al eliminar pedido:', error);
-        Swal.fire({
-          icon: 'error',
-          title: 'Error',
-          text: 'No se pudo eliminar el pedido.',
-        });
+      if (result.isConfirmed) {    
+        try {
+            await axios.patch(`http://vps-5301866-x.dattaweb.com:9000/api/pedidos/oftalmologia/${id}/estado`, 
+              {}, {
+                headers: {
+                Authorization: `Bearer ${token}`,
+                },
+            });
+            obtenerPedidos(); // refrescar la lista
+            Swal.fire({
+              icon: 'success',
+              title: 'Eliminado',
+              text: 'El pedido fue eliminado correctamente.',
+              timer: 1500,
+              showConfirmButton: false
+            });          
+            } catch (error) {
+            console.error('Error al eliminar Pedido:', error);
+            Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: 'No se pudo eliminar el pedido.',
+            });     
+          }
       }
     }
-  };
 
   const editarPedido = (id: number) => {
     navigate(`/pedidos/ortopedia/editar/${id}`);
@@ -200,7 +209,6 @@ export const PedidoOrtopedia: React.FC = () => {
       <table className={styles.table}>
         <thead>
           <tr>
-            <th>ID</th>
             <th>Nombre</th>
             <th>Beneficiario</th>
             <th>DNI</th>
@@ -210,13 +218,13 @@ export const PedidoOrtopedia: React.FC = () => {
             <th>Fecha Ingreso</th>
             <th>Estado</th>
             <th>Médico</th>
+            <th>Activo</th>
             <th>Acciones</th>
           </tr>
         </thead>
         <tbody>
           {currentItems.map((p) => (
             <tr key={p.id}>
-              <td>{p.id}</td>
               <td>{p.nombre}</td>
               <td>{`${p.beneficiario?.nombre} ${p.beneficiario?.apellido}`}</td>
               <td>{p.dni}</td>
@@ -226,6 +234,7 @@ export const PedidoOrtopedia: React.FC = () => {
               <td>{new Date(p.fechaIngreso).toLocaleDateString()}</td>
               <td>{p.estado}</td>
               <td>{p.medico?.matricula}</td>
+              <td>{p.activo? 'si' : 'No'}</td>
               <td className={styles.actions}>
                 <FaFileAlt className={styles.icon} onClick={() => verDocumentos(p.id)} title="Ver documentos" />
                 <FaHistory className={styles.icon} onClick={() => verHistorial(p.id)} title="Ver historial" />

@@ -66,12 +66,13 @@ export const Localidad = () => {
     
         if (result.isConfirmed) {
           try {
-              await axios.patch(`http://vps-5301866-x.dattaweb.com:9000/api/localidades/${id}/estado`, {
+              await axios.patch(`http://vps-5301866-x.dattaweb.com:9000/api/localidades/${id}/estado`, 
+                {}, {
                   headers: {
                   Authorization: `Bearer ${token}`,
                   },
               });
-              setLocalidades(prev => prev.filter(b => b.id !== id));
+              obtenerLocalidades(); // refrescar la lista
               Swal.fire({
                         icon: 'success',
                         title: 'Eliminado',
@@ -160,6 +161,7 @@ export const Localidad = () => {
             <th>Nombre</th>
             <th>Departamento</th>
             <th>Código Postal</th>
+            <th>Activo</th>
             <th>Acciones</th>
           </tr>
         </thead>
@@ -169,6 +171,7 @@ export const Localidad = () => {
               <td>{b.nombre}</td>
               <td>{/* @ts-ignore */ b.departamento.nombre}</td>
               <td>{b.codigoPostal}</td>
+              <td>{b.activo ? 'Sí' : 'No'}</td>
               <td className={styles.actions}>
                 <FaEdit
                   className={styles.editIcon}

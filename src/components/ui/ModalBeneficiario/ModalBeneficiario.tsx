@@ -161,7 +161,7 @@ const ModalBeneficiario: React.FC<{ onBeneficiarioAdded?: () => void }> = ({ onB
           />                    
 
           <div className={styles.actions}>
-            <button type="submit">Agregar</button>
+            <button type="submit">Aceptar</button>
             <button type="button" onClick={handleVolver}>Cancelar</button>
           </div>
         </form>

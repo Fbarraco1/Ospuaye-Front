@@ -10,6 +10,12 @@ interface ModalUsuarioProps {
   isOpen: boolean;
   onClose: () => void;
   onUserAdded?: () => void; // para recargar la tabla después de agregar
+  usuarioEdit?: {
+      id: number;
+      email: string;
+      contrasena: string;
+      rol: { id: number; nombre: string };
+  };
 }
 
 interface Rol{
@@ -17,7 +23,7 @@ interface Rol{
   nombre: string;
 }
 
-const ModalUsuario: React.FC<ModalUsuarioProps> = ({ isOpen, onClose, onUserAdded }) => {
+const ModalUsuario: React.FC<ModalUsuarioProps> = ({ isOpen, onClose, onUserAdded, usuarioEdit }) => {
   const [email, setEmail] = useState('');
   const [contrasena, setContrasena] = useState('');
   const [roles, setRoles] = useState<Rol[]>([]);
@@ -25,15 +31,31 @@ const ModalUsuario: React.FC<ModalUsuarioProps> = ({ isOpen, onClose, onUserAdde
   const token = useAuthStore((state) => state.token);
   
 
+  useEffect(() => {
+    obtenerRoles();
+  }, []);
 
     useEffect(() => {
-      obtenerRoles();
-    }, []);
+    if (usuarioEdit) {
+      setEmail(usuarioEdit.email);
+      setContrasena(usuarioEdit.contrasena);
+      setRol(usuarioEdit.rol.id);
+    } else {
+      setEmail('');
+      setContrasena('');
+      setRol(0);
+    }
+  }, [usuarioEdit, isOpen]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     try {
-      await createUser(email, contrasena, rol);
+      if (usuarioEdit) {
+        await updateUsuario(usuarioEdit.id, email, contrasena, rol);
+      } else { 
+        await createUser(email, contrasena, rol);
+      }
       if (onUserAdded) onUserAdded(); // para refrescar la tabla
       onClose(); // cerrar modal
     } catch (error) {
@@ -50,6 +72,41 @@ const ModalUsuario: React.FC<ModalUsuarioProps> = ({ isOpen, onClose, onUserAdde
       console.error('Error al obtener Roles:', error);
     }
   };
+
+    const updateUsuario = async (
+      id: number,
+      email: string,
+      contrasena: string,
+      rol: number
+    ) => {
+      try {
+        const response = await axios.put(
+          `http://vps-5301866-x.dattaweb.com:9000/api/usuarios/${id}`,
+          { email, contrasena, rol: {id: rol} },
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        if (response.status < 200 || response.status >= 300) throw new Error('Error al editar Usuario');
+        Swal.fire({
+          icon: 'success',
+          title: 'Usuario editado',
+          text: 'El usuario se editó correctamente.',
+          timer: 2000,
+          showConfirmButton: false
+        });
+      } catch (error) {
+        console.error('error:', error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'No se pudo editar el usuario.',
+        });
+      }
+    }
 
   const createUser = async (
     email: string, 
@@ -90,7 +147,7 @@ const ModalUsuario: React.FC<ModalUsuarioProps> = ({ isOpen, onClose, onUserAdde
   return (
     <div className={styles.overlay}>
       <div className={styles.modal}>
-        <h2>Agregar Usuario</h2>
+        <h2>{usuarioEdit ? 'Editar Usuario' : 'Agregar Usuario'}</h2>
         <form onSubmit={handleSubmit}>
           <label>Email:</label>
           <input
@@ -122,7 +179,7 @@ const ModalUsuario: React.FC<ModalUsuarioProps> = ({ isOpen, onClose, onUserAdde
             ))}
           </select>
           <div className={styles.actions}>
-            <button type="submit">Registrar</button>
+            <button type="submit">Aceptar</button>
             <button type="button" onClick={onClose}>Cancelar</button>
           </div>
         </form>

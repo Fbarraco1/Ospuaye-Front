@@ -192,7 +192,7 @@ export const ModalLocalidad: React.FC<ModalLocalidadProps> = ({
            </select>
 
           <div className={styles.actions}>
-            <button type="submit">{localidadEdit ? 'Guardar cambios' : 'Agregar'}</button>
+            <button type="submit">Aceptar</button>
             <button type="button" onClick={handleClose}>Cancelar</button>
           </div>
         </form>

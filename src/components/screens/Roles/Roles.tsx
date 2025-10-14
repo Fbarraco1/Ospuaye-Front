@@ -13,6 +13,7 @@ interface Rol {
         id: number; 
         nombre: string;
     }
+    activo: boolean;
 }
 
 export const Roles = () => {
@@ -155,6 +156,7 @@ export const Roles = () => {
           <tr>
             <th>Nombre</th>
             <th>Area</th>
+            <th>Activo</th>
             <th>Acciones</th>
           </tr>
         </thead>
@@ -163,6 +165,7 @@ export const Roles = () => {
             <tr key={b.id}>
               <td>{b.nombre}</td>
               <td>{/* @ts-ignore */ b.area.nombre}</td>
+              <td>{b.activo ? 'Sí' : 'No'}</td>
               <td className={styles.actions}>
                 <FaEdit
                   className={styles.editIcon}

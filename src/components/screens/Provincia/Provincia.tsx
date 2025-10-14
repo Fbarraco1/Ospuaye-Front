@@ -14,6 +14,7 @@ interface Provincia {
         nombre: string;
         activo: boolean;
     }
+    activo: boolean;
 }
 
 export const Provincia = () => {
@@ -149,7 +150,7 @@ export const Provincia = () => {
         style={{ marginBottom: '10px', padding: '5px', width: '250px' }}
       />
       <button className={styles.addButton} onClick={agregarProvincia}>
-        <FaPlus /> Agregar Roles
+        <FaPlus /> Agregar Provincias
       </button>
 
       <table className={styles.table}>
@@ -158,6 +159,7 @@ export const Provincia = () => {
             <th>Nombre</th>
             <th>Pais</th>
             <th>Acciones</th>
+            <th>Acciones</th>
           </tr>
         </thead>
         <tbody>
@@ -165,6 +167,7 @@ export const Provincia = () => {
             <tr key={b.id}>
               <td>{b.nombre}</td>
               <td>{/* @ts-ignore */ b.pais.nombre}</td>
+              <td>{b.activo ? 'Sí' : 'No'}</td>
               <td className={styles.actions}>
                 <FaEdit
                   className={styles.editIcon}
@@ -187,7 +190,7 @@ export const Provincia = () => {
           disabled={currentPage === 1}
           className={styles.pageButton}
         >
-          Anterior
+          ◀
         </button>
         <span className={styles.pageInfo}>
           Página {currentPage} de {totalPages || 1}
@@ -197,7 +200,7 @@ export const Provincia = () => {
           disabled={currentPage === totalPages || totalPages === 0}
           className={styles.pageButton}
         >
-          Siguiente
+          ▶
         </button>
       </div>
 
