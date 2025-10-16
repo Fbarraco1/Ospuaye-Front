@@ -12,6 +12,7 @@ interface ModalDepartamentoProps {
     id: number;
     nombre: string;
     provincia: { id: number; nombre: string };
+    activo: boolean;
   };
 }
 
@@ -94,12 +95,13 @@ export const ModalDepartamento: React.FC<ModalDepartamentoProps> = ({
   const updateDepartamento = async (
     id: number,
     nombre: string,
-    provincia: number
+    provincia: number,
+    activo: boolean // <-- nuevo parámetro
   ) => {
     try {
       const response = await axios.put(
         `http://vps-5301866-x.dattaweb.com:9000/api/departamentos/${id}`,
-        { nombre, provincia: { id: provincia } },
+        { nombre, provincia: { id: provincia }, activo }, // <-- incluir activo
         {
           headers: {
             'Content-Type': 'application/json',
@@ -130,7 +132,7 @@ export const ModalDepartamento: React.FC<ModalDepartamentoProps> = ({
 
   try {
     if (departamentoEdit) {
-      await updateDepartamento(departamentoEdit.id, nombre, provincia);
+      await updateDepartamento(departamentoEdit.id, nombre, provincia, departamentoEdit.activo); // <-- pasar activo
     } else {
       await createDepartamento(nombre, provincia);
     }

@@ -82,8 +82,7 @@ export const Medico: React.FC = () => {
   };
 
   const editarMedico = (id: number) => {
-    console.log('Editar medico con ID:', id);
-    // Implementar edición en el futuro
+      navigate(`/medicos/editar/${id}`);
   };
 
   const agregarMedico = () => {

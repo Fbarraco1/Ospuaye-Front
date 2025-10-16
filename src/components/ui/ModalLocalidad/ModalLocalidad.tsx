@@ -13,6 +13,7 @@ interface ModalLocalidadProps {
     nombre: string;
     codigoPostal: string;
     departamento: { id: number; nombre: string };
+    activo: boolean;
   };
 }
 
@@ -101,12 +102,13 @@ export const ModalLocalidad: React.FC<ModalLocalidadProps> = ({
     id: number,
     nombre: string,
     codigoPostal: string,
-    departamento: number
+    departamento: number,
+    activo: boolean
   ) => {
     try {
       const response = await axios.put(
         `http://vps-5301866-x.dattaweb.com:9000/api/localidades/${id}`,
-        { nombre, codigoPostal, departamento: { id: departamento } },
+        { nombre, codigoPostal, departamento: { id: departamento }, activo },
         {
           headers: {
             'Content-Type': 'application/json',
@@ -137,7 +139,7 @@ export const ModalLocalidad: React.FC<ModalLocalidadProps> = ({
   
       try {
         if (localidadEdit) {
-          await updateLocalidad(localidadEdit.id, nombre, codigoPostal, departamento);
+          await updateLocalidad(localidadEdit.id, nombre, codigoPostal, departamento, localidadEdit.activo);
         } else {
           await createLocalidad(nombre, codigoPostal, departamento);
         }

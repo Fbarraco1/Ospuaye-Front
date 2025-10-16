@@ -157,6 +157,11 @@ export const AppRouter = () => {
             <ModalMedico /> 
           </PrivateRoutes>} />  
 
+        <Route path="/medicos/editar/:id" element={
+          <PrivateRoutes roles={['ADMIN', 'ADMINOFTALMOLOGIA', 'ADMINORTOPEDIA']}>
+            <ModalMedico modo="editar" />
+        </PrivateRoutes>} />
+
         <Route path="/grupoFamiliar" element={
           <PrivateRoutes roles={['ADMIN', 'ADMINOFTALMOLOGIA', 'ADMINORTOPEDIA']}>
             <GrupoFamiliar /> 

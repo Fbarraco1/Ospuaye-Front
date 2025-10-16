@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import styles from './ModalMedico.module.css';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import Swal from 'sweetalert2';
 
 interface Area {
@@ -9,7 +9,8 @@ interface Area {
   nombre: string;
 }
 
-const ModalMedico: React.FC<{ onMedicoAdded?: () => void }> = ({ onMedicoAdded }) => {
+const ModalMedico: React.FC<{ modo?: 'editar' | 'crear', onMedicoAdded?: () => void }> = ({ modo = 'crear', onMedicoAdded }) => {
+  const { id } = useParams();
   const [email, setEmail] = useState('');
   const [contrasena, setContrasena] = useState('');
   const [nombre, setNombre] = useState('');
@@ -26,8 +27,11 @@ const ModalMedico: React.FC<{ onMedicoAdded?: () => void }> = ({ onMedicoAdded }
   
 
   useEffect(() => {
-      fetchAreas();
-  }, []);
+    fetchAreas();
+    if (modo === 'editar' && id) {
+      cargarMedico(id);
+    }
+  }, [id, modo]);
 
   const fetchAreas = async () => {
     try {
@@ -38,44 +42,85 @@ const ModalMedico: React.FC<{ onMedicoAdded?: () => void }> = ({ onMedicoAdded }
     }
   };
 
+  const cargarMedico = async (medicoId: string) => {
+    try {
+      const res = await axios.get(`http://vps-5301866-x.dattaweb.com:9000/api/medicos/${medicoId}`);
+      const medico = res.data;
+      setEmail(medico.email || '');
+      setNombre(medico.nombre || '');
+      setApellido(medico.apellido || '');
+      setDni(medico.dni?.toString() || '');
+      setCuil(medico.cuil?.toString() || '');
+      setTelefono(medico.telefono?.toString() || '');
+      setSexo(medico.sexo || '');
+      setEstado(medico.estado || '');
+      setMatricula(medico.matricula || '');
+      setAreaId(medico.area?.id?.toString() || '');
+    } catch (error) {
+      console.error('Error al cargar médico:', error);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await axios.post(
-        'http://vps-5301866-x.dattaweb.com:9000/api/auth/register/medico',
-        {
-          email,
-          contrasena,
-          nombre,
-          apellido,
-          dni: Number(dni),
-          cuil: Number(cuil),
-          telefono: Number(telefono),
-          sexo,
-          estado,
-          matricula,
-          areaId: Number(areaId)
-        },
-      );
-
-            Swal.fire({
-              icon: 'success',
-              title: 'Médico creado',
-              text: 'El médico se creó correctamente.',
-              timer: 2000,
-              showConfirmButton: false
-            });
-
+      if (modo === 'editar' && id) {
+        await axios.put(
+          `http://vps-5301866-x.dattaweb.com:9000/api/medicos/${id}`,
+          {
+            email,
+            nombre,
+            apellido,
+            dni: Number(dni),
+            cuil: Number(cuil),
+            telefono: Number(telefono),
+            sexo,
+            estado,
+            matricula,
+            areaId: Number(areaId),
+          },
+        );
+        Swal.fire({
+          icon: 'success',
+          title: 'Médico actualizado',
+          text: 'El médico se actualizó correctamente.',
+          timer: 2000,
+          showConfirmButton: false
+        });
+      } else {
+        await axios.post(
+          'http://vps-5301866-x.dattaweb.com:9000/api/auth/register/medico',
+          {
+            email,
+            contrasena,
+            nombre,
+            apellido,
+            dni: Number(dni),
+            cuil: Number(cuil),
+            telefono: Number(telefono),
+            sexo,
+            estado,
+            matricula,
+            areaId: Number(areaId)
+          },
+        );
+        Swal.fire({
+          icon: 'success',
+          title: 'Médico creado',
+          text: 'El médico se creó correctamente.',
+          timer: 2000,
+          showConfirmButton: false
+        });
+      }
       if (onMedicoAdded) onMedicoAdded();
       navigate('/medicos');
-
     } catch (error) {
-      console.error('Error al crear médico:', error);
-            Swal.fire({
-              icon: 'error',
-              title: 'Error',
-              text: 'No se pudo crear el médico.',
-            });
+      console.error('Error al guardar médico:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'No se pudo guardar el médico.',
+      });
     }
   };
 

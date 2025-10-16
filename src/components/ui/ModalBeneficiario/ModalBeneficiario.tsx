@@ -72,15 +72,6 @@ const ModalBeneficiario: React.FC<{ onBeneficiarioAdded?: () => void }> = ({ onB
     handleVolver();
   };
 
-  // const handleClose = () => {
-  //   setNombre('');
-  //   setApellido('');
-  //   setDni('');
-  //   setCuil('');
-  //   setTelefono('');
-  //   setEmail('');
-  //   setContrasena('');
-  // };
     const handleVolver = () => {
     navigate('/beneficiarios');
   };
