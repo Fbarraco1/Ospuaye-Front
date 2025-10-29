@@ -25,11 +25,13 @@ export const Login = () => {
       if (loggedUser.rol === 'ADMIN') {
         navigate('/admin');
       } else if (loggedUser.rol === 'ADMINOFTALMOLOGIA') {
-        navigate('/admin/Oftalmologia');
+        navigate('/admin');
       } else if (loggedUser.rol === 'ADMINORTOPEDIA') {
-        navigate('/admin/Ortopedia');
+        navigate('/admin');
+      } else if (loggedUser.rol === 'MEDICO GENERAL') {
+        navigate('/admin');  
       } else {
-        navigate('/main');
+        navigate('/admin');
       }
     } catch (error) {
       console.log('Credenciales inválidas', error);

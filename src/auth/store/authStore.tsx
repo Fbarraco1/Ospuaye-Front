@@ -1,8 +1,8 @@
-// src/auth/store/authStore.ts
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+const database = import.meta.env.VITE_DATABASE;
 
 interface User {
   email: string;
@@ -17,7 +17,12 @@ interface AuthState {
   isAuthenticated: boolean;
   user: User | null;
 
-  startLogin: (email: string, contrasena: string) => Promise<User | null>;
+  startLogin: (
+    email: string, 
+    contrasena: string 
+  )=> Promise<User | null>; 
+  timeSesion: ()=> void;
+
   startRegister: (email: string, contrasena: string) => Promise<User | null>;
   startRegisterBeneficiario: (
     nombre: string,
@@ -34,15 +39,16 @@ interface AuthState {
 }
 
 export const useAuthStore = create<AuthState>()(
+  
   persist(
-    (set) => ({
+    (set, get) => ({
       token: null,
       isAuthenticated: false,
       user: null,
 
       startLogin: async (email, contrasena) => {
         try {
-          const response = await fetch('http://vps-5301866-x.dattaweb.com:9000/api/auth/login', {
+          const response = await fetch(`${database}/api/auth/login`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, contrasena }),
@@ -62,9 +68,12 @@ export const useAuthStore = create<AuthState>()(
 
           set({
             token: data.token,
-            isAuthenticated: true,
+            isAuthenticated: true, 
             user: newUser,
           });
+          
+          // Llamar a la función timeSesion
+          get().timeSesion();
 
           return newUser;
         } catch (error) {
@@ -78,9 +87,21 @@ export const useAuthStore = create<AuthState>()(
         }
       },
 
+      timeSesion: () => {
+        setTimeout(() => {
+          set({ token: null, isAuthenticated: false, user: null });
+          localStorage.removeItem('auth-storage'); 
+          Swal.fire({
+            icon: 'info',
+            title: 'Sesión expirada',
+            text: 'Tu sesión ha expirado. Por favor, inicia sesión nuevamente.',
+          });
+        }, 1500000);
+      },
+
       startRegister: async (email, contrasena) => {
         try {
-          const response = await fetch('http://vps-5301866-x.dattaweb.com:9000/api/auth/register', {
+          const response = await fetch(`${database}/api/auth/register`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, contrasena }),
@@ -121,33 +142,33 @@ export const useAuthStore = create<AuthState>()(
         afiliadoSindical: boolean,
         esJubilado: boolean
       ) => {
-              try {
-      const response = await axios.post(
-        'http://vps-5301866-x.dattaweb.com:9000/api/auth/register/beneficiario',
-        { nombre, apellido, email, contrasena, dni, cuil, telefono, afiliadoSindical, esJubilado },
-        {
-          headers: {
-            'Content-Type': 'application/json'
-          },
-        }
-      );
+        try {
+          const response = await axios.post(
+            `${database}/api/auth/register/beneficiario`,
+            { nombre, apellido, email, contrasena, dni, cuil, telefono, afiliadoSindical, esJubilado },
+            {
+              headers: {
+                'Content-Type': 'application/json'
+              },
+            }
+          );
 
-      if (response.status < 200 || response.status >= 300) throw new Error('Error al crear beneficiario');
-      Swal.fire({
-        icon: 'success',
-        title: 'Beneficiario creado',
-        text: 'El beneficiario se creó correctamente.',
-        timer: 2000,
-        showConfirmButton: false
-      });
-    } catch (error) {
-      console.error('Error al crear beneficiario:', error);
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'No se pudo crear el beneficiario.',
-      });
-    }
+          if (response.status < 200 || response.status >= 300) throw new Error('Error al crear beneficiario');
+          Swal.fire({
+            icon: 'success',
+            title: 'Beneficiario creado',
+            text: 'El beneficiario se creó correctamente.',
+            timer: 2000,
+            showConfirmButton: false
+          });
+        } catch (error) {
+          console.error('Error al crear beneficiario:', error);
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'No se pudo crear el beneficiario.',
+          });
+        }
       },
 
       logout: () => {

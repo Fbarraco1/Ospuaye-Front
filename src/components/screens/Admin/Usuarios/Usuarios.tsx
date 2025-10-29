@@ -1,0 +1,209 @@
+// src/pages/Usuarios.tsx
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+import { FaEdit, FaTrash, FaPlus } from 'react-icons/fa';
+import styles from './Usuarios.module.css';
+import { useAuthStore } from '../../../../auth/store/authStore';
+import Swal from 'sweetalert2';
+import ModalUsuario from '../../../ui/Admin/ModalUsuario/ModalUsuario';
+const database = import.meta.env.VITE_DATABASE;
+
+interface Usuario {
+  id: number;
+  email: string;
+  contrasena: string;
+  rol: { id: number, nombre: string };
+  activo: boolean;
+  [key: string]: any; 
+}
+
+export const Usuarios: React.FC = () => {
+  const [usuarios, setUsuarios] = useState<Usuario[]>([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [search, setSearch] = useState('');
+  const [usuarioEdit, setUsuarioEdit] = useState<Usuario | undefined>(undefined);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
+  const token = useAuthStore((state) => state.token);
+
+  useEffect(() => {
+    obtenerUsuarios();
+  }, []);
+
+  const obtenerUsuarios = async () => {
+    try {
+      const response = await axios.get(`${database}/api/usuarios`);
+      setUsuarios(response.data);
+    } catch (error) {
+      console.error('Error al obtener usuarios:', error);
+    }
+  };
+
+  const eliminarUsuario = async (id: number) => {
+    const result = await Swal.fire({
+      title: '¿Estás seguro?',
+      text: 'Esta acción eliminará el usuario.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar'
+    });
+
+    if (result.isConfirmed) {
+      try {
+        await axios.patch(`${database}/api/usuarios/${id}/estado`, 
+          {},
+          {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          });
+        obtenerUsuarios();
+        Swal.fire({
+          icon: 'success',
+          title: 'Eliminado',
+          text: 'El usuario fue eliminado correctamente.',
+          timer: 1500,
+          showConfirmButton: false
+        });      
+      } catch (error) {
+        console.error('Error al eliminar usuario:', error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'No se pudo eliminar el usuario.',
+        });        
+      }
+    }
+  };
+
+  const editarUsuario = (id: number) => {
+    const usuario = usuarios.find(u => u.id === id);
+    setUsuarioEdit(usuario);
+    setIsModalOpen(true);
+  };
+
+  const agregarUsuario = () => {
+    setUsuarioEdit(undefined);
+    setIsModalOpen(true);
+  };
+
+    const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setUsuarioEdit(undefined);
+  };
+
+  // Filtra por cualquier campo del usuario
+  const usuariosFiltrados = usuarios.filter((usuario) =>
+    Object.values(usuario)
+      .map((valor) =>
+        typeof valor === 'object' && valor !== null
+          ? Object.values(valor).join(' ')
+          : valor
+      )
+      .join(' ')
+      .toLowerCase()
+      .includes(search.toLowerCase())
+  );
+
+  // Lógica de paginación
+  const totalPages = Math.ceil(usuariosFiltrados.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const usuariosPaginados = usuariosFiltrados.slice(startIndex, startIndex + itemsPerPage);
+
+  return (
+    <div>
+      <div className="breadcrumbs overlay">
+        <div className="container">
+          <div className="row align-items-center">
+            <div className="col-lg-8 offset-lg-2 col-md-12 col-12">
+              <div className="breadcrumbs-content">
+                <h1 className="page-title">USUARIOS</h1>
+              </div>
+              <ul className="breadcrumb-nav">
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    <div className={styles.container}>
+      <h2 className={styles.title}>Usuarios</h2>
+      <input
+        type="text"
+        placeholder="Buscar por cualquier campo..."
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        className={styles.searchBar}
+      />
+      <button className={styles.addButton} onClick={agregarUsuario}>
+        <FaPlus /> Agregar Usuario
+      </button>
+
+      <table className={styles.table}>
+        <thead>
+          <tr>
+            <th>Email</th>
+            <th>Rol</th>
+            <th>Activo</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {usuariosPaginados.map((usuario) => (
+            <tr key={usuario.id}>
+              <td>{usuario.email}</td>
+              <td>{usuario.rol?.nombre}</td>
+              <td>{usuario.activo ? 'Sí' : 'No'}</td>
+              <td className={styles.actions}>
+                <FaEdit
+                  className={styles.editIcon}
+                  onClick={() => editarUsuario(usuario.id)}
+                />
+                <FaTrash
+                  className={styles.deleteIcon}
+                  onClick={() => eliminarUsuario(usuario.id)}
+                />
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      {/* Controles de paginación */}
+      {totalPages > 1 && (
+        <div className={styles.pagination}>
+          <button
+            disabled={currentPage === 1}
+            onClick={() => setCurrentPage((prev) => prev - 1)}
+            className={styles.pageButton}
+          >
+            ◀
+          </button>
+          <span>
+            Página {currentPage} de {totalPages}
+          </span>
+          <button
+            disabled={currentPage === totalPages}
+            onClick={() => setCurrentPage((prev) => prev + 1)}
+            className={styles.pageButton}
+          >
+            ▶
+          </button>
+        </div>
+      )}
+
+      <ModalUsuario
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        onUserAdded={() => {
+          obtenerUsuarios();
+          setIsModalOpen(false);
+        }}
+        usuarioEdit={usuarioEdit}
+      />
+    </div>
+    </div>
+  );
+};

@@ -1,48 +1,49 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Login } from '../auth/pages/Login/Login';
 import { Register } from '../auth/pages/Register/Register';
-import { Usuarios } from '../components/screens/Usuarios/Usuarios';
-import { Beneficiarios } from '../components/screens/Beneficiarios/Beneficiarios';
-import { Areas } from '../components/screens/RolesAreas/Areas';
-import { Roles } from '../components/screens/Roles/Roles';
-import { Medico } from '../components/screens/Medico/Medico';
-import { GrupoFamiliar } from '../components/screens/GrupoFamiliar/GrupoFamiliar';
-import { PedidoOftalmologia } from '../components/screens/PedidoOftalmologia/PedidoOftalmologia';
-import { PedidoOrtopedia } from '../components/screens/PedidoOrtopedia/PedidoOrtopedia';
-import ModalPedidoOrtopedia from '../components/ui/ModalPedidoOrtopedia/ModalPedidoOrtopedia';
-import ModalPedidoOftalmologia from '../components/ui/ModalPedidoOftalmologia/ModalPedidoOftalmologia';
+import { Usuarios } from '../components/screens/Admin/Usuarios/Usuarios';
+import { Beneficiarios } from '../components/screens/Admin/Beneficiarios/Beneficiarios';
+import { Areas } from '../components/screens/Admin/RolesAreas/Areas';
+import { Roles } from '../components/screens/Admin/Roles/Roles';
+import { GrupoFamiliar } from '../components/screens/Admin/GrupoFamiliar/GrupoFamiliar';
+import { PedidoOftalmologia } from '../components/screens/Admin/PedidoOftalmologia/PedidoOftalmologia';
+import ModalPedidoOrtopedia from '../components/ui/Pedidos/ModalPedidoOrtopedia/ModalPedidoOrtopedia';
+import ModalPedidoOftalmologia from '../components/ui/Pedidos/ModalPedidoOftalmologia/ModalPedidoOftalmologia';
 import { useAuthStore } from '../auth/store/authStore';
 import { NavBar } from '../components/ui/NavBar/NavBar';
 import { PrivateRoutes } from '../auth/PrivateRoutes/PrivateRoutes';
-import AdminOftalmologia from '../components/screens/AdminOftalmologia/AdminOftalmologia';
-import AdminOrtopedia from '../components/screens/AdminOrtopedia/AdminOrtopedia';
 import { MainScreen } from '../components/screens/main/MainScreen';
-import RecuperarContra from '../components/screens/RecuperarContra/RecuperarContra';
-import PerdiContra from '../components/screens/PerdiContra/PerdiContra';
+import PerdiContra from '../components/screens/User/PerdiContra/PerdiContra';
 import { Footer } from '../components/ui/Footer/Footer';
-import { Pais } from '../components/screens/Pais/Pais';
-import { Provincia } from '../components/screens/Provincia/Provincia';
-import { Departamento } from '../components/screens/Departamento/Departamento';
-import { Localidad } from '../components/screens/Localidad/Localidad';
-import { Domicilio } from '../components/screens/Domicilio/Domicilio';
-import { Empresa } from '../components/screens/Empresa/Empresa';
-import { Nacionalidad } from '../components/screens/Nacionalidad/Nacionalidad';
-import HeaderAdmin from '../components/screens/HeaderAdmin/HeaderAdmin';
-import ModalMedico from '../components/ui/ModalMedico/ModalMedico';
+import { Pais } from '../components/screens/Admin/Pais/Pais';
+import { Departamento } from '../components/screens/Admin/Departamento/Departamento';
+import { Localidad } from '../components/screens/Admin/Localidad/Localidad';
+import { Domicilio } from '../components/screens/Admin/Domicilio/Domicilio';
+import { Empresa } from '../components/screens/Admin/Empresa/Empresa';
+import { Nacionalidad } from '../components/screens/Admin/Nacionalidad/Nacionalidad';
+import HeaderAdmin from '../components/screens/HeadersAdmin/HeaderAdmin/HeaderAdmin';
+import ModalMedico from '../components/ui/Admin/ModalMedico/ModalMedico';
 import { ImgSistema } from '../components/ui/imgSistema/ImgSistema';
-import ModalBeneficiario from '../components/ui/ModalBeneficiario/ModalBeneficiario';
+import ModalBeneficiario from '../components/ui/Admin/ModalBeneficiario/ModalBeneficiario';
 import ScrollToTop from './ScrollToTop';
-import HeaderBeneficiario from '../components/screens/HeaderBeneficiario/HeaderBeneficiario';
-import { PedidoOftalmologiaUser } from '../components/screens/PedidoOftalmologiaUser/PedidoOftalmologiaUser';
-import ModalPedidoOftalmologiaUser from '../components/ui/ModalPedidoOftalmologiaUser/ModalPedidoOftalmologiaUser';
-import { PedidoOrtopediaUser } from '../components/screens/PedidoOrtopediaUser/PedidoOrtopediaUser';
-import ModalPedidoOrtopediaUser from '../components/ui/ModalPedidoOrtopediaUser/ModalPedidoOrtopedia';
-import { GestionDeCuenta } from '../components/screens/GestionDeCuenta/GestionDeCuenta';
-import HeaderMedicoOftalmologo from '../components/screens/HeaderMedico/HeaderMedicoOftalmologo';
-import HeaderMedicoOrtopedia from '../components/screens/HeaderMedico/HeaderMedicoOrtopedia';
-import { PedidoOftalmologiaMedico } from '../components/screens/PedidosOftalmologiaMedico/PedidosOftalmologiaMedico';
-import { PedidoOrtopediaMedico } from '../components/screens/PedidoOrtopediaMedico/PedidoOrtopediaMedico';
+import HeaderBeneficiario from '../components/screens/HeadersAdmin/HeaderBeneficiario/HeaderBeneficiario';
+import { PedidoOftalmologiaUser } from '../components/screens/User/PedidoOftalmologiaUser/PedidoOftalmologiaUser';
+import ModalPedidoOftalmologiaUser from '../components/ui/Pedidos/ModalPedidoOftalmologiaUser/ModalPedidoOftalmologiaUser';
+import ModalPedidoOrtopediaUser from '../components/ui/Pedidos/ModalPedidoOrtopediaUser/ModalPedidoOrtopedia';
+import HeaderMedicoOftalmologo from '../components/screens/HeadersAdmin/HeaderMedico/HeaderMedicoOftalmologo';
+import HeaderMedicoOrtopedia from '../components/screens/HeadersAdmin/HeaderMedico/HeaderMedicoOrtopedia';
+import { PedidoOftalmologiaMedico } from '../components/screens/Medico/PedidosOftalmologiaMedico/PedidosOftalmologiaMedico';
+import { PedidoOrtopediaMedico } from '../components/screens/Medico/PedidoOrtopediaMedico/PedidoOrtopediaMedico';
 import NotFound from '../components/screens/NotFound/NotFound';
+import HeaderMedicoAuditorGeneral from '../components/screens/HeadersAdmin/HeaderMedicoAuditorGeneral/HeaderMedicoAuditorGeneral';
+import RecuperarContra from '../components/screens/User/RecuperarContra/RecuperarContra';
+import { Provincia } from '../components/screens/Admin/Provincia/Provincia';
+import { Medico } from '../components/screens/Admin/Medico/Medico';
+import { PedidoOrtopedia } from '../components/screens/Admin/PedidoOrtopedia/PedidoOrtopedia';
+import { PedidoOrtopediaUser } from '../components/screens/User/PedidoOrtopediaUser/PedidoOrtopediaUser';
+import { GestionDeCuenta } from '../components/screens/User/GestionDeCuenta/GestionDeCuenta';
+import { GestionDeCuentaMedico } from '../components/screens/Medico/GestionDeCuentaMedico/GestionDeCuentaMedico';
+import { ModalDepartamento } from '../components/ui/Admin/ModalDepartamento/ModalDepartamento';
 
 export const AppRouter = () => {
   const { user } = useAuthStore();
@@ -53,10 +54,8 @@ export const AppRouter = () => {
     switch (user.rol) {
       case 'ADMIN':
         return <HeaderAdmin />;
-      case 'ADMINOFTALMOLOGIA':
-        return <AdminOftalmologia />;
-      case 'ADMINORTOPEDIA':
-        return <AdminOrtopedia />;
+      case 'MEDICO AUDITOR GENERAL':
+        return <HeaderMedicoAuditorGeneral />;
       case 'USER':
         return <HeaderBeneficiario />;  
       case 'MEDICO OFTALMOLOGO':
@@ -88,7 +87,7 @@ export const AppRouter = () => {
           
          {/* Rutas Admin */}
         <Route path="/admin" element={
-          <PrivateRoutes roles={['ADMIN']}>
+          <PrivateRoutes roles={['ADMIN', 'MEDICO AUDITOR GENERAL', 'USER', 'MEDICO OFTALMOLOGO', 'MEDICO ORTOPEDIA']}>
             <ImgSistema /> 
           </PrivateRoutes>} />
 
@@ -119,7 +118,17 @@ export const AppRouter = () => {
 
         <Route path="/departamento" element={
           <PrivateRoutes roles={['ADMIN']}>
-            <Departamento /> 
+            <Departamento />
+          </PrivateRoutes>} />
+
+        <Route path="/departamento/nuevo" element={
+          <PrivateRoutes roles={['ADMIN']}>
+            <ModalDepartamento modo="crear" />
+          </PrivateRoutes>} />
+
+        <Route path="/departamento/editar/:id" element={
+          <PrivateRoutes roles={['ADMIN']}>
+            <ModalDepartamento modo="editar" />
           </PrivateRoutes>} />
 
         <Route path="/localidad" element={
@@ -144,11 +153,16 @@ export const AppRouter = () => {
 
         <Route path="/beneficiario/nuevo" element={
           <PrivateRoutes roles={['ADMIN', 'ADMINOFTALMOLOGIA', 'ADMINORTOPEDIA']}>
-            <ModalBeneficiario /> 
-          </PrivateRoutes>} />           
+            <ModalBeneficiario/> 
+          </PrivateRoutes>} />   
+
+        <Route path="/beneficiario/editar/:id" element={
+          <PrivateRoutes roles={['ADMIN', 'ADMINOFTALMOLOGIA', 'ADMINORTOPEDIA']}>
+            <ModalBeneficiario modo="editar" />
+        </PrivateRoutes>} />        
 
         <Route path="/medicos" element={
-          <PrivateRoutes roles={['ADMIN', 'ADMINOFTALMOLOGIA', 'ADMINORTOPEDIA']}>
+          <PrivateRoutes roles={['ADMIN', 'ADMINOFTALMOLOGIA', 'ADMINORTOPEDIA', 'MEDICO AUDITOR GENERAL']}>
             <Medico /> 
           </PrivateRoutes>} /> 
 
@@ -183,7 +197,7 @@ export const AppRouter = () => {
           </PrivateRoutes>} />          
 
         <Route path="/pedidos/oftalmologia" element={
-          <PrivateRoutes roles={['ADMIN', 'ADMINOFTALMOLOGIA']}>
+          <PrivateRoutes roles={['ADMIN', 'ADMINOFTALMOLOGIA', 'MEDICO AUDITOR GENERAL']}>
             <PedidoOftalmologia /> 
           </PrivateRoutes>} />
 
@@ -193,7 +207,7 @@ export const AppRouter = () => {
           </PrivateRoutes>} />
 
         <Route path="/pedidos/ortopedia" element={
-          <PrivateRoutes roles={['ADMIN', 'ADMINORTOPEDIA']}>
+          <PrivateRoutes roles={['ADMIN', 'ADMINORTOPEDIA', 'MEDICO AUDITOR GENERAL']}>
             <PedidoOrtopedia /> 
           </PrivateRoutes>} />     
 
@@ -225,6 +239,11 @@ export const AppRouter = () => {
         <Route path="/gestionCuenta" element={
           <PrivateRoutes roles={['USER', 'MEDICO OFTALMOLOGO', 'MEDICO ORTOPEDIA']}>
             <GestionDeCuenta /> 
+          </PrivateRoutes>} />  
+
+        <Route path="/gestionCuentaMedico" element={
+          <PrivateRoutes roles={['MEDICO AUDITOR GENERAL', 'MEDICO OFTALMOLOGO', 'MEDICO ORTOPEDIA']}>
+            <GestionDeCuentaMedico /> 
           </PrivateRoutes>} />  
 
         <Route path="/pedidos/oftalmologia/medico" element={
