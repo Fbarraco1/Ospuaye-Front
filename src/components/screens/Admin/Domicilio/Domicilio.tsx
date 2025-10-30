@@ -23,7 +23,7 @@ interface Domicilio {
         codigoPostal: string;
         activo: boolean;
     },
-    tipo: 'URBANO' | 'RURAL';
+    tipo: 'DOMICILIO_COMPLETO' | 'DOMICILIO_RURAL';
 }
 
 export const Domicilio = () => {
