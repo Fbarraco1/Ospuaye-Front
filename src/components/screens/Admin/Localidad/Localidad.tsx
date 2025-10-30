@@ -172,7 +172,7 @@ export const Localidad = () => {
           {rolesPaginados.map((b) => (
             <tr key={b.id}>
               <td>{b.nombre}</td>
-              <td>{/* @ts-ignore */ b.departamento.nombre}</td>
+              <td>{b.departamento?.nombre ?? 'No especificado'}</td>
               <td>{b.codigoPostal}</td>
               <td>{b.activo ? 'Sí' : 'No'}</td>
               <td className={styles.actions}>
