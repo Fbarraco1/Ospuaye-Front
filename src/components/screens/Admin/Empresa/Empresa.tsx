@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useAuthStore } from '../../../../auth/store/authStore';
 import axios from 'axios';
 import Swal from 'sweetalert2';
-import { ModalEmpresa } from '../../../ui/Admin/ModalEmpresa/ModalEmpresa';
+import { useNavigate } from 'react-router-dom';
 const database = import.meta.env.VITE_DATABASE;
 
 
@@ -26,10 +26,9 @@ interface Empresa {
 
 export const Empresa = () => {
   const [empresas, setEmpresas] = useState<Empresa[]>([]);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [search, setSearch] = useState('');
-  const [empresaEdit, setEmpresaEdit] = useState<Empresa | undefined>(undefined);
   const token = useAuthStore((state) => state.token);
+  const navigate = useNavigate();
 
   // 🔹 Estados para paginación
   const [currentPage, setCurrentPage] = useState(1);
@@ -49,13 +48,11 @@ export const Empresa = () => {
   };
     
   const agregarEmpresa = () => {
-    setIsModalOpen(true);
+    navigate('/empresa/nuevo');
   }
 
   const editarEmpresa = (id: number) => {
-    const emp = empresas.find(e => e.id === id);
-    setEmpresaEdit(emp);
-    setIsModalOpen(true);
+    navigate(`/empresa/editar/${id}`);
   }
 
   const eliminarEmpresa= async (id: number) => {
@@ -96,15 +93,6 @@ export const Empresa = () => {
       }
   }
   }
-
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-    setEmpresaEdit(undefined);
-  };
-
-  const handleEmpresaAdded = () => {
-    obtenerEmpresas();
-  };
 
   // Barra de búsqueda por cualquier campo
   const provinciasFiltrados = empresas.filter((r) =>
@@ -220,12 +208,6 @@ export const Empresa = () => {
         </button>
       </div>
 
-      <ModalEmpresa
-        isOpen={isModalOpen}
-        onClose={handleCloseModal}
-        onEmpresaAdded={handleEmpresaAdded}
-        empresaEdit={empresaEdit}
-      />
     </div>
     </div>
   )

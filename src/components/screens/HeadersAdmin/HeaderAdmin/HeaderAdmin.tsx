@@ -96,7 +96,7 @@ const HeaderAdmin = () => {
                               aria-controls="navbarSupportedContent" aria-expanded="false"
                               aria-label="Toggle navigation">Reintegros</a>
                               <ul className="sub-menu collapse" id="submenu-1-4">
-                                <li className="nav-item" onClick={() => navigate("/")}>Gestion Pedidos</li>
+                                <li className="nav-item" onClick={() => navigate("/pedidos/generales")}>Gestion Pedidos</li>
                                 <li className="nav-item" onClick={() => navigate("/pedidos/oftalmologia")}>Pedidos Oftalmologia</li>
                                 <li className="nav-item" onClick={() => navigate("/pedidos/ortopedia")}>Pedidos Ortopedia</li>
 

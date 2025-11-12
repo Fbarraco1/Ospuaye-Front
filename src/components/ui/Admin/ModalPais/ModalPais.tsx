@@ -1,45 +1,44 @@
-import { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import styles from './ModalPais.module.css';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import { useAuthStore } from '../../../../auth/store/authStore';
+import { useNavigate, useParams } from 'react-router-dom';
 const database = import.meta.env.VITE_DATABASE;
 
 interface ModalPaisProps {
-  isOpen: boolean;
-  onClose: () => void;
+  modo?: 'editar' | 'crear';
   onPaisesAdded?: () => void;
-  paisEdit?: {
-    id: number;
-    nombre: string;
-    activo: boolean;
-  };
 }
 
-export const ModalPais: React.FC<ModalPaisProps> = ({
-  isOpen,
-  onClose,
-  onPaisesAdded,
-  paisEdit
-}) => {
+const ModalPais: React.FC<ModalPaisProps> = ({ modo = 'crear', onPaisesAdded }) => {
+  const { id } = useParams<{ id: string }>();
   const [nombre, setNombre] = useState('');
   const token = useAuthStore((state) => state.token);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    if (paisEdit) {
-      setNombre(paisEdit.nombre);
-    } else {
-      setNombre('');
+    if (modo === 'editar' && id) {
+      cargarPais(id);
     }
-  }, [paisEdit, isOpen]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id, modo]);
 
-  const createPais = async (
-    nombre: string
-  ) => {
+  const cargarPais = async (paisId: string) => {
+    try {
+      const res = await axios.get(`${database}/api/paises/${paisId}`);
+      const p = res.data;
+      setNombre(p.nombre || '');
+    } catch (error) {
+      console.error('Error al cargar pais:', error);
+    }
+  };
+
+  const createPais = async (nombreVal: string) => {
     try {
       const response = await axios.post(
         `${database}/api/paises/crear`,
-        { nombre },
+        { nombre: nombreVal },
         {
           headers: {
             'Content-Type': 'application/json',
@@ -62,17 +61,15 @@ export const ModalPais: React.FC<ModalPaisProps> = ({
         title: 'Error',
         text: 'No se pudo crear el pais.',
       });
+      throw error;
     }
-  }
+  };
 
-  const updatePais = async (
-    id: number,
-    nombre: string
-  ) => {
+  const updatePais = async (idNum: number, nombreVal: string) => {
     try {
       const response = await axios.put(
-        `${database}/api/paises/actualizar/${id}`,
-        { nombre },
+        `${database}/api/paises/actualizar/${idNum}`,
+        { nombre: nombreVal },
         {
           headers: {
             'Content-Type': 'application/json',
@@ -95,37 +92,36 @@ export const ModalPais: React.FC<ModalPaisProps> = ({
         title: 'Error',
         text: 'No se pudo editar el pais.',
       });
+      throw error;
     }
-  }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     try {
-      if (paisEdit) {
-        await updatePais(paisEdit.id, nombre);
+      if (modo === 'editar' && id) {
+        await updatePais(Number(id), nombre);
       } else {
         await createPais(nombre);
       }
       if (onPaisesAdded) onPaisesAdded();
-      onClose();
+      navigate('/pais');
     } catch (error) {
       console.error('Error al guardar Pais:', error);
     }
-    handleClose();
   };
 
-  const handleClose = () => {
-    setNombre('');
-    onClose();
+  const handleVolver = () => {
+    navigate('/pais');
   };
-
-  if (!isOpen) return null;
 
   return (
-    <div className={styles.overlay}>
+    <div className={styles.container}>
+      <button type="button" onClick={handleVolver} style={{ marginBottom: 10 }}>
+        Volver
+      </button>
       <div className={styles.modal}>
-        <h2>{paisEdit ? 'Editar Pais' : 'Agregar Pais'}</h2>
+        <h2>{modo === 'editar' ? 'Editar Pais' : 'Agregar Pais'}</h2>
         <form onSubmit={handleSubmit}>
           <label>Nombre:</label>
           <input
@@ -136,10 +132,12 @@ export const ModalPais: React.FC<ModalPaisProps> = ({
           />
           <div className={styles.actions}>
             <button type="submit">Aceptar</button>
-            <button type="button" onClick={handleClose}>Cancelar</button>
+            <button type="button" onClick={handleVolver}>Cancelar</button>
           </div>
         </form>
       </div>
     </div>
-  )
-}
+  );
+};
+
+export default ModalPais;

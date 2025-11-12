@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import styles from './ModalFamiliar.module.css';
 import axios from 'axios';
 import Swal from 'sweetalert2';
@@ -27,7 +28,7 @@ type Parentesco =
   |'AMBOS_SEXOS'
 
 interface Familiar {
-  id?: number;  
+  id?: number;
   grupoFamiliar: { id: number };
   beneficiario: { id: number };
   nombre: string;
@@ -37,249 +38,156 @@ interface Familiar {
   telefono: string;
   correoElectronico?: string;
   sexo: Sexo;
-  nacionalidad: {id: number, nombre: string};
+  nacionalidad: { id: number; nombre: string };
   tipoParentesco: Parentesco;
 }
 
-interface ModalFamiliarProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onSave: (familiar: Familiar) => void;
-  grupoFamiliarId?: number; 
-  beneficiarioId: number;
-  initialData?: Familiar;
-}
-
-const ModalFamiliar: React.FC<ModalFamiliarProps> = ({
-  isOpen,
-  onClose,
-  onSave,
-  grupoFamiliarId,
-  beneficiarioId,
-  initialData,
-}) => {
-  const [familiar, setFamiliar] = useState<Familiar>(
-    initialData || {
-      grupoFamiliar: { id: grupoFamiliarId ?? 0 },
-      beneficiario: { id: beneficiarioId },
-      nombre: '',
-      apellido: '',
-      dni: '',
-      cuil: '',
-      telefono: '',
-      correoElectronico: '',
-      sexo: 'SIN_INFORMACION',
-      nacionalidad: {id: 0, nombre: ''},
-      tipoParentesco: 'Sin_Informacion'
-    }
-  );
+const ModalFamiliar: React.FC<{ modo?: 'editar' | 'crear' }> = ({ modo = 'crear' }) => {
+  const { grupoId, beneficiarioId, id } = useParams<{ grupoId?: string; beneficiarioId?: string; id?: string }>();
+  const [familiar, setFamiliar] = useState<Familiar>({
+    grupoFamiliar: { id: Number(grupoId ?? 0) },
+    beneficiario: { id: Number(beneficiarioId ?? 0) },
+    nombre: '',
+    apellido: '',
+    dni: '',
+    cuil: '',
+    telefono: '',
+    correoElectronico: '',
+    sexo: 'SIN_INFORMACION',
+    nacionalidad: { id: 0, nombre: '' },
+    tipoParentesco: 'Sin_Informacion',
+  });
   const [nacionalidades, setNacionalidades] = useState<{ id: number; nombre: string }[]>([]);
-
-
   const token = useAuthStore((state) => state.token);
+  const navigate = useNavigate();
 
-  React.useEffect(() => {
-    if (isOpen && grupoFamiliarId) {
-      setFamiliar(prev => ({
-        ...prev,
-      grupoFamiliar: { id: grupoFamiliarId },
-      beneficiario: { id: beneficiarioId }
-      }));
-    }
+  useEffect(() => {
     obtenerNacionalidades();
-  }, [grupoFamiliarId, beneficiarioId, isOpen]);
+    if (modo === 'editar' && id) cargarFamiliar(Number(id));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id, modo, grupoId, beneficiarioId]);
 
-const obtenerNacionalidades = async () => {
+  const obtenerNacionalidades = async () => {
     try {
-      const response = await axios.get(`${database}/api/nacionalidades`, {
-      });
+      const response = await axios.get(`${database}/api/nacionalidades`);
       setNacionalidades(response.data);
     } catch (error) {
       console.error('Error al obtener Nacionalidades:', error);
     }
   };
 
+  const cargarFamiliar = async (fid: number) => {
+    try {
+      const res = await axios.get(`${database}/api/familiares/${fid}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const f = res.data;
+      setFamiliar({
+        id: f.id,
+        grupoFamiliar: { id: f.grupoFamiliar?.id ?? Number(grupoId ?? 0) },
+        beneficiario: { id: f.beneficiario?.id ?? Number(beneficiarioId ?? 0) },
+        nombre: f.nombre ?? '',
+        apellido: f.apellido ?? '',
+        dni: f.dni ?? '',
+        cuil: f.cuil ?? '',
+        telefono: f.telefono ?? '',
+        correoElectronico: f.correoElectronico ?? '',
+        sexo: f.sexo ?? 'SIN_INFORMACION',
+        nacionalidad: f.nacionalidad ?? { id: 0, nombre: '' },
+        tipoParentesco: f.tipoParentesco ?? 'Sin_Informacion',
+      });
+    } catch (error) {
+      console.error('Error al cargar familiar:', error);
+    }
+  };
+
+  const createFamiliar = async (data: Familiar) => {
+    try {
+      const response = await axios.post(`${database}/api/familiares/crear`, data, {
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      });
+      if (response.status < 200 || response.status >= 300) throw new Error('Error al crear familiar');
+      Swal.fire({ icon: 'success', title: 'Familiar creado', timer: 1500, showConfirmButton: false });
+    } catch (error) {
+      console.error('Error al crear familiar:', error);
+      Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo crear el familiar.' });
+      throw error;
+    }
+  };
+
+  const updateFamiliar = async (data: Familiar) => {
+    try {
+      const response = await axios.put(`${database}/api/familiares/actualizar`, data, {
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      });
+      if (response.status < 200 || response.status >= 300) throw new Error('Error al actualizar familiar');
+      Swal.fire({ icon: 'success', title: 'Familiar actualizado', timer: 1500, showConfirmButton: false });
+    } catch (error) {
+      console.error('Error al actualizar familiar:', error);
+      Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo actualizar el familiar.' });
+      throw error;
+    }
+  };
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    if (name === "nacionalidad") {
-      // Buscar el objeto nacionalidad seleccionado
+    if (name === 'nacionalidad') {
       const selected = nacionalidades.find(n => n.id === Number(value));
-      setFamiliar(prev => ({
-        ...prev,
-        nacionalidad: selected ? { id: selected.id, nombre: selected.nombre } : { id: 0, nombre: "" }
-      }));
-    } else if (name === "correoElectronico" || name === "email") {
-      setFamiliar(prev => ({ ...prev, correoElectronico: value }));
+      setFamiliar(prev => ({ ...prev, nacionalidad: selected ? { id: selected.id, nombre: selected.nombre } : { id: 0, nombre: '' } }));
     } else {
       setFamiliar(prev => ({ ...prev, [name]: value }));
     }
   };
 
-  const createFamiliar = async (familiar: Familiar) => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     try {
-      const response = await axios.post(
-        `${database}/api/familiares/crear`,
-        familiar,
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      if (response.status < 200 || response.status >= 300) throw new Error('Error al crear familiar');
-          Swal.fire({
-            icon: 'success',
-            title: 'Familiar creado',
-            text: 'El familiar se creó correctamente.',
-            timer: 2000,
-            showConfirmButton: false
-          });
+      if (modo === 'editar' && id) {
+        await updateFamiliar(familiar);
+      } else {
+        await createFamiliar(familiar);
+      }
+      navigate('/grupoFamiliar');
     } catch (error) {
-      console.error('Error al crear familiar:', error);
-            Swal.fire({
-              icon: 'error',
-              title: 'Error',
-              text: 'No se pudo crear el familiar.',
-            });
+      console.error('Error al guardar familiar:', error);
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log('Familiar:', familiar);
-    await createFamiliar(familiar);
-    onSave(familiar);
-    handleClose();
-  };
-
-  const handleClose = () => {
-    setFamiliar({ grupoFamiliar: { id: grupoFamiliarId ?? 0 }, beneficiario: { id: beneficiarioId }, nombre: '', apellido: '', dni: '', cuil: '', telefono: '', correoElectronico: '', sexo: 'SIN_INFORMACION', nacionalidad: {id: 0, nombre:''}, tipoParentesco: 'Sin_Informacion' });
-    onClose();
-  };
-
-  const parentescoOptions: { value: Parentesco; label: string }[] = [
-    { value: 'Conyuge', label: 'Cónyuge' },
-    { value: 'Concubino_Concubina', label: 'Concubino/a' },
-    { value: 'Hijo_Soltero_Menor_De_21', label: 'Hijo soltero menor de 21' },
-    { value: 'Hijo_Soltero_Entre_21_25_Estudiando', label: 'Hijo soltero 21-25 estudiando' },
-    { value: 'Hijo_Conyuge_Menor_De_21', label: 'Hijo de cónyuge menor de 21' },
-    { value: 'Hijo_Conyuge_Entre_21_25_Estudiando', label: 'Hijo de cónyuge 21-25 estudiando' },
-    { value: 'Menor_Bajo_Guarda_Tutela', label: 'Menor bajo guarda/tutela' },
-    { value: 'Familiar_A_Cargo', label: 'Familiar a cargo' },
-    { value: 'Mayor_de_25_Discapacitado', label: 'Mayor de 25 discapacitado' },
-    { value: 'Solo_Parentescos', label: 'Solo parentescos' },
-    { value: 'Grupo_Familiar_Completos', label: 'Grupo familiar completos' },
-    { value: 'Sin_Informacion', label: 'Sin información' },
-  ];
-
-    const sexoOptions: { value: Sexo; label: string }[] = [
-    { value: 'MASCULINO', label: 'Masculino' },
-    { value: 'FEMENINO', label: 'Femenino' },
-    { value: 'SIN_INFORMACION', label: 'Sin información' },
-    { value: 'AMBOS_SEXOS', label: 'Amos sexos' }
-  ];
-
-  if (!isOpen) return null;
+  const handleVolver = () => navigate('/grupoFamiliar');
 
   return (
-    <div className={styles.modalOverlay}>
+    <div className={styles.container}>
       <div className={styles.modalContent}>
-        <h2>{familiar.id ? 'Editar Miembro' : 'Agregar Miembro'}</h2>
+        <h2>{modo === 'editar' ? 'Editar Miembro' : 'Agregar Miembro'}</h2>
         <form onSubmit={handleSubmit} className={styles.form}>
-          <input
-            type="text"
-            name="nombre"
-            value={familiar.nombre}
-            onChange={handleChange}
-            placeholder="Nombre"
-            required
-          />
-          <input
-            type="text"
-            name="apellido"
-            value={familiar.apellido}
-            onChange={handleChange}
-            placeholder="Apellido"
-            required
-          />
-          <input
-            type="text"
-            name="dni"
-            value={familiar.dni}
-            onChange={handleChange}
-            placeholder="DNI"
-            required
-          />
-          <input
-            type="text"
-            name="cuil"
-            value={familiar.cuil}
-            onChange={handleChange}
-            placeholder="Cuil"
-            required
-          />
-          <input
-            type="text"
-            name="telefono"
-            value={familiar.telefono}
-            onChange={handleChange}
-            placeholder="Teléfono"
-            required
-          />
-          <input
-            type="email"
-            name="correoElectronico"
-            value={familiar.correoElectronico}
-            onChange={handleChange}
-            placeholder="Correo Electrónico"
-            required
-          />
-          
+          <input type="text" name="nombre" value={familiar.nombre} onChange={handleChange} placeholder="Nombre" required />
+          <input type="text" name="apellido" value={familiar.apellido} onChange={handleChange} placeholder="Apellido" required />
+          <input type="text" name="dni" value={familiar.dni} onChange={handleChange} placeholder="DNI" required />
+          <input type="text" name="cuil" value={familiar.cuil} onChange={handleChange} placeholder="Cuil" required />
+          <input type="text" name="telefono" value={familiar.telefono} onChange={handleChange} placeholder="Teléfono" required />
+          <input type="email" name="correoElectronico" value={familiar.correoElectronico} onChange={handleChange} placeholder="Correo Electrónico" />
           <label>Sexo:</label>
-          <select
-            name="sexo"
-            value={familiar.sexo}
-            onChange={handleChange}
-            required
-          >
-            <option value="">Seleccione sexo</option>
-            {sexoOptions.map(opt => (
-              <option key={opt.value} value={opt.value}>{opt.label}</option>
-            ))}
-          </select>  
-
+          <select name="sexo" value={familiar.sexo} onChange={handleChange} required>
+            <option value="SIN_INFORMACION">Sin información</option>
+            <option value="MASCULINO">Masculino</option>
+            <option value="FEMENINO">Femenino</option>
+            <option value="AMBOS_SEXOS">Ambos sexos</option>
+          </select>
           <label>Nacionalidad:</label>
-          <select
-            name="nacionalidad"
-            value={familiar.nacionalidad.id}
-            onChange={handleChange}
-            required
-          >
+          <select name="nacionalidad" value={familiar.nacionalidad.id} onChange={handleChange} required>
             <option value={0} disabled>Seleccione un país</option>
-            {nacionalidades.map((a) => (
-                <option key={a.id} value={a.id}>
-                {a.nombre}
-                </option>
-            ))}
+            {nacionalidades.map(n => (<option key={n.id} value={n.id}>{n.nombre}</option>))}
           </select>
-
           <label>Parentesco:</label>
-          <select
-            name="tipoParentesco"
-            value={familiar.tipoParentesco}
-            onChange={handleChange}
-            required
-          >
-            <option value="">Seleccione parentesco</option>
-            {parentescoOptions.map(opt => (
-              <option key={opt.value} value={opt.value}>{opt.label}</option>
-            ))}
+          <select name="tipoParentesco" value={familiar.tipoParentesco} onChange={handleChange} required>
+            <option value="Sin_Informacion">Sin información</option>
+            <option value="Conyuge">Cónyuge</option>
+            <option value="Hijo_Soltero_Menor_De_21">Hijo soltero menor de 21</option>
+            {/* agrega las demás opciones si las necesitas */}
           </select>
-
           <div className={styles.actions}>
             <button type="submit" className={styles.saveButton}>Aceptar</button>
-            <button type="button" onClick={handleClose} className={styles.cancelButton}>Cancelar</button>
+            <button type="button" onClick={handleVolver} className={styles.cancelButton}>Cancelar</button>
           </div>
         </form>
       </div>

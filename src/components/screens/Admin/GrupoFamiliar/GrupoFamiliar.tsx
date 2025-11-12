@@ -3,10 +3,8 @@ import axios from 'axios';
 import { FaEdit, FaTrash, FaPlus, FaChevronDown, FaChevronUp } from 'react-icons/fa';
 import styles from './GrupoFamiliar.module.css';
 import { useAuthStore } from '../../../../auth/store/authStore';
-import ModalGrupoFamiliar from '../../../ui/Admin/ModalGrupoFamiliar/ModalGrupoFamiliar';
-import EditarFamiliar from '../../../ui/Admin/EditarFamiliar/EditarFamiliar';
 import Swal from 'sweetalert2';
-import ModalFamiliar from '../../../ui/Admin/ModalFamiliar/ModalFamiliar';
+import { useNavigate } from 'react-router-dom';
 const database = import.meta.env.VITE_DATABASE;
 
 
@@ -37,20 +35,13 @@ interface GrupoFamiliar {
 
 export const GrupoFamiliar: React.FC = () => {
   const [grupos, setGrupos] = useState<GrupoFamiliar[]>([]);
-  const [isModalGrupoOpen, setIsModalGrupoOpen] = useState(false);
-  const [isModalFamiliarOpen, setIsModalFamiliarOpen] = useState(false);
   const [expandedRows, setExpandedRows] = useState<number[]>([]);
-  const [grupoFamiliarId, setGrupoFamiliarId] = useState<number | null>(null);
-  const [beneficiarioId, setBeneficiarioId] = useState<number | null>(null);
   const [search, setSearch] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5; // mostramos 5 por página
-  const [isModalEditarFamiliarOpen, setIsModalEditarFamiliarOpen] = useState(false);
-  const [selectedFamiliar, setSelectedFamiliar] = useState<any>(undefined);
-  const [grupoEdit, setGrupoEdit] = useState<GrupoFamiliar | undefined>(undefined);
-
 
   const token = useAuthStore((state) => state.token);
+  const navigate = useNavigate();
 
   useEffect(() => {
     obtenerGrupos();
@@ -67,115 +58,70 @@ export const GrupoFamiliar: React.FC = () => {
 
   const eliminarGrupo = async (id: number) => {
     const result = await Swal.fire({
-          title: '¿Estás seguro?',
-          text: 'Esta acción eliminará el grupo familiar.',
-          icon: 'warning',
-          showCancelButton: true,
-          confirmButtonColor: '#d33',
-          cancelButtonColor: '#3085d6',
-          confirmButtonText: 'Sí, eliminar',
-          cancelButtonText: 'Cancelar'
-        });
-    
-        if (result.isConfirmed) {
+      title: '¿Estás seguro?',
+      text: 'Esta acción eliminará el grupo familiar.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar'
+    });
+
+    if (result.isConfirmed) {
       try {
-        await axios.patch(`${database}/api/grupoFamiliar/${id}/estado`, 
-          {}, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+        await axios.patch(`${database}/api/grupoFamiliar/${id}/estado`, {}, {
+          headers: { Authorization: `Bearer ${token}` }
         });
         obtenerGrupos(); // refrescar la lista
-                Swal.fire({
-                  icon: 'success',
-                  title: 'Eliminado',
-                  text: 'El grupo familiar fue eliminado correctamente.',
-                  timer: 1500,
-                  showConfirmButton: false
-                });
+        Swal.fire({ icon: 'success', title: 'Eliminado', text: 'El grupo familiar fue eliminado correctamente.', timer: 1500, showConfirmButton: false });
       } catch (error) {
         console.error('Error al eliminar grupo familiar:', error);
-                Swal.fire({
-                  icon: 'error',
-                  title: 'Error',
-                  text: 'No se pudo eliminar el grupo familiar.',
-                });
+        Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo eliminar el grupo familiar.' });
       }
     }
   };
 
   const editarGrupo = (id: number) => {
-    const grupo = grupos.find(g => g.id === id);
-    setGrupoEdit(grupo);
-    setIsModalGrupoOpen(true);
+    navigate(`/grupoFamiliar/editar/${id}`);
   };
 
   const handleExpandRow = (id: number) => {
-    setExpandedRows((prev) =>
-      prev.includes(id) ? prev.filter((rowId) => rowId !== id) : [...prev, id]
-    );
+    setExpandedRows(prev => prev.includes(id) ? prev.filter(r => r !== id) : [...prev, id]);
   };
 
   const handleOpenModalGrupoFamiliar = () => {
-    setIsModalGrupoOpen(true);
+    navigate('/grupoFamiliar/nuevo');
   };
 
   const handleOpenModalFamiliar = (grupoId: number, beneficiarioId: number) => {
-    setGrupoFamiliarId(grupoId);
-    setBeneficiarioId(beneficiarioId);
-    setIsModalFamiliarOpen(true);
+    navigate(`/grupoFamiliar/${grupoId}/familiar/nuevo/${beneficiarioId}`);
   };
 
-    const eliminarFamiliar= async (id: number) => {
-      const result = await Swal.fire({
-          title: '¿Estás seguro?',
-          text: 'Esta acción eliminará el familiar.',
-          icon: 'warning',
-          showCancelButton: true,
-          confirmButtonColor: '#d33',
-          cancelButtonColor: '#3085d6',
-          confirmButtonText: 'Sí, eliminar',
-          cancelButtonText: 'Cancelar'
+  const eliminarFamiliar = async (id: number) => {
+    const result = await Swal.fire({
+      title: '¿Estás seguro?',
+      text: 'Esta acción eliminará el familiar.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar'
+    });
+
+    if (result.isConfirmed) {
+      try {
+        await axios.patch(`${database}/api/familiares/${id}/estado`, {}, {
+          headers: { Authorization: `Bearer ${token}` }
         });
-    
-        if (result.isConfirmed) {
-          try {
-            await axios.patch(`http://vps-5301866-x.dattaweb.com:9000/api/familiares/${id}/estado`, {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            });
-            Swal.fire({
-                  icon: 'success',
-                  title: 'Eliminado',
-                  text: 'El familiar fue eliminado correctamente.',
-                  timer: 1500,
-                  showConfirmButton: false
-                });
-          } catch (error) {
-            console.error('Error al eliminar familiar:', error);
-                  Swal.fire({
-                  icon: 'error',
-                  title: 'Error',
-                  text: 'No se pudo eliminar el familiar.',
-                });
-          }
-        }
-    };
-
-  const handleCloseModalGrupo = () => {
-    setIsModalGrupoOpen(false);
-    setGrupoEdit(undefined);
-  };
-
-  const handleCloseModalFamiliar = () => {
-    setIsModalFamiliarOpen(false);
-    setGrupoFamiliarId(null);
-  };
-
-  const handleFamiliarAdded = () => {
-    obtenerGrupos();
-    handleCloseModalFamiliar();
+        obtenerGrupos();
+        Swal.fire({ icon: 'success', title: 'Eliminado', text: 'El familiar fue eliminado correctamente.', timer: 1500, showConfirmButton: false });
+      } catch (error) {
+        console.error('Error al eliminar familiar:', error);
+        Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo eliminar el familiar.' });
+      }
+    }
   };
 
   // --- FILTRADO ---
@@ -305,12 +251,7 @@ export const GrupoFamiliar: React.FC = () => {
                                   <FaEdit
                                     className={styles.editIcon}
                                     onClick={() => {
-                                      setSelectedFamiliar({
-                                        ...f,
-                                        grupoFamiliar: { id: g.id },
-                                        beneficiario: { id: g.titular.id }
-                                      });
-                                      setIsModalEditarFamiliarOpen(true);
+                                      navigate(`/familiar/editar/${f.id}`);
                                     }}
                                     style={{ cursor: "pointer" }}
                                   />
@@ -370,31 +311,6 @@ export const GrupoFamiliar: React.FC = () => {
           </button>
         </div>
       )}
-
-      <ModalFamiliar
-        isOpen={isModalFamiliarOpen}
-        onClose={handleCloseModalFamiliar}
-        onSave={handleFamiliarAdded}
-        grupoFamiliarId={grupoFamiliarId ?? undefined}
-        beneficiarioId={beneficiarioId ?? 0}
-      />
-
-      <ModalGrupoFamiliar
-        isOpen={isModalGrupoOpen}
-        onClose={handleCloseModalGrupo}
-        onGrupoFamiliarAdded={handleFamiliarAdded}
-        grupoEdit={grupoEdit}
-      />
-
-      <EditarFamiliar
-        isOpen={isModalEditarFamiliarOpen && !!selectedFamiliar}
-        onClose={() => {
-          setIsModalEditarFamiliarOpen(false);
-          setSelectedFamiliar(undefined);
-        }}
-        onSave={obtenerGrupos}
-        initialData={selectedFamiliar}
-      />
     </div>
     </div>
   );

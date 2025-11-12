@@ -3,8 +3,9 @@ import styles from './Roles.module.css';
 import { useEffect, useState } from 'react';
 import { useAuthStore } from '../../../../auth/store/authStore';
 import axios from 'axios';
-import { ModalRol } from '../../../ui/Admin/ModalRol/ModalRol';
+// import { ModalRol } from '../../../ui/Admin/ModalRol/ModalRol';
 import Swal from 'sweetalert2';
+import { useNavigate } from 'react-router-dom';
 const database = import.meta.env.VITE_DATABASE;
 
 
@@ -20,10 +21,11 @@ interface Rol {
 
 export const Roles = () => {
   const [roles, setRoles] = useState<Rol[]>([]);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  // const [isModalOpen, setIsModalOpen] = useState(false);
   const [search, setSearch] = useState('');
-  const [rolEdit, setRolEdit] = useState<Rol | undefined>(undefined);
+  // const [rolEdit, setRolEdit] = useState<Rol | undefined>(undefined);
   const token = useAuthStore((state) => state.token);
+  const navigate = useNavigate();
 
   // 🔹 Estados para paginación
   const [currentPage, setCurrentPage] = useState(1);
@@ -43,14 +45,11 @@ export const Roles = () => {
   };
     
   const agregarRol = () => {
-    setRolEdit(undefined);
-    setIsModalOpen(true);
+    navigate('/roles/nuevo');
   }
 
   const editarRol = (id: number) => {
-    const rol = roles.find(r => r.id === id);
-    setRolEdit(rol);
-    setIsModalOpen(true);
+    navigate(`/roles/editar/${id}`);
   }
 
   const eliminarRol= async (id: number) => {
@@ -91,14 +90,14 @@ export const Roles = () => {
     }
   }
 
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-    setRolEdit(undefined);
-  };
+  // const handleCloseModal = () => {
+  //   setIsModalOpen(false);
+  //   setRolEdit(undefined);
+  // };
 
-  const handleAreaAdded = () => {
-    obtenerRoles();
-  };
+  // const handleAreaAdded = () => {
+  //   obtenerRoles();
+  // };
 
   // Barra de búsqueda por cualquier campo
   const rolesFiltrados = roles.filter((r) =>
@@ -219,12 +218,12 @@ export const Roles = () => {
         </div>
       )}
 
-      <ModalRol
+      {/* <ModalRol
         isOpen={isModalOpen}
         onClose={handleCloseModal}
         onRolAdded={handleAreaAdded}
         rolEdit={rolEdit}
-      />
+      /> */}
     </div>
     </div>
   )

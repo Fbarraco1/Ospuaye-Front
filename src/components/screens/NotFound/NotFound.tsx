@@ -11,7 +11,7 @@ const NotFound: React.FC = () => {
 
   const status = Number(state?.status ?? codeParam ?? 404);
   const detailMessage = state?.message ?? '';
-
+  
   const mapStatusToContent = (statusCode: number) => {
     switch (statusCode) {
       case 400:

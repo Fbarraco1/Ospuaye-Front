@@ -237,7 +237,7 @@ const ModalPedidoOrtopedia: React.FC<{modo?: 'editar' | 'crear', onPedidoAdded?:
         </select>
 
         <label>Médico:</label>
-        <select value={medicoId} onChange={e => setMedicoId(e.target.value)} required>
+        <select value={medicoId} onChange={e => setMedicoId(e.target.value)} >
           <option value="">Seleccione un médico</option>
           {medicos.map(m => (
             <option key={m.id} value={m.id}>{m.nombre} {m.apellido}</option>

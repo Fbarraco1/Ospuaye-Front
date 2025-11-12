@@ -44,6 +44,19 @@ import { PedidoOrtopediaUser } from '../components/screens/User/PedidoOrtopediaU
 import { GestionDeCuenta } from '../components/screens/User/GestionDeCuenta/GestionDeCuenta';
 import { GestionDeCuentaMedico } from '../components/screens/Medico/GestionDeCuentaMedico/GestionDeCuentaMedico';
 import { ModalDepartamento } from '../components/ui/Admin/ModalDepartamento/ModalDepartamento';
+import { Pedido } from '../components/screens/Pedido/Pedido';
+import ModalDomicilio from '../components/ui/Admin/ModalDomicilio/ModalDomicilio';
+import ModalEmpresa from '../components/ui/Admin/ModalEmpresa/ModalEmpresa';
+import ModalLocalidad from '../components/ui/Admin/ModalLocalidad/ModalLocalidad';
+import ModalNacionalidad from '../components/ui/Admin/ModalNacionalidad/ModalNacionalidad';
+import ModalPais from '../components/ui/Admin/ModalPais/ModalPais';
+import ModalProvincia from '../components/ui/Admin/ModalProvincia/ModalProvincia';
+import ModalRol from '../components/ui/Admin/ModalRol/ModalRol';
+import ModalArea from '../components/ui/Admin/ModalArea/ModalArea';
+import ModalGrupoFamiliar from '../components/ui/Admin/ModalGrupoFamiliar/ModalGrupoFamiliar';
+import ModalFamiliar from '../components/ui/Admin/ModalFamiliar/ModalFamiliar';
+import ModalPedido from '../components/ui/Pedidos/ModalPedido/ModalPedido';
+import { PedidoMedico } from '../components/screens/Medico/PedidoMedico/PedidoMedico';
 
 export const AppRouter = () => {
   const { user } = useAuthStore();
@@ -87,7 +100,7 @@ export const AppRouter = () => {
           
          {/* Rutas Admin */}
         <Route path="/admin" element={
-          <PrivateRoutes roles={['ADMIN', 'MEDICO AUDITOR GENERAL', 'USER', 'MEDICO OFTALMOLOGO', 'MEDICO ORTOPEDIA']}>
+          <PrivateRoutes roles={['ADMIN', 'MEDICO AUDITOR GENERAL', 'USER', 'MEDICO OFTALMOLOGIA', 'MEDICO ORTOPEDIA']}>
             <ImgSistema /> 
           </PrivateRoutes>} />
 
@@ -101,9 +114,29 @@ export const AppRouter = () => {
             <Areas /> 
           </PrivateRoutes>} />
 
+        <Route path="/areas/nuevo" element={
+          <PrivateRoutes roles={['ADMIN']}>
+            <ModalArea modo="crear" />
+          </PrivateRoutes>} />
+
+        <Route path="/areas/editar/:id" element={
+          <PrivateRoutes roles={['ADMIN']}>
+            <ModalArea modo="editar" />
+          </PrivateRoutes>} />
+
         <Route path="/roles" element={
           <PrivateRoutes roles={['ADMIN']}>
             <Roles /> 
+          </PrivateRoutes>} />
+
+        <Route path="/roles/nuevo" element={
+          <PrivateRoutes roles={['ADMIN']}>
+            <ModalRol modo="crear" />
+          </PrivateRoutes>} />
+
+        <Route path="/roles/editar/:id" element={
+          <PrivateRoutes roles={['ADMIN']}>
+            <ModalRol modo="editar" />
           </PrivateRoutes>} />
 
         <Route path="/pais" element={
@@ -111,9 +144,29 @@ export const AppRouter = () => {
             <Pais /> 
           </PrivateRoutes>} />
 
+        <Route path="/pais/nuevo" element={
+          <PrivateRoutes roles={['ADMIN']}>
+            <ModalPais modo="crear" />
+          </PrivateRoutes>} />
+
+        <Route path="/pais/editar/:id" element={
+          <PrivateRoutes roles={['ADMIN']}>
+            <ModalPais modo="editar" />
+          </PrivateRoutes>} />
+
         <Route path="/provincia" element={
           <PrivateRoutes roles={['ADMIN']}>
             <Provincia /> 
+          </PrivateRoutes>} />
+
+        <Route path="/provincia/nuevo" element={
+          <PrivateRoutes roles={['ADMIN']}>
+            <ModalProvincia modo="crear" />
+          </PrivateRoutes>} />
+
+        <Route path="/provincia/editar/:id" element={
+          <PrivateRoutes roles={['ADMIN']}>
+            <ModalProvincia modo="editar" />
           </PrivateRoutes>} />
 
         <Route path="/departamento" element={
@@ -136,14 +189,44 @@ export const AppRouter = () => {
             <Localidad /> 
           </PrivateRoutes>} />
 
+        <Route path="/localidad/nuevo" element={
+          <PrivateRoutes roles={['ADMIN']}>
+            <ModalLocalidad modo="crear" />
+          </PrivateRoutes>} />
+
+        <Route path="/localidad/editar/:id" element={
+          <PrivateRoutes roles={['ADMIN']}>
+            <ModalLocalidad modo="editar" />
+          </PrivateRoutes>} />
+
         <Route path="/domicilio" element={
           <PrivateRoutes roles={['ADMIN']}>
             <Domicilio /> 
           </PrivateRoutes>} />
 
+        <Route path="/domicilio/nuevo" element={
+          <PrivateRoutes roles={['ADMIN']}>
+            <ModalDomicilio modo="crear" />
+          </PrivateRoutes>} />
+
+        <Route path="/domicilio/editar/:id" element={
+          <PrivateRoutes roles={['ADMIN']}>
+            <ModalDomicilio modo="editar" />
+          </PrivateRoutes>} />
+
         <Route path="/empresa" element={
           <PrivateRoutes roles={['ADMIN']}>
             <Empresa /> 
+          </PrivateRoutes>} />
+
+        <Route path="/empresa/nuevo" element={
+          <PrivateRoutes roles={['ADMIN']}>
+            <ModalEmpresa modo="crear" />
+          </PrivateRoutes>} />
+
+        <Route path="/empresa/editar/:id" element={
+          <PrivateRoutes roles={['ADMIN']}>
+            <ModalEmpresa modo="editar" />
           </PrivateRoutes>} />
 
         <Route path="/beneficiarios" element={
@@ -186,6 +269,16 @@ export const AppRouter = () => {
             <Nacionalidad /> 
           </PrivateRoutes>} />
 
+        <Route path="/nacionalidades/nuevo" element={
+          <PrivateRoutes roles={['ADMIN', 'ADMINOFTALMOLOGIA', 'ADMINORTOPEDIA']}>
+            <ModalNacionalidad modo="crear" />
+          </PrivateRoutes>} />
+
+        <Route path="/nacionalidades/editar/:id" element={
+          <PrivateRoutes roles={['ADMIN', 'ADMINOFTALMOLOGIA', 'ADMINORTOPEDIA']}>
+            <ModalNacionalidad modo="editar" />
+          </PrivateRoutes>} />
+
         <Route path="/admin/oftalmologia" element={
           <PrivateRoutes roles={['ADMINOFTALMOLOGIA']}>
             <ImgSistema /> 
@@ -195,6 +288,21 @@ export const AppRouter = () => {
           <PrivateRoutes roles={['ADMINORTOPEDIA']}>
             <ImgSistema /> 
           </PrivateRoutes>} />          
+
+        <Route path="/pedidos/generales" element={
+          <PrivateRoutes roles={['ADMIN', 'ADMINOFTALMOLOGIA', 'MEDICO AUDITOR GENERAL', 'ADMINORTOPEDIA', 'MEDICO ORTOPEDIA', 'MEDICO OFTALMOLOGO']}>
+            <Pedido /> 
+          </PrivateRoutes>} />
+
+          <Route path="/pedidos/generales/medico" element={
+          <PrivateRoutes roles={['ADMIN', 'ADMINOFTALMOLOGIA', 'MEDICO AUDITOR GENERAL', 'ADMINORTOPEDIA', 'MEDICO ORTOPEDIA', 'MEDICO OFTALMOLOGO']}>
+            <PedidoMedico /> 
+          </PrivateRoutes>} />
+
+          <Route path="/pedidos/generales/nuevo" element={
+          <PrivateRoutes roles={['ADMIN', 'ADMINOFTALMOLOGIA', 'ADMINORTOPEDIA']}>
+            <ModalPedido /> 
+          </PrivateRoutes>} />
 
         <Route path="/pedidos/oftalmologia" element={
           <PrivateRoutes roles={['ADMIN', 'ADMINOFTALMOLOGIA', 'MEDICO AUDITOR GENERAL']}>
@@ -264,6 +372,26 @@ export const AppRouter = () => {
           <Route path="/pedidos/ortopedia/editar/:id" element={
           <PrivateRoutes roles={['ADMIN', 'ADMINORTOPEDIA']}>
             <ModalPedidoOrtopedia modo="editar" />
+          </PrivateRoutes>} />
+
+        <Route path="/grupoFamiliar/nuevo" element={
+          <PrivateRoutes roles={['ADMIN', 'ADMINOFTALMOLOGIA', 'ADMINORTOPEDIA']}>
+            <ModalGrupoFamiliar modo="crear" />
+          </PrivateRoutes>} />
+
+        <Route path="/grupoFamiliar/editar/:id" element={
+          <PrivateRoutes roles={['ADMIN', 'ADMINOFTALMOLOGIA', 'ADMINORTOPEDIA']}>
+            <ModalGrupoFamiliar modo="editar" />
+          </PrivateRoutes>} />
+
+        <Route path="/grupoFamiliar/:grupoId/familiar/nuevo/:beneficiarioId" element={
+          <PrivateRoutes roles={['ADMIN', 'ADMINOFTALMOLOGIA', 'ADMINORTOPEDIA']}>
+            <ModalFamiliar modo="crear" />
+          </PrivateRoutes>} />
+
+        <Route path="/familiar/editar/:id" element={
+          <PrivateRoutes roles={['ADMIN', 'ADMINOFTALMOLOGIA', 'ADMINORTOPEDIA']}>
+            <ModalFamiliar modo="editar" />
           </PrivateRoutes>} />
 
     </Routes>

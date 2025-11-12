@@ -1,77 +1,64 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAuthStore } from '../../../../auth/store/authStore';
 import styles from './ModalLocalidad.module.css';
 import axios from 'axios';
 import Swal from 'sweetalert2';
+import { useNavigate, useParams } from 'react-router-dom';
 const database = import.meta.env.VITE_DATABASE;
 
 interface ModalLocalidadProps {
-  isOpen: boolean;
-  onClose: () => void;
+  modo?: 'editar' | 'crear';
   onLocalidadAdded?: () => void;
-  localidadEdit?: {
-    id: number;
-    nombre: string;
-    codigoPostal: string;
-    departamento: { id: number; nombre: string };
-    activo: boolean;
-  };
 }
 
 interface Departamento {
-    id: number;
-    nombre: string;
+  id: number;
+  nombre: string;
 }
 
-
-export const ModalLocalidad: React.FC<ModalLocalidadProps> = ({
-  isOpen,
-  onClose,
-  onLocalidadAdded,
-  localidadEdit
-}) => {
+export const ModalLocalidad: React.FC<ModalLocalidadProps> = ({ modo = 'crear', onLocalidadAdded }) => {
+  const { id } = useParams<{ id: string }>();
   const [nombre, setNombre] = useState('');
   const [codigoPostal, setCodigoPostal] = useState('');
   const [departamentos, setDepartamentos] = useState<Departamento[]>([]);
   const [departamento, setDepartamento] = useState<number>(0);
   const token = useAuthStore((state) => state.token);
+  const navigate = useNavigate();
 
   useEffect(() => {
     obtenerDepartamentos();
-  }, []);
-
-  useEffect(() => {
-    if (localidadEdit) {
-      setNombre(localidadEdit.nombre);
-      setCodigoPostal(localidadEdit.codigoPostal);
-      setDepartamento(localidadEdit.departamento.id);
-    } else {
-      setNombre('');
-      setCodigoPostal('');
-      setDepartamento(0);
+    if (modo === 'editar' && id) {
+      cargarLocalidad(id);
     }
-  }, [localidadEdit, isOpen]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id, modo]);
 
   const obtenerDepartamentos = async () => {
     try {
-      const response = await axios.get(`${database}/api/departamentos`, {
-      });
+      const response = await axios.get(`${database}/api/departamentos`);
       setDepartamentos(response.data);
     } catch (error) {
       console.error('Error al obtener Departamentos:', error);
     }
   };
 
-  const createLocalidad = async (
-    nombre: string, 
-    codigoPostal: string,
-    departamento: number
+  const cargarLocalidad = async (localidadId: string) => {
+    try {
+      const res = await axios.get(`${database}/api/localidades/${localidadId}`);
+      const l = res.data;
+      setNombre(l.nombre || '');
+      setCodigoPostal(l.codigoPostal || '');
+      setDepartamento(l.departamento?.id || 0);
+    } catch (error) {
+      console.error('Error al cargar localidad:', error);
+    }
+  };
 
-  ) => {
-        try {
+  const createLocalidad = async (nombreVal: string, codigoPostalVal: string, departamentoId: number) => {
+    try {
       const response = await axios.post(
         `${database}/api/localidades`,
-        { nombre, codigoPostal, departamento: { id: departamento } }, // <-- Cambia aquí
+        { nombre: nombreVal, codigoPostal: codigoPostalVal, departamento: { id: departamentoId } },
         {
           headers: {
             'Content-Type': 'application/json',
@@ -81,35 +68,29 @@ export const ModalLocalidad: React.FC<ModalLocalidadProps> = ({
       );
 
       if (response.status < 200 || response.status >= 300) throw new Error('Error al crear Localidad');
-            Swal.fire({
-              icon: 'success',
-              title: 'Localidad creada',
-              text: 'La localidad se creó correctamente.',
-              timer: 2000,
-              showConfirmButton: false
-            });
-      // const data = response.data;
+      Swal.fire({
+        icon: 'success',
+        title: 'Localidad creada',
+        text: 'La localidad se creó correctamente.',
+        timer: 2000,
+        showConfirmButton: false
+      });
     } catch (error) {
       console.error('error:', error);
-            Swal.fire({
-              icon: 'error',
-              title: 'Error',
-              text: 'No se pudo crear la localidad.',
-            });
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'No se pudo crear la localidad.',
+      });
+      throw error;
     }
-  }
+  };
 
-  const updateLocalidad = async (
-    id: number,
-    nombre: string,
-    codigoPostal: string,
-    departamento: number,
-    activo: boolean
-  ) => {
+  const updateLocalidad = async (idNum: number, nombreVal: string, codigoPostalVal: string, departamentoId: number) => {
     try {
       const response = await axios.put(
-        `${database}/api/localidades/${id}`,
-        { nombre, codigoPostal, departamento: { id: departamento }, activo },
+        `${database}/api/localidades/${idNum}`,
+        { nombre: nombreVal, codigoPostal: codigoPostalVal, departamento: { id: departamentoId } },
         {
           headers: {
             'Content-Type': 'application/json',
@@ -117,6 +98,7 @@ export const ModalLocalidad: React.FC<ModalLocalidadProps> = ({
           },
         }
       );
+
       if (response.status < 200 || response.status >= 300) throw new Error('Error al editar Localidad');
       Swal.fire({
         icon: 'success',
@@ -132,39 +114,36 @@ export const ModalLocalidad: React.FC<ModalLocalidadProps> = ({
         title: 'Error',
         text: 'No se pudo editar la localidad.',
       });
+      throw error;
     }
-  }
+  };
 
-    const handleSubmit = async (e: React.FormEvent) => {
-      e.preventDefault();
-  
-      try {
-        if (localidadEdit) {
-          await updateLocalidad(localidadEdit.id, nombre, codigoPostal, departamento, localidadEdit.activo);
-        } else {
-          await createLocalidad(nombre, codigoPostal, departamento);
-        }
-        if (onLocalidadAdded) onLocalidadAdded();
-        onClose();
-      } catch (error) {
-        console.error('Error al guardar Localidad:', error);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      if (modo === 'editar' && id) {
+        await updateLocalidad(Number(id), nombre, codigoPostal, departamento);
+      } else {
+        await createLocalidad(nombre, codigoPostal, departamento);
       }
-      handleClose();
-    };
-  
-    const handleClose = () => {
-      setNombre('');
-      setCodigoPostal('');
-      setDepartamento(0);
-      onClose();
-    };
-  
-    if (!isOpen) return null;
+      if (onLocalidadAdded) onLocalidadAdded();
+      navigate('/localidad');
+    } catch (error) {
+      // ya manejado en funciones
+    }
+  };
+
+  const handleVolver = () => {
+    navigate('/localidad');
+  };
 
   return (
-    <div className={styles.overlay}>
+    <div className={styles.container}>
+      <button type="button" onClick={handleVolver} style={{ marginBottom: 10 }}>
+        Volver
+      </button>
       <div className={styles.modal}>
-        <h2>{localidadEdit ? 'Editar Localidad' : 'Agregar Localidad'}</h2>
+        <h2>{modo === 'editar' ? 'Editar Localidad' : 'Agregar Localidad'}</h2>
         <form onSubmit={handleSubmit}>
           <label>Nombre:</label>
           <input
@@ -179,27 +158,29 @@ export const ModalLocalidad: React.FC<ModalLocalidadProps> = ({
             value={codigoPostal}
             onChange={(e) => setCodigoPostal(e.target.value)}
             required
-          />          
-            <label>Area:</label>
+          />
+          <label>Departamento:</label>
           <select
             value={departamento}
             onChange={(e) => setDepartamento(Number(e.target.value))}
             required
-            >
+          >
             <option value={0} disabled>Seleccione un Departamento</option>
-            {departamentos.map((a) => (
-                <option key={a.id} value={a.id}>
-                {a.nombre}
-                </option>
+            {departamentos.map((d) => (
+              <option key={d.id} value={d.id}>
+                {d.nombre}
+              </option>
             ))}
-           </select>
+          </select>
 
           <div className={styles.actions}>
             <button type="submit">Aceptar</button>
-            <button type="button" onClick={handleClose}>Cancelar</button>
+            <button type="button" onClick={handleVolver}>Cancelar</button>
           </div>
         </form>
       </div>
     </div>
-  )
-}
+  );
+};
+
+export default ModalLocalidad;

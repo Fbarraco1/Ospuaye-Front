@@ -3,29 +3,12 @@ import styles from './ModalDomicilio.module.css';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import { useAuthStore } from '../../../../auth/store/authStore';
+import { useNavigate, useParams } from 'react-router-dom';
 const database = import.meta.env.VITE_DATABASE;
 
 interface ModalDomicilioProps {
-  isOpen: boolean;
-  onClose: () => void;
+  modo?: 'editar' | 'crear';
   onDomicilioAdded?: () => void;
-  domicilioEdit?: {
-      id: number;
-      calle: string;
-      numeracion: string;
-      barrio: string;
-      manzanaPiso: string;
-      casaDepartamento:string;
-      referencia:string;
-      activo: Boolean;
-      localidad: {
-          id: number;
-          nombre: string;
-          codigoPostal: string;
-          activo: boolean;
-      },
-      tipo: 'DOMICILIO_COMPLETO' | 'DOMICILIO_RURAL';
-  };
 }
 interface Localidad {
     id: number;
@@ -33,8 +16,8 @@ interface Localidad {
     codigoPostal: string;
 }
 
-
-export const ModalDomicilio: React.FC<ModalDomicilioProps> = ({ isOpen, onClose, onDomicilioAdded, domicilioEdit }) => {
+export const ModalDomicilio: React.FC<ModalDomicilioProps> = ({ modo = 'crear', onDomicilioAdded }) => {
+  const { id } = useParams<{ id: string }>();
   const [calle, setCalle] = useState('');
   const [numeracion, setNumeracion] = useState('');
   const [barrio, setBarrio] = useState('');
@@ -46,59 +29,58 @@ export const ModalDomicilio: React.FC<ModalDomicilioProps> = ({ isOpen, onClose,
   const [tipo, setTipo] = useState<'DOMICILIO_COMPLETO' | 'DOMICILIO_RURAL' | 'Sin definir' >('Sin definir');
   
   const token = useAuthStore((state) => state.token);
-
-    useEffect(() => {
-    obtenerLocalidades();
-  }, []);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    if (domicilioEdit) {
-      setCalle(domicilioEdit.calle);
-      setNumeracion(domicilioEdit.numeracion);
-      setBarrio(domicilioEdit.barrio);
-      setManzanaPiso(domicilioEdit.manzanaPiso);
-      setCasaDepartamento(domicilioEdit.casaDepartamento);
-      setReferencia(domicilioEdit.referencia);
-      setLocalidad(domicilioEdit.localidad.id);
-      setTipo(domicilioEdit.tipo);
-    } else {
-      setCalle('');
-      setNumeracion('');
-      setBarrio('');
-      setManzanaPiso('');
-      setCasaDepartamento('');
-      setReferencia('');
-      setLocalidad(0);
-      setTipo('Sin definir');
+    obtenerLocalidades();
+    if (modo === 'editar' && id) {
+      cargarDomicilio(id);
     }
-  }, [domicilioEdit, isOpen]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id, modo]);
 
   const obtenerLocalidades = async () => {
     try {
-      const response = await axios.get(`${database}/api/localidades`, {
-      });
+      const response = await axios.get(`${database}/api/localidades`);
       setLocalidades(response.data);
     } catch (error) {
       console.error('Error al obtener Localidades:', error);
     }
   };
 
-    const updateDomicilio = async (
-      id: number,
-      calle: string,
-      numeracion: string,
-      barrio: string,
-      manzanaPiso: string,
-      casaDepartamento:string,
-      referencia:string,
-      activo: Boolean,
-      localidad:number,
-      tipo: 'DOMICILIO_COMPLETO' | 'DOMICILIO_RURAL',
+  const cargarDomicilio = async (domicilioId: string) => {
+    try {
+      const res = await axios.get(`${database}/api/domicilios/${domicilioId}`);
+      const d = res.data;
+      setCalle(d.calle || '');
+      setNumeracion(d.numeracion || '');
+      setBarrio(d.barrio || '');
+      setManzanaPiso(d.manzanaPiso || '');
+      setCasaDepartamento(d.casaDepartamento || '');
+      setReferencia(d.referencia || '');
+      setLocalidad(d.localidad?.id || 0);
+      setTipo(d.tipo || 'Sin definir');
+    } catch (error) {
+      console.error('Error al cargar domicilio:', error);
+    }
+  };
+
+  const updateDomicilio = async (
+    idNum: number,
+    calle: string,
+    numeracion: string,
+    barrio: string,
+    manzanaPiso: string,
+    casaDepartamento:string,
+    referencia:string,
+    activo: Boolean,
+    localidadId:number,
+    tipoVal: 'DOMICILIO_COMPLETO' | 'DOMICILIO_RURAL',
   ) => {
     try {
       const response = await axios.put(
-        `${database}/api/domicilios/${id}`,
-        { calle, numeracion, barrio, manzanaPiso, casaDepartamento, referencia, activo, localidad: { id: localidad }, tipo },
+        `${database}/api/domicilios/${idNum}`,
+        { calle, numeracion, barrio, manzanaPiso, casaDepartamento, referencia, activo, localidad: { id: localidadId }, tipo: tipoVal },
         {
           headers: {
             'Content-Type': 'application/json',
@@ -109,7 +91,7 @@ export const ModalDomicilio: React.FC<ModalDomicilioProps> = ({ isOpen, onClose,
       if (response.status < 200 || response.status >= 300) throw new Error('Error al editar domicilio');
       Swal.fire({
         icon: 'success',
-        title: 'domicilio editado',
+        title: 'Domicilio editado',
         text: 'El domicilio se editó correctamente.',
         timer: 2000,
         showConfirmButton: false
@@ -121,6 +103,7 @@ export const ModalDomicilio: React.FC<ModalDomicilioProps> = ({ isOpen, onClose,
         title: 'Error',
         text: 'No se pudo editar el domicilio.',
       });
+      throw error;
     }
   }
   const createDomicilio = async (
@@ -130,14 +113,13 @@ export const ModalDomicilio: React.FC<ModalDomicilioProps> = ({ isOpen, onClose,
     manzanaPiso: string,
     casaDepartamento:string,
     referencia:string,
-    localidad: number,
-    tipo: 'DOMICILIO_COMPLETO' | 'DOMICILIO_RURAL' | 'Sin definir'
-
+    localidadId: number,
+    tipoVal: 'DOMICILIO_COMPLETO' | 'DOMICILIO_RURAL' | 'Sin definir'
   ) => {
-        try {
+    try {
       const response = await axios.post(
         `${database}/api/domicilios/crear`,
-        { calle, numeracion, barrio, manzanaPiso, casaDepartamento, referencia, localidad: { id: localidad }, tipo }, // <-- Cambia aquí
+        { calle, numeracion, barrio, manzanaPiso, casaDepartamento, referencia, localidad: { id: localidadId }, tipo: tipoVal },
         {
           headers: {
             'Content-Type': 'application/json',
@@ -147,59 +129,51 @@ export const ModalDomicilio: React.FC<ModalDomicilioProps> = ({ isOpen, onClose,
       );
 
       if (response.status < 200 || response.status >= 300) throw new Error('Error al crear Domicilio');
-            Swal.fire({
-              icon: 'success',
-              title: 'Domicilio creado',
-              text: 'El domicilio se creó correctamente.',
-              timer: 2000,
-              showConfirmButton: false
-            });
-      // const data = response.data;
+      Swal.fire({
+        icon: 'success',
+        title: 'Domicilio creado',
+        text: 'El domicilio se creó correctamente.',
+        timer: 2000,
+        showConfirmButton: false
+      });
     } catch (error) {
       console.error('error:', error);
       Swal.fire({
-              icon: 'error',
-              title: 'Error',
-              text: 'No se pudo crear el domicilio.',
-            });
+        icon: 'error',
+        title: 'Error',
+        text: 'No se pudo crear el domicilio.',
+      });
+      throw error;
     }
   }
 
-    const handleSubmit = async (e: React.FormEvent) => {
-      e.preventDefault();
-  
-      try {
-        if (domicilioEdit) {
-          await updateDomicilio(domicilioEdit.id, calle, numeracion, barrio, manzanaPiso, casaDepartamento, referencia, true, localidad, tipo as 'DOMICILIO_COMPLETO' | 'DOMICILIO_RURAL');
-        } else {
-          await createDomicilio(calle, numeracion, barrio, manzanaPiso, casaDepartamento, referencia, localidad, tipo);
-        }
-        if (onDomicilioAdded) onDomicilioAdded();
-        onClose();
-      } catch (error) {
-        console.error('Error al guardar domicilio:', error);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    try {
+      if (modo === 'editar' && id) {
+        await updateDomicilio(Number(id), calle, numeracion, barrio, manzanaPiso, casaDepartamento, referencia, true, localidad, tipo as 'DOMICILIO_COMPLETO' | 'DOMICILIO_RURAL');
+      } else {
+        await createDomicilio(calle, numeracion, barrio, manzanaPiso, casaDepartamento, referencia, localidad, tipo);
       }
-      handleClose();
-    };
-  
-    const handleClose = () => {
-      setCalle('');
-      setNumeracion('');
-      setBarrio('');
-      setManzanaPiso('');
-      setCasaDepartamento('');
-      setReferencia('');
-      setLocalidad(0);
-      setTipo('Sin definir');
-      onClose();
-    };
-  
-    if (!isOpen) return null;
+      if (onDomicilioAdded) onDomicilioAdded();
+      navigate('/domicilio');
+    } catch (error) {
+      console.error('Error al guardar domicilio:', error);
+    }
+  };
+
+  const handleVolver = () => {
+    navigate('/domicilio');
+  };
 
   return (
-    <div className={styles.overlay}>
+    <div className={styles.container}>
+      <button type="button" onClick={handleVolver} style={{ marginBottom: 10 }}>
+        Volver
+      </button>
       <div className={styles.modal}>
-        <h2>{domicilioEdit ? 'Editar Domicilio' : 'Agregar Domicilio'}</h2>
+        <h2>{modo === 'editar' ? 'Editar Domicilio' : 'Agregar Domicilio'}</h2>
         <form onSubmit={handleSubmit}>
           <label>Calle:</label>
           <input
@@ -244,7 +218,7 @@ export const ModalDomicilio: React.FC<ModalDomicilioProps> = ({ isOpen, onClose,
             onChange={(e) => setReferencia(e.target.value)}
             required
           />                             
-            <label>Localidad:</label>
+          <label>Localidad:</label>
           <select
             value={localidad}
             onChange={(e) => setLocalidad(Number(e.target.value))}
@@ -271,10 +245,11 @@ export const ModalDomicilio: React.FC<ModalDomicilioProps> = ({ isOpen, onClose,
 
           <div className={styles.actions}>
             <button type="submit">Aceptar</button>
-            <button type="button" onClick={handleClose}>Cancelar</button>
+            <button type="button" onClick={handleVolver}>Cancelar</button>
           </div>
         </form>
       </div>
     </div>
   )
 }
+export default ModalDomicilio;

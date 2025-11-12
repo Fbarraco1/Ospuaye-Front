@@ -59,7 +59,11 @@
 
 .actions {
   display: flex;
-  gap: 10px;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  min-width: 90px;
+  flex-wrap: nowrap;
 }
 
 .editIcon {

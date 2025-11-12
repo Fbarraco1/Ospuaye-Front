@@ -3,10 +3,10 @@ import styles from './Localidad.module.css';
 import { useEffect, useState } from 'react';
 import { useAuthStore } from '../../../../auth/store/authStore';
 import axios from 'axios';
-import { ModalLocalidad } from '../../../ui/Admin/ModalLocalidad/ModalLocalidad';
+// import { ModalLocalidad } from '../../../ui/Admin/ModalLocalidad/ModalLocalidad';
 import Swal from 'sweetalert2';
+import { useNavigate } from 'react-router-dom';
 const database = import.meta.env.VITE_DATABASE;
-
 
 interface Localidad {
     id: number;
@@ -22,10 +22,9 @@ interface Localidad {
 
 export const Localidad = () => {
   const [localidades, setLocalidades] = useState<Localidad[]>([]);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [search, setSearch] = useState('');
-  const [localidadEdit, setLocalidadEdit] = useState<Localidad | undefined>(undefined);
   const token = useAuthStore((state) => state.token);
+  const navigate = useNavigate();
 
   // 🔹 Estados para paginación
   const [currentPage, setCurrentPage] = useState(1);
@@ -45,13 +44,11 @@ export const Localidad = () => {
   };
     
   const agregarLocalidad = () => {
-    setIsModalOpen(true);
+    navigate('/localidad/nuevo');
   }
 
   const editarLocalidad = (id: number) => {
-    const loc = localidades.find(l => l.id === id);
-    setLocalidadEdit(loc);
-    setIsModalOpen(true);
+    navigate(`/localidad/editar/${id}`);
   }
 
   const eliminarLocalidad= async (id: number) => {
@@ -93,21 +90,12 @@ export const Localidad = () => {
         }
   }
 
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-    setLocalidadEdit(undefined);
-  };
-
-  const handleLocalidadAdded = () => {
-    obtenerLocalidades();
-  };
-
   // Barra de búsqueda por cualquier campo
   const provinciasFiltrados = localidades.filter((r) =>
     [
       r.id,
       r.nombre,
-      r.departamento,
+      r.departamento?.nombre ?? '',
       r.codigoPostal
     ]
       .join(' ')
@@ -211,12 +199,7 @@ export const Localidad = () => {
         </button>
       </div>
 
-      <ModalLocalidad
-        isOpen={isModalOpen}
-        onClose={handleCloseModal}
-        onLocalidadAdded={handleLocalidadAdded}
-        localidadEdit={localidadEdit}
-      />
+      {/* Modal ahora es página, se eliminaron referencias al componente modal aquí */}
     </div>
     </div>
   )

@@ -48,6 +48,7 @@ const HeaderMedicoOftalmologo = () => {
                               aria-controls="navbarSupportedContent" aria-expanded="false"
                               aria-label="Toggle navigation">Reintegros</a>
                               <ul className="sub-menu collapse" id="submenu-1-4">
+                                <li className="nav-item" onClick={() => navigate("/pedidos/generales/medico")}>Pedidos Generales</li>
                                 <li className="nav-item" onClick={() => navigate("/pedidos/oftalmologia/medico")}>Pedidos Oftalmologia</li>
                               </ul>                            
                         </li>                                                                        

@@ -4,7 +4,8 @@ import { useEffect, useState } from 'react';
 import { useAuthStore } from '../../../../auth/store/authStore';
 import axios from 'axios';
 import Swal from 'sweetalert2';
-import { ModalPais } from '../../../ui/Admin/ModalPais/ModalPais';
+// import { ModalPais } from '../../../ui/Admin/ModalPais/ModalPais';
+import { useNavigate } from 'react-router-dom';
 const database = import.meta.env.VITE_DATABASE;
 
 
@@ -16,12 +17,11 @@ interface Pais {
 
 export const Pais = () => {
   const [paises, setPaises] = useState<Pais[]>([]);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [search, setSearch] = useState('');
   const [currentPage, setCurrentPage] = useState(1); // estado para paginación
-  const [paisEdit, setPaisEdit] = useState<Pais | undefined>(undefined);
   const itemsPerPage = 5;
   const token = useAuthStore((state) => state.token);
+  const navigate = useNavigate();
   
   useEffect(() => {
     obtenerPaises();
@@ -29,8 +29,7 @@ export const Pais = () => {
 
   const obtenerPaises = async () => {
     try {
-      const response = await axios.get(`${database}/api/paises`, {
-      });
+      const response = await axios.get(`${database}/api/paises`, {});
       setPaises(response.data);
     } catch (error) {
       console.error('Error al obtener Areas:', error);
@@ -38,14 +37,11 @@ export const Pais = () => {
   };
     
   const agregarPais = () => {
-    setPaisEdit(undefined);
-    setIsModalOpen(true);
+    navigate('/pais/nuevo');
   }
 
   const editarPais = (id: number) => {
-    const pais = paises.find(p => p.id === id);
-    setPaisEdit(pais);
-    setIsModalOpen(true);
+    navigate(`/pais/editar/${id}`);
   }
 
   const eliminarPais = async (id: number) => {
@@ -62,7 +58,7 @@ export const Pais = () => {
 
     if (result.isConfirmed) {    
       try {
-          await axios.patch(`http://vps-5301866-x.dattaweb.com:9000/api/paises/${id}/estado`, 
+          await axios.patch(`${database}/api/paises/${id}/estado`, 
             {}, {
               headers: {
               Authorization: `Bearer ${token}`,
@@ -86,15 +82,6 @@ export const Pais = () => {
         }
     }
   }
-
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-    setPaisEdit(undefined);
-  };
-
-  const handlePaisesAdded = () => {
-    obtenerPaises();
-  };
 
   // Barra de búsqueda por cualquier campo
   const paisesFiltrados = paises.filter((a) =>
@@ -178,7 +165,7 @@ export const Pais = () => {
         </tbody>
       </table>
 
-      {/* Controles de paginación */}
+      {/* Controles de paginación */} 
       {totalPages > 1 && (
         <div style={{ marginTop: '10px', display: 'flex', justifyContent: 'center', gap: '10px' }}>
           <button onClick={handlePrevPage} className={styles.pageButton} disabled={currentPage === 1}>
@@ -191,12 +178,7 @@ export const Pais = () => {
         </div>
       )}
 
-      <ModalPais
-        isOpen={isModalOpen}
-        onClose={handleCloseModal}
-        onPaisesAdded={handlePaisesAdded}
-        paisEdit={paisEdit}
-      />
+      {/* Modal ahora es página, se eliminaron referencias al componente modal aquí */}
     </div>
     </div>
   )

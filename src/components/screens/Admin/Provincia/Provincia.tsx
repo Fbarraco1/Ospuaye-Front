@@ -4,7 +4,8 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import { useAuthStore } from '../../../../auth/store/authStore';
-import { ModalProvincia } from '../../../ui/Admin/ModalProvincia/ModalProvincia';
+// import { ModalProvincia } from '../../../ui/Admin/ModalProvincia/ModalProvincia';
+import { useNavigate } from 'react-router-dom';
 const database = import.meta.env.VITE_DATABASE;
 
 interface Provincia {
@@ -20,10 +21,9 @@ interface Provincia {
 
 export const Provincia = () => {
   const [provincias, setProvincias] = useState<Provincia[]>([]);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [search, setSearch] = useState('');
-  const [provinciaEdit, setProvinciaEdit] = useState<Provincia | undefined>(undefined);
   const token = useAuthStore((state) => state.token);
+  const navigate = useNavigate();
 
   // 🔹 Estados para paginación
   const [currentPage, setCurrentPage] = useState(1);
@@ -43,14 +43,11 @@ export const Provincia = () => {
   };
     
   const agregarProvincia = () => {
-    setProvinciaEdit(undefined);
-    setIsModalOpen(true);
+    navigate('/provincia/nuevo');
   }
 
   const editarProvincia = (id: number) => {
-    const provincia = provincias.find(p => p.id === id);
-    setProvinciaEdit(provincia);
-    setIsModalOpen(true);
+    navigate(`/provincia/editar/${id}`);
   }
 
   const eliminarProvincia= async (id: number) => {
@@ -67,12 +64,13 @@ export const Provincia = () => {
 
     if (result.isConfirmed) {    
       try {
-          await axios.patch(`${database}/api/provincias/${id}/estado`, {
+          await axios.patch(`${database}/api/provincias/${id}/estado`, 
+            {}, {
               headers: {
               Authorization: `Bearer ${token}`,
               },
           });
-          setProvincias(prev => prev.filter(b => b.id !== id));
+          obtenerProvincias(); // refrescar la lista
           Swal.fire({
             icon: 'success',
             title: 'Eliminado',
@@ -91,21 +89,12 @@ export const Provincia = () => {
    }
   }
 
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-    setProvinciaEdit(undefined);
-  };
-
-  const handleProvinciaAdded = () => {
-    obtenerProvincias();
-  };
-
   // Barra de búsqueda por cualquier campo
   const provinciasFiltrados = provincias.filter((r) =>
     [
       r.id,
       r.nombre,
-      r.pais
+      r.pais?.nombre ?? ''
     ]
       .join(' ')
       .toLowerCase()
@@ -160,7 +149,7 @@ export const Provincia = () => {
           <tr>
             <th>Nombre</th>
             <th>Pais</th>
-            <th>Acciones</th>
+            <th>Activo</th>
             <th>Acciones</th>
           </tr>
         </thead>
@@ -168,7 +157,7 @@ export const Provincia = () => {
           {rolesPaginados.map((b) => (
             <tr key={b.id}>
               <td>{b.nombre}</td>
-              <td>{/* @ts-ignore */ b.pais.nombre}</td>
+              <td>{b.pais?.nombre ?? 'Sin nombre'}</td>
               <td>{b.activo ? 'Sí' : 'No'}</td>
               <td className={styles.actions}>
                 <FaEdit
@@ -205,13 +194,6 @@ export const Provincia = () => {
           ▶
         </button>
       </div>
-
-      <ModalProvincia
-        isOpen={isModalOpen}
-        onClose={handleCloseModal}
-        onProvinciaAdded={handleProvinciaAdded}
-        provinciaEdit={provinciaEdit}
-      />
     </div>
     </div>
   )

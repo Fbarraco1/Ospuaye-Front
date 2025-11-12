@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { FaEdit, FaTrash, FaPlus, FaFileAlt, FaHistory } from 'react-icons/fa';
-import styles from './PedidoOrtopedia.module.css';
+import styles from './Pedido.module.css';
 import { useNavigate } from 'react-router-dom';
-
 import Swal from 'sweetalert2';
-import { useAuthStore } from '../../../../auth/store/authStore';
-import ModalDocumento from '../../../ui/Admin/ModalDocumento/ModalDocumento';
-import HistorialMovimiento from '../../../ui/Admin/HistorialMovimiento/HistorialMovimiento';
+import { useAuthStore } from '../../../auth/store/authStore';
+import HistorialMovimiento from '../../ui/Admin/HistorialMovimiento/HistorialMovimiento';
+import ModalDocumento from '../../ui/Admin/ModalDocumento/ModalDocumento';
 const database = import.meta.env.VITE_DATABASE;
 
 
@@ -16,11 +15,8 @@ interface Beneficiario {
   apellido: string;
 }
 
-interface Medico {
-  matricula: string;
-}
 
-interface PedidoOrtopedia {
+interface Pedido {
   id: number;
   nombre: string;
   beneficiario: Beneficiario;
@@ -30,7 +26,7 @@ interface PedidoOrtopedia {
   delegacion: string;
   fechaIngreso: string;
   estado: string;
-  medico: Medico;
+  pedidoTipo: string;
   activo: boolean;
 }
 
@@ -51,8 +47,8 @@ interface Movimiento {
   usuario: { email: string };
 }
 
-export const PedidoOrtopedia: React.FC = () => {
-  const [pedidos, setPedidos] = useState<PedidoOrtopedia[]>([]);
+export const Pedido: React.FC = () => {
+  const [pedidos, setPedidos] = useState<Pedido[]>([]);
   const [documentos, setDocumentos] = useState<Documento[]>([]);
   const [historial, setHistorial] = useState<Movimiento[]>([]);
   const [modalDocsOpen, setModalDocsOpen] = useState(false);
@@ -61,7 +57,7 @@ export const PedidoOrtopedia: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
   const navigate = useNavigate();
-    const token = useAuthStore((state) => state.token);
+  const token = useAuthStore((state) => state.token);
   
 
   useEffect(() => {
@@ -70,14 +66,14 @@ export const PedidoOrtopedia: React.FC = () => {
 
   const obtenerPedidos = async () => {
     try {
-      const response = await axios.get(`${database}/api/pedidos/ortopedia/listar`);
+      const response = await axios.get(`${database}/api/pedidos/todos/libres`);
       setPedidos(response.data);
     } catch (error) {
-      console.error('Error al obtener pedidos de ortopedia:', error);
+      console.error('Error al obtener pedidos:', error);
     }
   };
 
-const eliminarPedido = async (id: number) => {
+  const eliminarPedido = async (id: number) => {
       const result = await Swal.fire({
         title: '¿Estás seguro?',
         text: 'Esta acción eliminará el pedido.',
@@ -91,7 +87,7 @@ const eliminarPedido = async (id: number) => {
 
       if (result.isConfirmed) {    
         try {
-            await axios.patch(`${database}/api/pedidos/oftalmologia/${id}/estado`, 
+            await axios.patch(`${database}/api/pedidos/${id}/estado`, 
               {}, {
                 headers: {
                 Authorization: `Bearer ${token}`,
@@ -117,7 +113,7 @@ const eliminarPedido = async (id: number) => {
     }
 
   const editarPedido = (id: number) => {
-    navigate(`/pedidos/ortopedia/editar/${id}`);
+    navigate(`/pedidos/editar/${id}`);
   };
 
   const verDocumentos = async (id: number) => {
@@ -140,7 +136,7 @@ const eliminarPedido = async (id: number) => {
     }
   };
 
-  // 🔍 Filtrar pedidos por cualquier campo
+  // Filtrar pedidos por cualquier campo visible
   const pedidosFiltrados = pedidos.filter((p) =>
     [
       p.id,
@@ -153,7 +149,6 @@ const eliminarPedido = async (id: number) => {
       p.delegacion,
       p.fechaIngreso,
       p.estado,
-      p.medico?.matricula,
     ]
       .join(' ')
       .toLowerCase()
@@ -175,12 +170,12 @@ const eliminarPedido = async (id: number) => {
 
   return (
     <div>
-      <div className="breadcrumbs overlay">
+    <div className="breadcrumbs overlay">
         <div className="container">
           <div className="row align-items-center">
             <div className="col-lg-8 offset-lg-2 col-md-12 col-12">
               <div className="breadcrumbs-content">
-                <h1 className="page-title">PEDIDOS ORTOPEDIA</h1>
+                <h1 className="page-title">PEDIDOS GENERALES</h1>
               </div>
               <ul className="breadcrumb-nav">
               </ul>
@@ -190,7 +185,7 @@ const eliminarPedido = async (id: number) => {
       </div>
       <br />
     <div className={styles.container}>
-      <h2 className={styles.title}>Pedidos de Ortopedia</h2>
+      <h2 className={styles.title}>Todos los pedidos</h2>
 
       <input
         type="text"
@@ -203,10 +198,7 @@ const eliminarPedido = async (id: number) => {
         style={{ marginBottom: '10px', padding: '5px', width: '250px' }}
       />
 
-      <button
-        className={styles.addButton}
-        onClick={() => navigate('/pedidos/ortopedia/nuevo')}
-      >
+      <button className={styles.addButton} onClick={() => navigate('/pedidos/generales/nuevo')}>
         <FaPlus /> Agregar Pedido
       </button>
 
@@ -221,7 +213,7 @@ const eliminarPedido = async (id: number) => {
             <th>Delegación</th>
             <th>Fecha Ingreso</th>
             <th>Estado</th>
-            <th>Médico</th>
+            <th>Tipo Pedido</th>
             <th>Activo</th>
             <th>Acciones</th>
           </tr>
@@ -237,13 +229,29 @@ const eliminarPedido = async (id: number) => {
               <td>{p.delegacion}</td>
               <td>{new Date(p.fechaIngreso).toLocaleDateString()}</td>
               <td>{p.estado}</td>
-              <td>{p.medico?.matricula}</td>
-              <td>{p.activo? 'si' : 'No'}</td>
+              <td>{p.pedidoTipo}</td>
+              <td>{p.activo ? 'Sí' : 'No'}</td>
               <td className={styles.actions}>
-                <FaFileAlt className={styles.icon} onClick={() => verDocumentos(p.id)} title="Ver documentos" />
-                <FaHistory className={styles.icon} onClick={() => verHistorial(p.id)} title="Ver historial" />
-                <FaEdit className={styles.editIcon} onClick={() => editarPedido(p.id)} title="Editar" />
-                <FaTrash className={styles.deleteIcon} onClick={() => eliminarPedido(p.id)} title="Eliminar" />
+                <FaFileAlt
+                  className={styles.icon}
+                  onClick={() => verDocumentos(p.id)}
+                  title="Ver documentos"
+                />
+                <FaHistory
+                  className={styles.icon}
+                  onClick={() => verHistorial(p.id)}
+                  title="Ver historial"
+                />
+                <FaEdit
+                  className={styles.editIcon}
+                  onClick={() => editarPedido(p.id)}
+                  title="Editar"
+                />
+                <FaTrash
+                  className={styles.deleteIcon}
+                  onClick={() => eliminarPedido(p.id)}
+                  title="Eliminar"
+                />
               </td>
             </tr>
           ))}

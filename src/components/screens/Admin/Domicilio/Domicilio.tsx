@@ -4,9 +4,8 @@ import { useEffect, useState } from 'react';
 import { useAuthStore } from '../../../../auth/store/authStore';
 import axios from 'axios';
 import Swal from 'sweetalert2';
-import { ModalDomicilio } from '../../../ui/Admin/ModalDomicilio/ModalDomicilio';
+import { useNavigate } from 'react-router-dom';
 const database = import.meta.env.VITE_DATABASE;
-
 
 interface Domicilio {
     id: number;
@@ -28,10 +27,11 @@ interface Domicilio {
 
 export const Domicilio = () => {
   const [domicilios, setDomicilios] = useState<Domicilio[]>([]);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  // const [isModalOpen, setIsModalOpen] = useState(false);
   const [search, setSearch] = useState('');
-  const [edit, setEdit] = useState<Domicilio | undefined>(undefined);
+  // const [edit, setEdit] = useState<Domicilio | undefined>(undefined);
   const token = useAuthStore((state) => state.token);
+  const navigate = useNavigate();
 
   // 🔹 Estados para paginación
   const [currentPage, setCurrentPage] = useState(1);
@@ -51,13 +51,12 @@ export const Domicilio = () => {
   };
     
   const agregarDomicilio = () => {
-    setIsModalOpen(true);
+    navigate('/domicilio/nuevo');
   }
 
   const editarDomicilio = (id: number) => {
-    const dom = domicilios.find(d => d.id === id);
-    setEdit(dom);
-    setIsModalOpen(true);  }
+    navigate(`/domicilio/editar/${id}`);
+  }
 
   const eliminarDomicilio= async (id: number) => {
     const result = await Swal.fire({
@@ -98,14 +97,6 @@ export const Domicilio = () => {
     }
   }
 
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-    setEdit(undefined);
-  };
-
-  const handleDomicilioAdded = () => {
-    obtenerDomicilios();
-  };
 
   // Barra de búsqueda por cualquier campo
   const provinciasFiltrados = domicilios.filter((r) =>
@@ -192,8 +183,8 @@ export const Domicilio = () => {
               <td>{b.manzanaPiso}</td>
               <td>{b.casaDepartamento}</td>
               <td>{b.referencia}</td>
+              <td>{b.localidad?.nombre ?? 'Sin nombre'}</td>
               <td>{b.tipo}</td>
-              <td>{/* @ts-ignore */ b.localidad.nombre}</td>
               <td>{b.activo ? 'Sí' : 'No'}</td>
               <td className={styles.actions}>
                 <FaEdit
@@ -231,12 +222,7 @@ export const Domicilio = () => {
         </button>
       </div>
 
-      <ModalDomicilio
-        isOpen={isModalOpen}
-        onClose={handleCloseModal}
-        onDomicilioAdded={handleDomicilioAdded}
-        domicilioEdit={edit}
-      />
+      {/* Modal ahora es página, se eliminaron referencias al componente modal aquí */}
     </div>
     </div>
   )

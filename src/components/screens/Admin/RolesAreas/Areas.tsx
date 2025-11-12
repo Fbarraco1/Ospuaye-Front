@@ -3,8 +3,8 @@ import styles from './Areas.module.css';
 import { useEffect, useState } from 'react';
 import { useAuthStore } from '../../../../auth/store/authStore';
 import axios from 'axios';
-import { ModalArea } from '../../../ui/Admin/ModalArea/ModalArea';
 import Swal from 'sweetalert2';
+import { useNavigate } from 'react-router-dom';
 const database = import.meta.env.VITE_DATABASE;
 
 
@@ -16,12 +16,11 @@ interface Area {
 
 export const Areas = () => {
   const [areas, setAreas] = useState<Area[]>([]);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [search, setSearch] = useState('');
   const [currentPage, setCurrentPage] = useState(1); // estado para paginación
-  const [areaEdit, setAreaEdit] = useState<Area | undefined>(undefined);
   const itemsPerPage = 5;
   const token = useAuthStore((state) => state.token);
+  const navigate = useNavigate();
   
   useEffect(() => {
     obtenerAreas();
@@ -38,14 +37,11 @@ export const Areas = () => {
   };
     
   const agregarArea = () => {
-    setAreaEdit(undefined);
-    setIsModalOpen(true);
+    navigate('/areas/nuevo');
   }
 
   const editarArea = (id: number) => {
-    const area = areas.find(a => a.id === id);
-    setAreaEdit(area);
-    setIsModalOpen(true);
+    navigate(`/areas/editar/${id}`);
   }
 
   const eliminarArea = async (id: number) => {
@@ -85,15 +81,6 @@ export const Areas = () => {
       }
     }
   }
-
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-    setAreaEdit(undefined);
-  };
-
-  const handleAreaAdded = () => {
-    obtenerAreas();
-  };
 
   // Barra de búsqueda por cualquier campo
   const areasFiltradas = areas.filter((a) =>
@@ -190,12 +177,7 @@ export const Areas = () => {
         </div>
       )}
 
-      <ModalArea
-        isOpen={isModalOpen}
-        onClose={handleCloseModal}
-        onAreaAdded={handleAreaAdded}
-        areaEdit={areaEdit}
-      />
+      {/* Modal convertido en página: se eliminó <ModalArea /> */}
     </div>
     </div>
   )
