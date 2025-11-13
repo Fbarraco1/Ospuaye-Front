@@ -31,7 +31,7 @@ const ModalProvincia: React.FC<{ modo?: 'editar' | 'crear'; onProvinciaAdded?: (
         return;
       }
       try {
-        const res = await axios.get(`${database}/api/paises/search?nombre=${nombre}`);
+        const res = await axios.get(`${database}/api/paises/buscar?nombre=${nombre}`);
         setResultados(res.data);
       } catch (error) {
         console.error('Error al buscar países:', error);

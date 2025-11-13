@@ -7,7 +7,6 @@ import Swal from 'sweetalert2';
 import { useNavigate } from 'react-router-dom';
 const database = import.meta.env.VITE_DATABASE;
 
-
 interface Beneficiario {
   id: number;
   nombre: string;
@@ -27,26 +26,63 @@ interface Beneficiario {
 export const Beneficiarios: React.FC = () => {
   const [beneficiarios, setBeneficiarios] = useState<Beneficiario[]>([]);
   const [search, setSearch] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5; // mostramos 5 por página
+  const [currentPage, setCurrentPage] = useState(0); // ← backend usa 0-based
+  const [totalPages, setTotalPages] = useState(0);
+  const itemsPerPage = 5;
+
   const navigate = useNavigate();
-
-
   const token = useAuthStore((state) => state.token);
 
+  // 🔹 Cargar lista completa al iniciar
   useEffect(() => {
     obtenerBeneficiarios();
   }, []);
 
-  const obtenerBeneficiarios = async () => {
+  // 🔹 Buscar en el backend cuando cambia el texto
+  useEffect(() => {
+    const delayDebounce = setTimeout(() => {
+      if (search.trim() === '') {
+        obtenerBeneficiarios(0);
+      } else {
+        buscarBeneficiarios(search, 0);
+      }
+      setCurrentPage(0);
+    }, 400);
+    return () => clearTimeout(delayDebounce);
+  }, [search]);
+
+  // 🧩 OBTENER LISTA PAGINADA
+  const obtenerBeneficiarios = async (page = 0, size = itemsPerPage) => {
     try {
-      const response = await axios.get(`${database}/api/beneficiarios`, {});
-      setBeneficiarios(response.data);
+      const response = await axios.get(`${database}/api/beneficiarios/paginado`, {
+        params: { page, size },
+      });
+      setBeneficiarios(response.data.content);
+      setTotalPages(response.data.totalPages);
     } catch (error) {
       console.error('Error al obtener beneficiarios:', error);
     }
   };
 
+  // 🧩 BUSCAR FILTRADO CON PAGINADO
+  const buscarBeneficiarios = async (filtro: string, page = 0, size = itemsPerPage) => {
+    try {
+      const response = await axios.get(`${database}/api/beneficiarios/paginado`, {
+        params: { search: filtro, page, size },
+      });
+
+      // ✅ Aseguramos compatibilidad
+      const data = response.data.content ? response.data : { content: response.data, totalPages: 1 };
+
+      setBeneficiarios(data.content);
+      setTotalPages(data.totalPages);
+      console.log('Respuesta del backend:', response.data);
+    } catch (error) {
+      console.error('Error al buscar beneficiarios:', error);
+    }
+  };
+
+  // 🗑️ ELIMINAR
   const eliminarBeneficiario = async (id: number) => {
     const result = await Swal.fire({
       title: '¿Estás seguro?',
@@ -61,13 +97,10 @@ export const Beneficiarios: React.FC = () => {
 
     if (result.isConfirmed) {
       try {
-        await axios.patch(`${database}/api/beneficiarios/${id}/estado`, 
-          {}, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+        await axios.patch(`${database}/api/beneficiarios/${id}/estado`, {}, {
+          headers: { Authorization: `Bearer ${token}` },
         });
-        obtenerBeneficiarios(); // refrescar la lista
+        obtenerBeneficiarios(currentPage);
         Swal.fire({
           icon: 'success',
           title: 'Eliminado',
@@ -86,33 +119,26 @@ export const Beneficiarios: React.FC = () => {
     }
   };
 
-  const agregarBeneficiario = () => {
-    navigate('/beneficiario/nuevo');
-  };
-    const editarBeneficiario = (id: number) => {
-      navigate(`/beneficiario/editar/${id}`);
-  };
+  const agregarBeneficiario = () => navigate('/beneficiario/nuevo');
+  const editarBeneficiario = (id: number) => navigate(`/beneficiario/editar/${id}`);
 
-
-  // --- FILTRADO ---
-  const beneficiariosFiltrados = beneficiarios.filter((b) =>
-    Object.values(b)
-      .join(' ')
-      .toLowerCase()
-      .includes(search.toLowerCase())
-  );
-
-  // --- PAGINADO ---
-  const totalPages = Math.ceil(beneficiariosFiltrados.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const currentItems = beneficiariosFiltrados.slice(startIndex, startIndex + itemsPerPage);
-
+  // 🔄 MANEJAR PAGINADO DINÁMICO
   const handlePrevPage = () => {
-    if (currentPage > 1) setCurrentPage((prev) => prev - 1);
+    if (currentPage > 0) {
+      const newPage = currentPage - 1;
+      setCurrentPage(newPage);
+      if (search.trim() === '') obtenerBeneficiarios(newPage);
+      else buscarBeneficiarios(search, newPage);
+    }
   };
 
   const handleNextPage = () => {
-    if (currentPage < totalPages) setCurrentPage((prev) => prev + 1);
+    if (currentPage < totalPages - 1) {
+      const newPage = currentPage + 1;
+      setCurrentPage(newPage);
+      if (search.trim() === '') obtenerBeneficiarios(newPage);
+      else buscarBeneficiarios(search, newPage);
+    }
   };
 
   return (
@@ -122,111 +148,100 @@ export const Beneficiarios: React.FC = () => {
           <div className="row align-items-center">
             <div className="col-lg-8 offset-lg-2 col-md-12 col-12">
               <div className="breadcrumbs-content">
-                <h1 className="page-title">GESTION DE BENEFICIARIOS</h1>
+                <h1 className="page-title">GESTIÓN DE BENEFICIARIOS</h1>
               </div>
-              <ul className="breadcrumb-nav">
-              </ul>
             </div>
           </div>
         </div>
       </div>
+
       <br />
-    <div className={styles.container}>
-      <h2 className={styles.title}>Beneficiarios</h2>
+      <div className={styles.container}>
+        <h2 className={styles.title}>Beneficiarios</h2>
 
-      <input
-        type="text"
-        placeholder="Buscar por cualquier campo..."
-        value={search}
-        onChange={(e) => {
-          setSearch(e.target.value);
-          setCurrentPage(1); // resetear página al filtrar
-        }}
-        style={{ marginBottom: '10px', padding: '5px', width: '250px' }}
-      />
+        <input
+          type="text"
+          placeholder="Buscar por cualquier campo..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          style={{ marginBottom: '10px', padding: '5px', width: '250px' }}
+        />
 
-      <button className={styles.addButton} onClick={agregarBeneficiario}>
-        <FaPlus /> Agregar Beneficiario
-      </button>
+        <button className={styles.addButton} onClick={agregarBeneficiario}>
+          <FaPlus /> Agregar Beneficiario
+        </button>
 
-      <table className={styles.table}>
-        <thead>
-          <tr>
-            <th>Nombre</th>
-            <th>Apellido</th>
-            <th>DNI</th>
-            <th>CUIL</th>
-            <th>Teléfono</th>
-            <th>Afiliado Sindical</th>
-            <th>¿Es Jubilado?</th>
-            <th>Grupo Familiar</th>
-            <th>Activo</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          {currentItems.map((b) => (
-            <tr key={b.id}>
-              <td>{b.nombre}</td>
-              <td>{b.apellido}</td>
-              <td>{b.dni}</td>
-              <td>{b.cuil}</td>
-              <td>{b.telefono}</td>
-              <td>{b.afiliadoSindical ? 'Sí' : 'No'}</td>
-              <td>{b.esJubilado ? 'Sí' : 'No'}</td>
-              <td>{b.grupoFamiliarId ? b.grupoFamiliarId.id : 'N/A'}</td>
-              <td>{b.activo ? 'Sí' : 'No'}</td>
-              <td className={styles.actions}>
-                <FaEdit
-                  className={styles.editIcon}
-                  onClick={() => editarBeneficiario(b.id)}
-                />
-                <FaTrash
-                  className={styles.deleteIcon}
-                  onClick={() => eliminarBeneficiario(b.id)}
-                />
-              </td>
+        <table className={styles.table}>
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Apellido</th>
+              <th>DNI</th>
+              <th>CUIL</th>
+              <th>Teléfono</th>
+              <th>Afiliado Sindical</th>
+              <th>¿Es Jubilado?</th>
+              <th>Grupo Familiar</th>
+              <th>Activo</th>
+              <th>Acciones</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {beneficiarios.map((b) => (
+              <tr key={b.id}>
+                <td>{b.nombre}</td>
+                <td>{b.apellido}</td>
+                <td>{b.dni}</td>
+                <td>{b.cuil}</td>
+                <td>{b.telefono}</td>
+                <td>{b.afiliadoSindical ? 'Sí' : 'No'}</td>
+                <td>{b.esJubilado ? 'Sí' : 'No'}</td>
+                <td>{b.grupoFamiliarId ? b.grupoFamiliarId.nombre : 'N/A'}</td>
+                <td>{b.activo ? 'Sí' : 'No'}</td>
+                <td className={styles.actions}>
+                  <FaEdit className={styles.editIcon} onClick={() => editarBeneficiario(b.id)} />
+                  <FaTrash className={styles.deleteIcon} onClick={() => eliminarBeneficiario(b.id)} />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
 
-      {/* PAGINADO */}
-      {totalPages > 1 && (
-        <div style={{ marginTop: '15px', display: 'flex', justifyContent: 'center', gap: '10px' }}>
-          <button
-            onClick={handlePrevPage}
-            disabled={currentPage === 1}
-            style={{
-              padding: '5px 10px',
-              borderRadius: '8px',
-              border: '1px solid #ccc',
-              background: currentPage === 1 ? '#88C250' : '#88C250',
-              cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
-            }}
-          >
-            ◀
-          </button>
-          <span style={{ alignSelf: 'center', fontSize: '14px', color: '#555' }}>
-            Página {currentPage} de {totalPages}
-          </span>
-          <button
-            onClick={handleNextPage}
-            disabled={currentPage === totalPages}
-            style={{
-              padding: '5px 10px',
-              borderRadius: '8px',
-              border: '1px solid #ccc',
-              background: currentPage === totalPages ? '#88C250' : '#88C250',
-              cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
-            }}
-          >
-            ▶
-          </button>
-        </div>
-      )}
-
-    </div>
+        {/* PAGINADO */}
+        {totalPages > 1 && (
+          <div style={{ marginTop: '15px', display: 'flex', justifyContent: 'center', gap: '10px' }}>
+            <button
+              onClick={handlePrevPage}
+              disabled={currentPage === 0}
+              style={{
+                padding: '5px 10px',
+                borderRadius: '8px',
+                border: '1px solid #ccc',
+                background: '#88C250',
+                cursor: currentPage === 0 ? 'not-allowed' : 'pointer',
+              }}
+            >
+              ◀
+            </button>
+            <span style={{ alignSelf: 'center', fontSize: '14px', color: '#555' }}>
+              Página {currentPage + 1} de {totalPages}
+            </span>
+            <button
+              onClick={handleNextPage}
+              disabled={currentPage >= totalPages - 1}
+              style={{
+                padding: '5px 10px',
+                borderRadius: '8px',
+                border: '1px solid #ccc',
+                background: '#88C250',
+                cursor: currentPage >= totalPages - 1 ? 'not-allowed' : 'pointer',
+              }}
+            >
+              ▶
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
