@@ -79,7 +79,7 @@ export const PedidoMedico: React.FC = () => {
   const TomarPedido = async (id: number) => {
     try {
        await axios.put(
-        `${database}/api/pedidos/ortopedia/${id}`,
+        `${database}/api/pedidos/tomar/${id}`,
         { medico: { id: idMedico }},
         {
           headers: {

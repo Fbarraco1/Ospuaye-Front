@@ -54,7 +54,7 @@ export const Beneficiarios: React.FC = () => {
   // 🧩 OBTENER LISTA PAGINADA
   const obtenerBeneficiarios = async (page = 0, size = itemsPerPage) => {
     try {
-      const response = await axios.get(`${database}/api/beneficiarios/paginado`, {
+      const response = await axios.get(`${database}/api/beneficiarios/paginar`, {
         params: { page, size },
       });
       setBeneficiarios(response.data.content);
@@ -64,23 +64,19 @@ export const Beneficiarios: React.FC = () => {
     }
   };
 
-  // 🧩 BUSCAR FILTRADO CON PAGINADO
-  const buscarBeneficiarios = async (filtro: string, page = 0, size = itemsPerPage) => {
-    try {
-      const response = await axios.get(`${database}/api/beneficiarios/paginado`, {
-        params: { search: filtro, page, size },
-      });
+ const buscarBeneficiarios = async (filtro: string, page = 0, size = itemsPerPage) => {
+  try {
+    const response = await axios.get(`${database}/api/beneficiarios/buscar`, {
+      params: { query: filtro, page, size },
+    });
 
-      // ✅ Aseguramos compatibilidad
-      const data = response.data.content ? response.data : { content: response.data, totalPages: 1 };
+    setBeneficiarios(response.data.content);
+    setTotalPages(response.data.totalPages);
+  } catch (error) {
+    console.error('Error al buscar beneficiarios:', error);
+  }
+};
 
-      setBeneficiarios(data.content);
-      setTotalPages(data.totalPages);
-      console.log('Respuesta del backend:', response.data);
-    } catch (error) {
-      console.error('Error al buscar beneficiarios:', error);
-    }
-  };
 
   // 🗑️ ELIMINAR
   const eliminarBeneficiario = async (id: number) => {
