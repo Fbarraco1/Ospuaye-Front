@@ -24,23 +24,53 @@ export const Medico: React.FC = () => {
   const [medicos, setMedicos] = useState<Medico[]>([]);
   const [search, setSearch] = useState('');
   const token = useAuthStore((state) => state.token);
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(0); // 0-based como Beneficiarios
+  const [totalPages, setTotalPages] = useState(0);
   const itemsPerPage = 5; // mostramos 5 por página
   const navigate = useNavigate();
 
-  
-
+  // Cargar lista al iniciar (página 0)
   useEffect(() => {
-    obtenerMedicos();
+    obtenerMedicos(0);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const obtenerMedicos = async () => {
+  // Debounce búsqueda (igual que Beneficiarios)
+  useEffect(() => {
+    const delayDebounce = setTimeout(() => {
+      if (search.trim() === '') {
+        obtenerMedicos(0);
+      } else {
+        buscarMedicos(search, 0);
+      }
+      setCurrentPage(0);
+    }, 400);
+    return () => clearTimeout(delayDebounce);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [search]);
+
+  // OBTENER LISTA PAGINADA DESDE BACKEND
+  const obtenerMedicos = async (page = 0, size = itemsPerPage) => {
     try {
-      const response = await axios.get(`${database}/api/medicos`);
-      console.log(response.data);
-      setMedicos(response.data);
+      const response = await axios.get(`${database}/api/medicos/paginar`, {
+        params: { page, size },
+      });
+      setMedicos(response.data.content);
+      setTotalPages(response.data.totalPages);
     } catch (error) {
       console.error('Error al obtener medicos:', error);
+    }
+  };
+
+  const buscarMedicos = async (filtro: string, page = 0, size = itemsPerPage) => {
+    try {
+      const response = await axios.get(`${database}/api/medicos/buscar`, {
+        params: { query: filtro, page, size },
+      });
+      setMedicos(response.data.content);
+      setTotalPages(response.data.totalPages);
+    } catch (error) {
+      console.error('Error al buscar medicos:', error);
     }
   };
 
@@ -60,11 +90,13 @@ export const Medico: React.FC = () => {
         await axios.patch(`${database}/api/medicos/${id}/estado`, 
           {},
           {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        obtenerMedicos(); // refrescar lista
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+        // recargar la página actual (considera búsqueda)
+        if (search.trim() === '') obtenerMedicos(currentPage);
+        else buscarMedicos(search, currentPage);
         Swal.fire({
           icon: 'success',
           title: 'Eliminado',
@@ -75,49 +107,39 @@ export const Medico: React.FC = () => {
       } catch (error) {
         console.error('Error al eliminar medico:', error);
         Swal.fire({
-                  icon: 'error',
-                  title: 'Error',
-                  text: 'No se pudo eliminar el medico.',
-                });
+          icon: 'error',
+          title: 'Error',
+          text: 'No se pudo eliminar el medico.',
+        });
       }
     }
   };
 
   const editarMedico = (id: number) => {
-      navigate(`/medicos/editar/${id}`);
+    navigate(`/medicos/editar/${id}`);
   };
 
   const agregarMedico = () => {
     navigate('/medicos/nuevo');
   };
 
-  // Barra de búsqueda por cualquier campo
-  const medicosFiltrados = medicos.filter((m) =>
-    [
-      m.id,
-      m.nombre,
-      m.apellido,
-      m.matricula,
-      m.area?.id,
-      m.area?.nombre
-    ]
-      .join(' ')
-      .toLowerCase()
-      .includes(search.toLowerCase())
-  );
-
-  
-  // --- PAGINADO ---
-  const totalPages = Math.ceil(medicosFiltrados.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const currentItems = medicosFiltrados.slice(startIndex, startIndex + itemsPerPage);
-
+  // MANEJAR PAGINADO DINÁMICO (0-based)
   const handlePrevPage = () => {
-    if (currentPage > 1) setCurrentPage((prev) => prev - 1);
+    if (currentPage > 0) {
+      const newPage = currentPage - 1;
+      setCurrentPage(newPage);
+      if (search.trim() === '') obtenerMedicos(newPage);
+      else buscarMedicos(search, newPage);
+    }
   };
 
   const handleNextPage = () => {
-    if (currentPage < totalPages) setCurrentPage((prev) => prev + 1);
+    if (currentPage < totalPages - 1) {
+      const newPage = currentPage + 1;
+      setCurrentPage(newPage);
+      if (search.trim() === '') obtenerMedicos(newPage);
+      else buscarMedicos(search, newPage);
+    }
   };
 
   return (
@@ -162,7 +184,7 @@ export const Medico: React.FC = () => {
           </tr>
         </thead>
         <tbody>
-          {currentItems.map((m) => (
+          {medicos.map((m) => (
             <tr key={m.id}>
               <td>{m.id}</td>
               <td>{m.nombre}</td>
@@ -190,29 +212,29 @@ export const Medico: React.FC = () => {
         <div style={{ marginTop: '15px', display: 'flex', justifyContent: 'center', gap: '10px' }}>
           <button
             onClick={handlePrevPage}
-            disabled={currentPage === 1}
+            disabled={currentPage === 0}
             style={{
               padding: '5px 10px',
               borderRadius: '8px',
               border: '1px solid #ccc',
-              background: currentPage === 1 ? '#88C250' : '#88C250',
-              cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+              background: '#88C250',
+              cursor: currentPage === 0 ? 'not-allowed' : 'pointer',
             }}
           >
             ◀
           </button>
           <span style={{ alignSelf: 'center', fontSize: '14px', color: '#555' }}>
-            Página {currentPage} de {totalPages}
+            Página {currentPage + 1} de {totalPages}
           </span>
           <button
             onClick={handleNextPage}
-            disabled={currentPage === totalPages}
+            disabled={currentPage >= totalPages - 1}
             style={{
               padding: '5px 10px',
               borderRadius: '8px',
               border: '1px solid #ccc',
-              background: currentPage === totalPages ? '#88C250' : '#88C250',
-              cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+              background: '#88C250',
+              cursor: currentPage >= totalPages - 1 ? 'not-allowed' : 'pointer',
             }}
           >
             ▶

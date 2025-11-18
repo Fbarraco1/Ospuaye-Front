@@ -7,7 +7,6 @@ import Swal from 'sweetalert2';
 import { useNavigate } from 'react-router-dom';
 const database = import.meta.env.VITE_DATABASE;
 
-
 interface Familiar {
   id: number;
   nombre: string;
@@ -37,22 +36,87 @@ export const GrupoFamiliar: React.FC = () => {
   const [grupos, setGrupos] = useState<GrupoFamiliar[]>([]);
   const [expandedRows, setExpandedRows] = useState<number[]>([]);
   const [search, setSearch] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(0); // 0-based como Beneficiarios
+  const [totalPages, setTotalPages] = useState(0);
   const itemsPerPage = 5; // mostramos 5 por página
 
   const token = useAuthStore((state) => state.token);
   const navigate = useNavigate();
 
+  // Cargar lista (paginada) al iniciar
   useEffect(() => {
-    obtenerGrupos();
+    obtenerGrupos(0);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const obtenerGrupos = async () => {
+  // Debounce búsqueda (igual que Beneficiarios)
+  useEffect(() => {
+    const delayDebounce = setTimeout(() => {
+      if (search.trim() === '') {
+        obtenerGrupos(0);
+      } else {
+        buscarGrupos(search, 0);
+      }
+      setCurrentPage(0);
+    }, 400);
+    return () => clearTimeout(delayDebounce);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [search]);
+
+  // OBTENER LISTA PAGINADA DESDE BACKEND
+  const obtenerGrupos = async (page = 0, size = itemsPerPage) => {
     try {
-      const response = await axios.get(`${database}/api/grupoFamiliar`);
-      setGrupos(response.data);
+      const response = await axios.get(`${database}/api/grupoFamiliar/paginar`, {
+        params: { page, size },
+      });
+      setGrupos(response.data.content || []);
+      setTotalPages(response.data.totalPages ?? 0);
     } catch (error) {
-      console.error('Error al obtener grupos familiares:', error);
+      console.error('Error al obtener grupos familiares paginados:', error);
+      // fallback a endpoint sin paginar
+      try {
+        const res = await axios.get(`${database}/api/grupoFamiliar`);
+        const all: GrupoFamiliar[] = res.data;
+        setGrupos(all.slice(0, itemsPerPage));
+        setTotalPages(Math.ceil(all.length / itemsPerPage));
+      } catch (err) {
+        console.error('Error fallback al obtener grupos familiares:', err);
+      }
+    }
+  };
+
+  const buscarGrupos = async (filtro: string, page = 0, size = itemsPerPage) => {
+    try {
+      const response = await axios.get(`${database}/api/grupoFamiliar/buscar`, {
+        params: { query: filtro, page, size },
+      });
+      setGrupos(response.data.content || []);
+      setTotalPages(response.data.totalPages ?? 0);
+    } catch (error) {
+      console.error('Error al buscar grupos familiares:', error);
+      // fallback: filtrar localmente si no existe búsqueda paginada
+      try {
+        const res = await axios.get(`${database}/api/grupoFamiliar`);
+        const all: GrupoFamiliar[] = res.data;
+        const filtered = all.filter(g =>
+          [
+            g.id,
+            g.nombreGrupo,
+            g.titular?.nombre,
+            g.titular?.apellido,
+            g.titular?.dni,
+            g.fechaAlta,
+            g.activo ? 'Sí' : 'No'
+          ]
+            .join(' ')
+            .toLowerCase()
+            .includes(filtro.toLowerCase())
+        );
+        setTotalPages(Math.ceil(filtered.length / itemsPerPage));
+        setGrupos(filtered.slice(0, itemsPerPage));
+      } catch (err) {
+        console.error('Error fallback al buscar grupos familiares:', err);
+      }
     }
   };
 
@@ -73,7 +137,9 @@ export const GrupoFamiliar: React.FC = () => {
         await axios.patch(`${database}/api/grupoFamiliar/${id}/estado`, {}, {
           headers: { Authorization: `Bearer ${token}` }
         });
-        obtenerGrupos(); // refrescar la lista
+        // recargar la página actual (considera búsqueda)
+        if (search.trim() === '') obtenerGrupos(currentPage);
+        else buscarGrupos(search, currentPage);
         Swal.fire({ icon: 'success', title: 'Eliminado', text: 'El grupo familiar fue eliminado correctamente.', timer: 1500, showConfirmButton: false });
       } catch (error) {
         console.error('Error al eliminar grupo familiar:', error);
@@ -115,7 +181,9 @@ export const GrupoFamiliar: React.FC = () => {
         await axios.patch(`${database}/api/familiares/${id}/estado`, {}, {
           headers: { Authorization: `Bearer ${token}` }
         });
-        obtenerGrupos();
+        // recargar la página actual (considera búsqueda)
+        if (search.trim() === '') obtenerGrupos(currentPage);
+        else buscarGrupos(search, currentPage);
         Swal.fire({ icon: 'success', title: 'Eliminado', text: 'El familiar fue eliminado correctamente.', timer: 1500, showConfirmButton: false });
       } catch (error) {
         console.error('Error al eliminar familiar:', error);
@@ -124,33 +192,23 @@ export const GrupoFamiliar: React.FC = () => {
     }
   };
 
-  // --- FILTRADO ---
-  const gruposFiltrados = grupos.filter((g) =>
-    [
-      g.id,
-      g.nombreGrupo,
-      g.titular?.nombre,
-      g.titular?.apellido,
-      g.titular?.dni,
-      g.fechaAlta,
-      g.activo ? 'Sí' : 'No'
-    ]
-      .join(' ')
-      .toLowerCase()
-      .includes(search.toLowerCase())
-  );
-
-  // --- PAGINADO ---
-  const totalPages = Math.ceil(gruposFiltrados.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const currentItems = gruposFiltrados.slice(startIndex, startIndex + itemsPerPage);
-
+  // MANEJAR PAGINADO DINÁMICO (0-based)
   const handlePrevPage = () => {
-    if (currentPage > 1) setCurrentPage((prev) => prev - 1);
+    if (currentPage > 0) {
+      const newPage = currentPage - 1;
+      setCurrentPage(newPage);
+      if (search.trim() === '') obtenerGrupos(newPage);
+      else buscarGrupos(search, newPage);
+    }
   };
 
   const handleNextPage = () => {
-    if (currentPage < totalPages) setCurrentPage((prev) => prev + 1);
+    if (currentPage < totalPages - 1) {
+      const newPage = currentPage + 1;
+      setCurrentPage(newPage);
+      if (search.trim() === '') obtenerGrupos(newPage);
+      else buscarGrupos(search, newPage);
+    }
   };
 
   return (
@@ -169,149 +227,149 @@ export const GrupoFamiliar: React.FC = () => {
         </div>
       </div>
       <br />
-    <div className={styles.container}>
-      <h2 className={styles.title}>Grupos Familiares</h2>
-      <input
-        type="text"
-        placeholder="Buscar por cualquier campo..."
-        value={search}
-        onChange={(e) => {
-          setSearch(e.target.value);
-          setCurrentPage(1); // resetear al buscar
-        }}
-        style={{ marginBottom: '10px', padding: '5px', width: '250px' }}
-      />
-      <button className={styles.addButton} onClick={handleOpenModalGrupoFamiliar}>
-        <FaPlus /> Agregar Grupo Familiar
-      </button>
-      <table className={styles.table}>
-        <thead>
-          <tr>
-            <th></th>
-            <th>ID</th>
-            <th>Nombre Grupo</th>
-            <th>Titular</th>
-            <th>Fecha de Alta</th>
-            <th>Activo</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          {currentItems.map((g) => (
-            <React.Fragment key={g.id}>
-              <tr
-                className={styles.clickableRow}
-                onClick={() => handleExpandRow(g.id)}
-                style={{ cursor: 'pointer' }}
-              >
-                <td>
-                  {expandedRows.includes(g.id) ? <FaChevronUp /> : <FaChevronDown />}
-                </td>
-                <td>{g.id}</td>
-                <td>{g.nombreGrupo}</td>
-                <td>{`${g.titular.nombre} ${g.titular.apellido}`}</td>
-                <td>{new Date(g.fechaAlta).toLocaleDateString()}</td>
-                <td>{g.activo ? 'Sí' : 'No'}</td>
-                <td className={styles.actions} onClick={e => e.stopPropagation()}>
-                  <button
-                    className={styles.addButton}
-                    title="Agregar Familiar"
-                    onClick={() => handleOpenModalFamiliar(g.id, g.titular.id)}
-                  >
-                    <FaPlus />
-                  </button>
-                  <FaEdit className={styles.editIcon} onClick={() => editarGrupo(g.id)} />
-                  <FaTrash className={styles.deleteIcon} onClick={() => eliminarGrupo(g.id)} />
-                </td>
-              </tr>
-              {expandedRows.includes(g.id) && (
-                <tr>
-                  <td colSpan={7}>
-                    <div className={styles.familiaresList}>
-                      <strong>Familiares:</strong>
-                      {g.familiares && g.familiares.length > 0 ? (
-                        <table className={styles.table} style={{ marginTop: 10 }}>
-                          <thead>
-                            <tr>
-                              <th>Nombre</th>
-                              <th>Apellido</th>
-                              <th>Parentesco</th>
-                              <th>Activo</th>
-                              <th>Acciones</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {g.familiares.map((f) => (
-                              <tr key={f.id}>
-                                <td>{f.nombre}</td>
-                                <td>{f.apellido}</td>
-                                <td>{f.tipoParentesco}</td>
-                                <td>{f.activo ? 'Sí' : 'No'}</td>
-                                <td className={styles.actions}>
-                                  <FaEdit
-                                    className={styles.editIcon}
-                                    onClick={() => {
-                                      navigate(`/familiar/editar/${f.id}`);
-                                    }}
-                                    style={{ cursor: "pointer" }}
-                                  />
-                                  <FaTrash
-                                    className={styles.deleteIcon}
-                                    onClick={() => {eliminarFamiliar(f.id)}}
-                                    style={{ cursor: "pointer" }}
-                                  />
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      ) : (
-                        <span>No hay familiares registrados.</span>
-                      )}
-                    </div>
+      <div className={styles.container}>
+        <h2 className={styles.title}>Grupos Familiares</h2>
+
+        <input
+          type="text"
+          placeholder="Buscar por cualquier campo..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          style={{ marginBottom: '10px', padding: '5px', width: '250px' }}
+        />
+
+        <button className={styles.addButton} onClick={handleOpenModalGrupoFamiliar}>
+          <FaPlus /> Agregar Grupo Familiar
+        </button>
+
+        <table className={styles.table}>
+          <thead>
+            <tr>
+              <th></th>
+              <th>ID</th>
+              <th>Nombre Grupo</th>
+              <th>Titular</th>
+              <th>Fecha de Alta</th>
+              <th>Activo</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {grupos.map((g) => (
+              <React.Fragment key={g.id}>
+                <tr
+                  className={styles.clickableRow}
+                  onClick={() => handleExpandRow(g.id)}
+                  style={{ cursor: 'pointer' }}
+                >
+                  <td>
+                    {expandedRows.includes(g.id) ? <FaChevronUp /> : <FaChevronDown />}
+                  </td>
+                  <td>{g.id}</td>
+                  <td>{g.nombreGrupo}</td>
+                  <td>{`${g.titular?.nombre ?? ''} ${g.titular?.apellido ?? ''}`}</td>
+                  <td>{g.fechaAlta ? new Date(g.fechaAlta).toLocaleDateString() : 'N/A'}</td>
+                  <td>{g.activo ? 'Sí' : 'No'}</td>
+                  <td className={styles.actions} onClick={e => e.stopPropagation()}>
+                    <button
+                      className={styles.addButton}
+                      title="Agregar Familiar"
+                      onClick={() => handleOpenModalFamiliar(g.id, g.titular?.id ?? 0)}
+                    >
+                      <FaPlus />
+                    </button>
+                    <FaEdit className={styles.editIcon} onClick={() => editarGrupo(g.id)} />
+                    <FaTrash className={styles.deleteIcon} onClick={() => eliminarGrupo(g.id)} />
                   </td>
                 </tr>
-              )}
-            </React.Fragment>
-          ))}
-        </tbody>
-      </table>
+                {expandedRows.includes(g.id) && (
+                  <tr>
+                    <td colSpan={7}>
+                      <div className={styles.familiaresList}>
+                        <strong>Familiares:</strong>
+                        {g.familiares && g.familiares.length > 0 ? (
+                          <table className={styles.table} style={{ marginTop: 10 }}>
+                            <thead>
+                              <tr>
+                                <th>Nombre</th>
+                                <th>Apellido</th>
+                                <th>Parentesco</th>
+                                <th>Activo</th>
+                                <th>Acciones</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {g.familiares.map((f) => (
+                                <tr key={f.id}>
+                                  <td>{f.nombre}</td>
+                                  <td>{f.apellido}</td>
+                                  <td>{f.tipoParentesco}</td>
+                                  <td>{f.activo ? 'Sí' : 'No'}</td>
+                                  <td className={styles.actions}>
+                                    <FaEdit
+                                      className={styles.editIcon}
+                                      onClick={() => {
+                                        navigate(`/familiar/editar/${f.id}`);
+                                      }}
+                                      style={{ cursor: "pointer" }}
+                                    />
+                                    <FaTrash
+                                      className={styles.deleteIcon}
+                                      onClick={() => { eliminarFamiliar(f.id); }}
+                                      style={{ cursor: "pointer" }}
+                                    />
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        ) : (
+                          <span>No hay familiares registrados.</span>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                )}
+              </React.Fragment>
+            ))}
+          </tbody>
+        </table>
 
-      {/* PAGINADO */}
-      {totalPages > 1 && (
-        <div style={{ marginTop: '15px', display: 'flex', justifyContent: 'center', gap: '10px' }}>
-          <button
-            onClick={handlePrevPage}
-            disabled={currentPage === 1}
-            style={{
-              padding: '5px 10px',
-              borderRadius: '8px',
-              border: '1px solid #ccc',
-              background: currentPage === 1 ? '#88C250' : '#88C250',
-              cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
-            }}
-          >
-            ◀
-          </button>
-          <span style={{ alignSelf: 'center', fontSize: '14px', color: '#555' }}>
-            Página {currentPage} de {totalPages}
-          </span>
-          <button
-            onClick={handleNextPage}
-            disabled={currentPage === totalPages}
-            style={{
-              padding: '5px 10px',
-              borderRadius: '8px',
-              border: '1px solid #ccc',
-              background: currentPage === totalPages ? '#88C250' : '#88C250',
-              cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
-            }}
-          >
-            ▶
-          </button>
-        </div>
-      )}
-    </div>
+        {/* PAGINADO */}
+        {totalPages > 1 && (
+          <div style={{ marginTop: '15px', display: 'flex', justifyContent: 'center', gap: '10px' }}>
+            <button
+              onClick={handlePrevPage}
+              disabled={currentPage === 0}
+              style={{
+                padding: '5px 10px',
+                borderRadius: '8px',
+                border: '1px solid #ccc',
+                background: '#88C250',
+                cursor: currentPage === 0 ? 'not-allowed' : 'pointer',
+              }}
+            >
+              ◀
+            </button>
+            <span style={{ alignSelf: 'center', fontSize: '14px', color: '#555' }}>
+              Página {currentPage + 1} de {totalPages}
+            </span>
+            <button
+              onClick={handleNextPage}
+              disabled={currentPage >= totalPages - 1}
+              style={{
+                padding: '5px 10px',
+                borderRadius: '8px',
+                border: '1px solid #ccc',
+                background: '#88C250',
+                cursor: currentPage >= totalPages - 1 ? 'not-allowed' : 'pointer',
+              }}
+            >
+              ▶
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

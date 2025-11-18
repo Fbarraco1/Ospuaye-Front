@@ -1,38 +1,87 @@
+import  { useEffect, useState } from 'react';
 import { FaEdit, FaPlus, FaTrash } from 'react-icons/fa';
 import styles from './Nacionalidad.module.css';
-import { useEffect, useState } from 'react';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import { useAuthStore } from '../../../../auth/store/authStore';
 import { useNavigate } from 'react-router-dom';
 const database = import.meta.env.VITE_DATABASE;
 
-
 interface Nacionalidad {
-    id: number;
-    nombre: string;
-    activo: boolean;
+  id: number;
+  nombre: string;
+  activo: boolean;
 }
 
 export const Nacionalidad = () => {
   const [nacionalidades, setNacionalidades] = useState<Nacionalidad[]>([]);
   const [search, setSearch] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(0); // 0-based como Beneficiarios
+  const [totalPages, setTotalPages] = useState(0);
   const itemsPerPage = 5;
   const token = useAuthStore((state) => state.token);
   const navigate = useNavigate();
 
   useEffect(() => {
-    obtenerNacionalidades();
+    obtenerNacionalidades(0);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const obtenerNacionalidades = async () => {
+  // Debounce búsqueda (igual que Beneficiarios)
+  useEffect(() => {
+    const delayDebounce = setTimeout(() => {
+      if (search.trim() === '') {
+        obtenerNacionalidades(0);
+      } else {
+        buscarNacionalidades(search, 0);
+      }
+      setCurrentPage(0);
+    }, 400);
+    return () => clearTimeout(delayDebounce);
+  }, [search]);
+
+  const obtenerNacionalidades = async (page = 0, size = itemsPerPage) => {
     try {
-      const response = await axios.get(`${database}/api/nacionalidades`);
-      setNacionalidades(response.data);
+      const response = await axios.get(`${database}/api/nacionalidades/paginar`, {
+        params: { page, size },
+      });
+      setNacionalidades(response.data.content || []);
+      setTotalPages(response.data.totalPages ?? 0);
     } catch (error) {
-      console.error('Error al obtener Nacionalidades:', error);
+      console.error('Error al obtener Nacionalidades paginadas:', error);
+      // fallback a endpoint sin paginar
+      try {
+        const res = await axios.get(`${database}/api/nacionalidades`);
+        const all: Nacionalidad[] = res.data;
+        setNacionalidades(all.slice(0, itemsPerPage));
+        setTotalPages(Math.max(1, Math.ceil(all.length / itemsPerPage)));
+      } catch (err) {
+        console.error('Fallback error al obtener Nacionalidades:', err);
+      }
+    }
+  };
+
+  const buscarNacionalidades = async (filtro: string, page = 0, size = itemsPerPage) => {
+    try {
+      const response = await axios.get(`${database}/api/nacionalidades/buscar`, {
+        params: { query: filtro, page, size },
+      });
+      setNacionalidades(response.data.content || []);
+      setTotalPages(response.data.totalPages ?? 0);
+    } catch (error) {
+      console.error('Error al buscar Nacionalidades:', error);
+      // fallback: filtrar localmente si no existe búsqueda paginada
+      try {
+        const res = await axios.get(`${database}/api/nacionalidades`);
+        const all: Nacionalidad[] = res.data;
+        const filtered = all.filter(p =>
+          [p.id, p.nombre].join(' ').toLowerCase().includes(filtro.toLowerCase())
+        );
+        setTotalPages(Math.max(1, Math.ceil(filtered.length / itemsPerPage)));
+        setNacionalidades(filtered.slice(0, itemsPerPage));
+      } catch (err) {
+        console.error('Fallback error al buscar Nacionalidades:', err);
+      }
     }
   };
 
@@ -56,32 +105,40 @@ export const Nacionalidad = () => {
       cancelButtonText: 'Cancelar'
     });
 
-    if (result.isConfirmed) {
-      try {
-        await axios.patch(`${database}/api/nacionalidades/${id}/estado`, {}, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        obtenerNacionalidades();
-        Swal.fire({ icon: 'success', title: 'Eliminado', timer: 1500, showConfirmButton: false });
-      } catch (error) {
-        console.error('Error al eliminar nacionalidad:', error);
-        Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo eliminar la nacionalidad.' });
-      }
+    if (!result.isConfirmed) return;
+
+    try {
+      await axios.patch(`${database}/api/nacionalidades/${id}/estado`, {}, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      // recargar la página actual (considera búsqueda)
+      if (search.trim() === '') obtenerNacionalidades(currentPage);
+      else buscarNacionalidades(search, currentPage);
+      Swal.fire({ icon: 'success', title: 'Eliminado', timer: 1500, showConfirmButton: false });
+    } catch (error) {
+      console.error('Error al eliminar nacionalidad:', error);
+      Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo eliminar la nacionalidad.' });
     }
   };
 
-  // filtrado y paginación (igual que antes)
-  const paisesFiltrados = nacionalidades.filter((a) =>
-    [a.id, a.nombre].join(' ').toLowerCase().includes(search.toLowerCase())
-  );
+  // Controles de paginado (0-based)
+  const handlePrevPage = () => {
+    if (currentPage > 0) {
+      const newPage = currentPage - 1;
+      setCurrentPage(newPage);
+      if (search.trim() === '') obtenerNacionalidades(newPage);
+      else buscarNacionalidades(search, newPage);
+    }
+  };
 
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = paisesFiltrados.slice(indexOfFirstItem, indexOfLastItem);
-  const totalPages = Math.ceil(paisesFiltrados.length / itemsPerPage);
-
-  const handleNextPage = () => { if (currentPage < totalPages) setCurrentPage((p) => p + 1); };
-  const handlePrevPage = () => { if (currentPage > 1) setCurrentPage((p) => p - 1); };
+  const handleNextPage = () => {
+    if (currentPage < totalPages - 1) {
+      const newPage = currentPage + 1;
+      setCurrentPage(newPage);
+      if (search.trim() === '') obtenerNacionalidades(newPage);
+      else buscarNacionalidades(search, newPage);
+    }
+  };
 
   return (
     <div>
@@ -104,7 +161,7 @@ export const Nacionalidad = () => {
           type="text"
           placeholder="Buscar por cualquier campo..."
           value={search}
-          onChange={(e) => { setSearch(e.target.value); setCurrentPage(1); }}
+          onChange={(e) => { setSearch(e.target.value); setCurrentPage(0); }}
           style={{ marginBottom: '10px', padding: '5px', width: '250px' }}
         />
         <button className={styles.addButton} onClick={agregarNacionalidad}>
@@ -120,7 +177,7 @@ export const Nacionalidad = () => {
             </tr>
           </thead>
           <tbody>
-            {currentItems.map((b) => (
+            {nacionalidades.map((b) => (
               <tr key={b.id}>
                 <td>{b.nombre}</td>
                 <td>{b.activo ? 'Si' : 'No'}</td>
@@ -135,9 +192,9 @@ export const Nacionalidad = () => {
 
         {totalPages > 1 && (
           <div style={{ marginTop: '10px', display: 'flex', justifyContent: 'center', gap: '10px' }}>
-            <button onClick={handlePrevPage} className={styles.pageButton} disabled={currentPage === 1}>◀</button>
-            <span>Página {currentPage} de {totalPages}</span>
-            <button onClick={handleNextPage} className={styles.pageButton} disabled={currentPage === totalPages}>▶</button>
+            <button onClick={handlePrevPage} className={styles.pageButton} disabled={currentPage === 0}>◀</button>
+            <span>Página {currentPage + 1} de {totalPages}</span>
+            <button onClick={handleNextPage} className={styles.pageButton} disabled={currentPage >= totalPages - 1}>▶</button>
           </div>
         )}
       </div>

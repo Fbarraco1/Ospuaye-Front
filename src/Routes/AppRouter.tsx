@@ -57,6 +57,7 @@ import ModalGrupoFamiliar from '../components/ui/Admin/ModalGrupoFamiliar/ModalG
 import ModalFamiliar from '../components/ui/Admin/ModalFamiliar/ModalFamiliar';
 import ModalPedido from '../components/ui/Pedidos/ModalPedido/ModalPedido';
 import { PedidoMedico } from '../components/screens/Medico/PedidoMedico/PedidoMedico';
+import ModalUsuario from '../components/ui/Admin/ModalUsuario/ModalUsuario';
 
 export const AppRouter = () => {
   const { user } = useAuthStore();
@@ -107,6 +108,17 @@ export const AppRouter = () => {
         <Route path="/usuarios" element={
           <PrivateRoutes roles={['ADMIN']}>
             <Usuarios /> 
+          </PrivateRoutes>} />
+
+        {/* Rutas para abrir ModalUsuario como página (crear / editar) */}
+        <Route path="/usuarios/nuevo" element={
+          <PrivateRoutes roles={['ADMIN']}>
+            <ModalUsuario modo="crear" />
+          </PrivateRoutes>} />
+
+        <Route path="/usuarios/editar/:id" element={
+          <PrivateRoutes roles={['ADMIN']}>
+            <ModalUsuario modo="editar" />
           </PrivateRoutes>} />
 
         <Route path="/areas" element={

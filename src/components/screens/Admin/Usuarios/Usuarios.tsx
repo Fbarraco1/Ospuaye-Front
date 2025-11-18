@@ -5,7 +5,7 @@ import { FaEdit, FaTrash, FaPlus } from 'react-icons/fa';
 import styles from './Usuarios.module.css';
 import { useAuthStore } from '../../../../auth/store/authStore';
 import Swal from 'sweetalert2';
-import ModalUsuario from '../../../ui/Admin/ModalUsuario/ModalUsuario';
+import { useNavigate } from 'react-router-dom';
 const database = import.meta.env.VITE_DATABASE;
 
 interface Usuario {
@@ -19,23 +19,55 @@ interface Usuario {
 
 export const Usuarios: React.FC = () => {
   const [usuarios, setUsuarios] = useState<Usuario[]>([]);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [search, setSearch] = useState('');
-  const [usuarioEdit, setUsuarioEdit] = useState<Usuario | undefined>(undefined);
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(0); // 0-based como en Beneficiarios
+  const [totalPages, setTotalPages] = useState(0);
   const itemsPerPage = 5;
   const token = useAuthStore((state) => state.token);
+  const navigate = useNavigate();
 
+  // Cargar lista al iniciar
   useEffect(() => {
-    obtenerUsuarios();
+    obtenerUsuarios(0);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const obtenerUsuarios = async () => {
+  // Debounce búsqueda (igual que Beneficiarios)
+  useEffect(() => {
+    const delayDebounce = setTimeout(() => {
+      if (search.trim() === '') {
+        obtenerUsuarios(0);
+      } else {
+        buscarUsuarios(search, 0);
+      }
+      setCurrentPage(0);
+    }, 400);
+    return () => clearTimeout(delayDebounce);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [search]);
+
+  // OBTENER LISTA PAGINADA
+  const obtenerUsuarios = async (page = 0, size = itemsPerPage) => {
     try {
-      const response = await axios.get(`${database}/api/usuarios`);
-      setUsuarios(response.data);
+      const response = await axios.get(`${database}/api/usuarios/paginar`, {
+        params: { page, size },
+      });
+      setUsuarios(response.data.content);
+      setTotalPages(response.data.totalPages);
     } catch (error) {
-      console.error('Error al obtener usuarios:', error);
+      console.error('Error al obtener Usuarios:', error);
+    }
+  };
+
+  const buscarUsuarios = async (filtro: string, page = 0, size = itemsPerPage) => {
+    try {
+      const response = await axios.get(`${database}/api/usuarios/buscar`, {
+        params: { query: filtro, page, size },
+      });
+      setUsuarios(response.data.content);
+      setTotalPages(response.data.totalPages);
+    } catch (error) {
+      console.error('Error al buscar usuarios:', error);
     }
   };
 
@@ -53,14 +85,14 @@ export const Usuarios: React.FC = () => {
 
     if (result.isConfirmed) {
       try {
-        await axios.patch(`${database}/api/usuarios/${id}/estado`, 
-          {},
-          {
+        await axios.patch(`${database}/api/usuarios/${id}/estado`, {}, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-          });
-        obtenerUsuarios();
+        });
+        // recargar la página actual
+        if (search.trim() === '') obtenerUsuarios(currentPage);
+        else buscarUsuarios(search, currentPage);
         Swal.fire({
           icon: 'success',
           title: 'Eliminado',
@@ -80,38 +112,31 @@ export const Usuarios: React.FC = () => {
   };
 
   const editarUsuario = (id: number) => {
-    const usuario = usuarios.find(u => u.id === id);
-    setUsuarioEdit(usuario);
-    setIsModalOpen(true);
+    navigate(`/usuarios/editar/${id}`);
   };
 
   const agregarUsuario = () => {
-    setUsuarioEdit(undefined);
-    setIsModalOpen(true);
+    navigate('/usuarios/nuevo');
   };
 
-    const handleCloseModal = () => {
-    setIsModalOpen(false);
-    setUsuarioEdit(undefined);
+  // MANEJAR PAGINADO
+  const handlePrevPage = () => {
+    if (currentPage > 0) {
+      const newPage = currentPage - 1;
+      setCurrentPage(newPage);
+      if (search.trim() === '') obtenerUsuarios(newPage);
+      else buscarUsuarios(search, newPage);
+    }
   };
 
-  // Filtra por cualquier campo del usuario
-  const usuariosFiltrados = usuarios.filter((usuario) =>
-    Object.values(usuario)
-      .map((valor) =>
-        typeof valor === 'object' && valor !== null
-          ? Object.values(valor).join(' ')
-          : valor
-      )
-      .join(' ')
-      .toLowerCase()
-      .includes(search.toLowerCase())
-  );
-
-  // Lógica de paginación
-  const totalPages = Math.ceil(usuariosFiltrados.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const usuariosPaginados = usuariosFiltrados.slice(startIndex, startIndex + itemsPerPage);
+  const handleNextPage = () => {
+    if (currentPage < totalPages - 1) {
+      const newPage = currentPage + 1;
+      setCurrentPage(newPage);
+      if (search.trim() === '') obtenerUsuarios(newPage);
+      else buscarUsuarios(search, newPage);
+    }
+  };
 
   return (
     <div>
@@ -151,7 +176,7 @@ export const Usuarios: React.FC = () => {
           </tr>
         </thead>
         <tbody>
-          {usuariosPaginados.map((usuario) => (
+          {usuarios.map((usuario) => (
             <tr key={usuario.id}>
               <td>{usuario.email}</td>
               <td>{usuario.rol?.nombre}</td>
@@ -171,38 +196,40 @@ export const Usuarios: React.FC = () => {
         </tbody>
       </table>
 
-      {/* Controles de paginación */}
+      {/* PAGINADO */}
       {totalPages > 1 && (
-        <div className={styles.pagination}>
+        <div style={{ marginTop: '15px', display: 'flex', justifyContent: 'center', gap: '10px' }}>
           <button
-            disabled={currentPage === 1}
-            onClick={() => setCurrentPage((prev) => prev - 1)}
-            className={styles.pageButton}
+            onClick={handlePrevPage}
+            disabled={currentPage === 0}
+            style={{
+              padding: '5px 10px',
+              borderRadius: '8px',
+              border: '1px solid #ccc',
+              background: '#88C250',
+              cursor: currentPage === 0 ? 'not-allowed' : 'pointer',
+            }}
           >
             ◀
           </button>
-          <span>
-            Página {currentPage} de {totalPages}
+          <span style={{ alignSelf: 'center', fontSize: '14px', color: '#555' }}>
+            Página {currentPage + 1} de {totalPages}
           </span>
           <button
-            disabled={currentPage === totalPages}
-            onClick={() => setCurrentPage((prev) => prev + 1)}
-            className={styles.pageButton}
+            onClick={handleNextPage}
+            disabled={currentPage >= totalPages - 1}
+            style={{
+              padding: '5px 10px',
+              borderRadius: '8px',
+              border: '1px solid #ccc',
+              background: '#88C250',
+              cursor: currentPage >= totalPages - 1 ? 'not-allowed' : 'pointer',
+            }}
           >
             ▶
           </button>
         </div>
       )}
-
-      <ModalUsuario
-        isOpen={isModalOpen}
-        onClose={handleCloseModal}
-        onUserAdded={() => {
-          obtenerUsuarios();
-          setIsModalOpen(false);
-        }}
-        usuarioEdit={usuarioEdit}
-      />
     </div>
     </div>
   );

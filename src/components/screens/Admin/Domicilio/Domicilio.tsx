@@ -27,36 +27,96 @@ interface Domicilio {
 
 export const Domicilio = () => {
   const [domicilios, setDomicilios] = useState<Domicilio[]>([]);
-  // const [isModalOpen, setIsModalOpen] = useState(false);
   const [search, setSearch] = useState('');
-  // const [edit, setEdit] = useState<Domicilio | undefined>(undefined);
   const token = useAuthStore((state) => state.token);
   const navigate = useNavigate();
 
-  // 🔹 Estados para paginación
-  const [currentPage, setCurrentPage] = useState(1);
+  // 🔹 Estados para paginación (backend usa 0-based)
+  const [currentPage, setCurrentPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
   const itemsPerPage = 5;
-  
+
+  // Cargar lista inicial (página 0)
   useEffect(() => {
-    obtenerDomicilios();
+    obtenerDomicilios(0);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const obtenerDomicilios = async () => {
+  // Debounce búsqueda (400ms) — igual que Beneficiarios
+  useEffect(() => {
+    const delayDebounce = setTimeout(() => {
+      if (search.trim() === '') {
+        obtenerDomicilios(0);
+      } else {
+        buscarDomicilios(search, 0);
+      }
+      setCurrentPage(0);
+    }, 400);
+    return () => clearTimeout(delayDebounce);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [search]);
+
+  // Obtener paginado desde backend (fallback a listado sin paginar si hace falta)
+  const obtenerDomicilios = async (page = 0, size = itemsPerPage) => {
     try {
-      const response = await axios.get(`${database}/api/domicilios`, {});
-      setDomicilios(response.data);
+      const response = await axios.get(`${database}/api/domicilios/paginar`, {
+        params: { page, size },
+      });
+      setDomicilios(response.data.content || []);
+      setTotalPages(response.data.totalPages ?? 0);
     } catch (error) {
-      console.error('Error al obtener Domicilios:', error);
+      console.error('Error al obtener Domicilios paginados:', error);
+      // fallback: obtener todo y paginar localmente
+      try {
+        const res = await axios.get(`${database}/api/domicilios`);
+        const all: Domicilio[] = res.data;
+        setDomicilios(all.slice(0, size));
+        setTotalPages(Math.max(1, Math.ceil(all.length / size)));
+      } catch (err) {
+        console.error('Fallback error al obtener Domicilios:', err);
+      }
     }
   };
-    
-  const agregarDomicilio = () => {
-    navigate('/domicilio/nuevo');
-  }
 
-  const editarDomicilio = (id: number) => {
-    navigate(`/domicilio/editar/${id}`);
-  }
+  const buscarDomicilios = async (filtro: string, page = 0, size = itemsPerPage) => {
+    try {
+      const response = await axios.get(`${database}/api/domicilios/buscar`, {
+        params: { query: filtro, page, size },
+      });
+      setDomicilios(response.data.content || []);
+      setTotalPages(response.data.totalPages ?? 0);
+    } catch (error) {
+      console.error('Error al buscar Domicilios:', error);
+      // fallback: filtrar localmente
+      try {
+        const res = await axios.get(`${database}/api/domicilios`);
+        const all: Domicilio[] = res.data;
+        const filtered = all.filter(l =>
+          [
+            l.id,
+            l.calle,
+            l.numeracion,
+            l.barrio,
+            l.manzanaPiso,
+            l.casaDepartamento,
+            l.referencia,
+            l.localidad?.nombre,
+            l.tipo
+          ]
+            .join(' ')
+            .toLowerCase()
+            .includes(filtro.toLowerCase())
+        );
+        setTotalPages(Math.max(1, Math.ceil(filtered.length / size)));
+        setDomicilios(filtered.slice(0, size));
+      } catch (err) {
+        console.error('Fallback error al buscar Domicilios:', err);
+      }
+    }
+  };
+
+  const agregarDomicilio = () => navigate('/domicilio/nuevo');
+  const editarDomicilio = (id: number) => navigate(`/domicilio/editar/${id}`);
 
   const eliminarDomicilio= async (id: number) => {
     const result = await Swal.fire({
@@ -70,64 +130,49 @@ export const Domicilio = () => {
       cancelButtonText: 'Cancelar'
     });
 
-    if (result.isConfirmed) {    
-      try {
-          await axios.patch(`${database}/api/domicilios/${id}/estado`, 
-            {}, {
-              headers: {
-              Authorization: `Bearer ${token}`,
-              },
-          });
-          obtenerDomicilios(); // refrescar la lista
-                  Swal.fire({
-                    icon: 'success',
-                    title: 'Eliminado',
-                    text: 'El domicilio fue eliminado correctamente.',
-                    timer: 1500,
-                    showConfirmButton: false
-                  });
-          } catch (error) {
-          console.error('Error al eliminar Domicilios:', error);
-          Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: 'No se pudo eliminar el domicilio.',
-          });
-      }
+    if (!result.isConfirmed) return;
+
+    try {
+      await axios.patch(`${database}/api/domicilios/${id}/estado`, {}, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      // recargar la página actual (considera búsqueda)
+      if (search.trim() === '') obtenerDomicilios(currentPage);
+      else buscarDomicilios(search, currentPage);
+      Swal.fire({
+        icon: 'success',
+        title: 'Eliminado',
+        text: 'El domicilio fue eliminado correctamente.',
+        timer: 1500,
+        showConfirmButton: false
+      });
+    } catch (error) {
+      console.error('Error al eliminar Domicilio:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'No se pudo eliminar el domicilio.',
+      });
     }
-  }
-
-
-  // Barra de búsqueda por cualquier campo
-  const provinciasFiltrados = domicilios.filter((r) =>
-    [
-      r.id,
-      r.calle,
-      r.numeracion,
-      r.barrio,
-      r.manzanaPiso,
-      r.casaDepartamento,
-      r.referencia,
-      r.localidad?.nombre,
-      r.tipo
-    ]
-      .join(' ')
-      .toLowerCase()
-      .includes(search.toLowerCase())
-  );
-
-  // 🔹 Lógica de paginación
-  const totalPages = Math.ceil(provinciasFiltrados.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const rolesPaginados = provinciasFiltrados.slice(startIndex, endIndex);
-
-  const nextPage = () => {
-    if (currentPage < totalPages) setCurrentPage(currentPage + 1);
   };
 
-  const prevPage = () => {
-    if (currentPage > 1) setCurrentPage(currentPage - 1);
+  // Controles de paginado (0-based)
+  const handlePrevPage = () => {
+    if (currentPage > 0) {
+      const newPage = currentPage - 1;
+      setCurrentPage(newPage);
+      if (search.trim() === '') obtenerDomicilios(newPage);
+      else buscarDomicilios(search, newPage);
+    }
+  };
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages - 1) {
+      const newPage = currentPage + 1;
+      setCurrentPage(newPage);
+      if (search.trim() === '') obtenerDomicilios(newPage);
+      else buscarDomicilios(search, newPage);
+    }
   };
 
   return (
@@ -175,7 +220,7 @@ export const Domicilio = () => {
           </tr>
         </thead>
         <tbody>
-          {rolesPaginados.map((b) => (
+          {domicilios.map((b) => (
             <tr key={b.id}>
               <td>{b.calle}</td>
               <td>{b.numeracion}</td>
@@ -201,28 +246,40 @@ export const Domicilio = () => {
         </tbody>
       </table>
 
-      {/* 🔹 Controles de paginación */}
-      <div className={styles.pagination}>
-        <button 
-          onClick={prevPage} 
-          disabled={currentPage === 1}
-          className={styles.pageButton}
-        >
-          ◀
-        </button>
-        <span className={styles.pageInfo}>
-          Página {currentPage} de {totalPages || 1}
-        </span>
-        <button 
-          onClick={nextPage} 
-          disabled={currentPage === totalPages || totalPages === 0}
-          className={styles.pageButton}
-        >
-          ▶
-        </button>
-      </div>
-
-      {/* Modal ahora es página, se eliminaron referencias al componente modal aquí */}
+      {/* PAGINADO */}
+      {totalPages > 1 && (
+        <div style={{ marginTop: '15px', display: 'flex', justifyContent: 'center', gap: '10px' }}>
+          <button
+            onClick={handlePrevPage}
+            disabled={currentPage === 0}
+            style={{
+              padding: '5px 10px',
+              borderRadius: '8px',
+              border: '1px solid #ccc',
+              background: '#88C250',
+              cursor: currentPage === 0 ? 'not-allowed' : 'pointer',
+            }}
+          >
+            ◀
+          </button>
+          <span style={{ alignSelf: 'center', fontSize: '14px', color: '#555' }}>
+            Página {currentPage + 1} de {totalPages}
+          </span>
+          <button
+            onClick={handleNextPage}
+            disabled={currentPage >= totalPages - 1}
+            style={{
+              padding: '5px 10px',
+              borderRadius: '8px',
+              border: '1px solid #ccc',
+              background: '#88C250',
+              cursor: currentPage >= totalPages - 1 ? 'not-allowed' : 'pointer',
+            }}
+          >
+            ▶
+          </button>
+        </div>
+      )}
     </div>
     </div>
   )

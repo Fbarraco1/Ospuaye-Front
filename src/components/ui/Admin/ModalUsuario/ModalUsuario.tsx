@@ -4,19 +4,13 @@ import styles from './ModalUsuario.module.css';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import { useAuthStore } from '../../../../auth/store/authStore';
+import { useParams, useNavigate } from 'react-router-dom';
 const database = import.meta.env.VITE_DATABASE;
 
 
 interface ModalUsuarioProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onUserAdded?: () => void; // para recargar la tabla después de agregar
-  usuarioEdit?: {
-      id: number;
-      email: string;
-      contrasena: string;
-      rol: { id: number; nombre: string };
-  };
+  onUserAdded?: () => void; // para recargar la tabla después de agregar (opcional)
+  modo?: 'editar' | 'crear';
 }
 
 interface Rol{
@@ -24,41 +18,59 @@ interface Rol{
   nombre: string;
 }
 
-const ModalUsuario: React.FC<ModalUsuarioProps> = ({ isOpen, onClose, onUserAdded, usuarioEdit }) => {
+const ModalUsuario: React.FC<ModalUsuarioProps> = ({  onUserAdded, modo = 'crear' }) => {
   const [email, setEmail] = useState('');
   const [contrasena, setContrasena] = useState('');
   const [roles, setRoles] = useState<Rol[]>([]);
   const [rol, setRol] = useState<number>(0);
   const token = useAuthStore((state) => state.token);
-  
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
 
   useEffect(() => {
     obtenerRoles();
   }, []);
 
-    useEffect(() => {
-    if (usuarioEdit) {
-      setEmail(usuarioEdit.email);
-      setContrasena(usuarioEdit.contrasena);
-      setRol(usuarioEdit.rol.id);
+  // Si se renderiza como página con modo editar, cargar usuario por id
+  useEffect(() => {
+    if (modo === 'editar' && id) {
+      const cargarUsuario = async (uid: string) => {
+        try {
+          const res = await axios.get(`${database}/api/usuarios/${uid}`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          const u = res.data;
+          setEmail(u.email || '');
+          setContrasena(u.contrasena || '');
+          setRol(u.rol?.id || 0);
+        } catch (error) {
+          console.error('Error al cargar usuario:', error);
+        }
+      };
+      cargarUsuario(id);
     } else {
+      // modo crear o no hay id: limpiar campos
       setEmail('');
       setContrasena('');
       setRol(0);
     }
-  }, [usuarioEdit, isOpen]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id, modo]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     try {
-      if (usuarioEdit) {
-        await updateUsuario(usuarioEdit.id, email, contrasena, rol);
-      } else { 
+      if (modo === 'editar' && id) {
+        await updateUsuario(Number(id), email, contrasena, rol);
+      } else {
         await createUser(email, contrasena, rol);
       }
-      if (onUserAdded) onUserAdded(); // para refrescar la tabla
-      onClose(); // cerrar modal
+      if (onUserAdded) onUserAdded(); // opcional
+      // al guardar, navegar de vuelta a la lista
+      navigate('/usuarios');
     } catch (error) {
       console.error('Error al registrar usuario:', error);
     }
@@ -143,12 +155,10 @@ const ModalUsuario: React.FC<ModalUsuarioProps> = ({ isOpen, onClose, onUserAdde
     }
   }
 
-  if (!isOpen) return null;
-
   return (
-    <div className={styles.overlay}>
+    <div className={styles.container}>
       <div className={styles.modal}>
-        <h2>{usuarioEdit ? 'Editar Usuario' : 'Agregar Usuario'}</h2>
+        <h2>{modo === 'editar' ? 'Editar Usuario' : 'Agregar Usuario'}</h2>
         <form onSubmit={handleSubmit}>
           <label>Email:</label>
           <input
@@ -181,7 +191,7 @@ const ModalUsuario: React.FC<ModalUsuarioProps> = ({ isOpen, onClose, onUserAdde
           </select>
           <div className={styles.actions}>
             <button type="submit">Aceptar</button>
-            <button type="button" onClick={onClose}>Cancelar</button>
+            <button type="button" onClick={() => navigate('/usuarios')}>Cancelar</button>
           </div>
         </form>
       </div>

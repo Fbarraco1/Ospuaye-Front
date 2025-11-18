@@ -1,8 +1,8 @@
-import { FaEdit, FaPlus, FaTrash } from 'react-icons/fa';
-import styles from './Departamento.module.css';
-import { useEffect, useState } from 'react';
-import { useAuthStore } from '../../../../auth/store/authStore';
+import  { useEffect, useState } from 'react';
 import axios from 'axios';
+import { FaEdit, FaTrash, FaPlus } from 'react-icons/fa';
+import styles from './Departamento.module.css';
+import { useAuthStore } from '../../../../auth/store/authStore';
 import Swal from 'sweetalert2';
 import { useNavigate } from 'react-router-dom';
 const database = import.meta.env.VITE_DATABASE;
@@ -14,7 +14,7 @@ interface Departamento {
     id: number;
     nombre: string;
     activo: boolean;
-  }
+  };
   activo: boolean;
 }
 
@@ -24,21 +24,50 @@ export const Departamento = () => {
   const token = useAuthStore((state) => state.token);
   const navigate = useNavigate();
 
-  // Estados para paginación
-  const [currentPage, setCurrentPage] = useState(1);
+  // paginado 0-based (como Beneficiarios)
+  const [currentPage, setCurrentPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
   const itemsPerPage = 5;
 
   useEffect(() => {
-    obtenerDepartamentos();
+    obtenerDepartamentos(0);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const obtenerDepartamentos = async () => {
+  // debounce búsqueda (400ms) — igual que Beneficiarios
+  useEffect(() => {
+    const delayDebounce = setTimeout(() => {
+      if (search.trim() === '') {
+        obtenerDepartamentos(0);
+      } else {
+        buscarDepartamentos(search, 0);
+      }
+      setCurrentPage(0);
+    }, 400);
+    return () => clearTimeout(delayDebounce);
+  }, [search]);
+
+  const obtenerDepartamentos = async (page = 0, size = itemsPerPage) => {
     try {
-      const response = await axios.get(`${database}/api/departamentos`);
-      setDepartamentos(response.data);
+      const response = await axios.get(`${database}/api/departamentos/paginar`, {
+        params: { page, size },
+      });
+      setDepartamentos(response.data.content || []);
+      setTotalPages(response.data.totalPages ?? 0);
     } catch (error) {
-      console.error('Error al obtener Departamentos:', error);
+      console.error('Error al obtener Departamentos paginados:', error);
+    }
+  };
+
+  const buscarDepartamentos = async (filtro: string, page = 0, size = itemsPerPage) => {
+    try {
+      const response = await axios.get(`${database}/api/departamentos/buscar`, {
+        params: { query: filtro, page, size },
+      });
+      setDepartamentos(response.data.content || []);
+      setTotalPages(response.data.totalPages ?? 0);
+    } catch (error) {
+      console.error('Error al buscar Departamentos:', error);
     }
   };
 
@@ -69,7 +98,9 @@ export const Departamento = () => {
             Authorization: `Bearer ${token}`,
           },
         });
-        obtenerDepartamentos(); // refrescar la lista
+        // recargar la página actual (considera búsqueda)
+        if (search.trim() === '') obtenerDepartamentos(currentPage);
+        else buscarDepartamentos(search, currentPage);
         Swal.fire({
           icon: 'success',
           title: 'Eliminado',
@@ -88,30 +119,23 @@ export const Departamento = () => {
     }
   };
 
-  // Barra de búsqueda por cualquier campo
-  const provinciasFiltrados = departamentos.filter((r) =>
-    [
-      r.id,
-      r.nombre,
-      r.provincia.nombre
-    ]
-      .join(' ')
-      .toLowerCase()
-      .includes(search.toLowerCase())
-  );
-
-  // Lógica de paginación
-  const totalPages = Math.ceil(provinciasFiltrados.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const rolesPaginados = provinciasFiltrados.slice(startIndex, endIndex);
-
-  const nextPage = () => {
-    if (currentPage < totalPages) setCurrentPage(currentPage + 1);
+  // paginado (0-based)
+  const handlePrevPage = () => {
+    if (currentPage > 0) {
+      const newPage = currentPage - 1;
+      setCurrentPage(newPage);
+      if (search.trim() === '') obtenerDepartamentos(newPage);
+      else buscarDepartamentos(search, newPage);
+    }
   };
 
-  const prevPage = () => {
-    if (currentPage > 1) setCurrentPage(currentPage - 1);
+  const handleNextPage = () => {
+    if (currentPage < totalPages - 1) {
+      const newPage = currentPage + 1;
+      setCurrentPage(newPage);
+      if (search.trim() === '') obtenerDepartamentos(newPage);
+      else buscarDepartamentos(search, newPage);
+    }
   };
 
   return (
@@ -132,6 +156,7 @@ export const Departamento = () => {
       <br />
       <div className={styles.container}>
         <h2 className={styles.title}>Departamentos</h2>
+
         <input
           type="text"
           placeholder="Buscar por cualquier campo..."
@@ -139,8 +164,9 @@ export const Departamento = () => {
           onChange={(e) => setSearch(e.target.value)}
           style={{ marginBottom: '10px', padding: '5px', width: '250px' }}
         />
+
         <button className={styles.addButton} onClick={agregarDepartamento}>
-          <FaPlus /> Agregar Departamentos
+          <FaPlus /> Agregar Departamento
         </button>
 
         <table className={styles.table}>
@@ -153,45 +179,54 @@ export const Departamento = () => {
             </tr>
           </thead>
           <tbody>
-            {rolesPaginados.map((b) => (
+            {departamentos.map((b) => (
               <tr key={b.id}>
                 <td>{b.nombre}</td>
-                <td>{/* @ts-ignore */ b.provincia.nombre}</td>
+                <td>{b.provincia?.nombre ?? 'N/A'}</td>
                 <td>{b.activo ? 'Sí' : 'No'}</td>
                 <td className={styles.actions}>
-                  <FaEdit
-                    className={styles.editIcon}
-                    onClick={() => editarDepartamento(b.id)}
-                  />
-                  <FaTrash
-                    className={styles.deleteIcon}
-                    onClick={() => eliminarDepartamento(b.id)}
-                  />
+                  <FaEdit className={styles.editIcon} onClick={() => editarDepartamento(b.id)} />
+                  <FaTrash className={styles.deleteIcon} onClick={() => eliminarDepartamento(b.id)} />
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
 
-        <div className={styles.pagination}>
-          <button
-            onClick={prevPage}
-            disabled={currentPage === 1}
-            className={styles.pageButton}
-          >
-            ◀
-          </button>
-          <span className={styles.pageInfo}>
-            Página {currentPage} de {totalPages || 1}
-          </span>
-          <button
-            onClick={nextPage}
-            disabled={currentPage === totalPages || totalPages === 0}
-            className={styles.pageButton}
-          >
-            ▶
-          </button>
-        </div>
+        {/* PAGINADO */}
+        {totalPages > 1 && (
+          <div style={{ marginTop: '15px', display: 'flex', justifyContent: 'center', gap: '10px' }}>
+            <button
+              onClick={handlePrevPage}
+              disabled={currentPage === 0}
+              style={{
+                padding: '5px 10px',
+                borderRadius: '8px',
+                border: '1px solid #ccc',
+                background: '#88C250',
+                cursor: currentPage === 0 ? 'not-allowed' : 'pointer',
+              }}
+            >
+              ◀
+            </button>
+            <span style={{ alignSelf: 'center', fontSize: '14px', color: '#555' }}>
+              Página {currentPage + 1} de {totalPages}
+            </span>
+            <button
+              onClick={handleNextPage}
+              disabled={currentPage >= totalPages - 1}
+              style={{
+                padding: '5px 10px',
+                borderRadius: '8px',
+                border: '1px solid #ccc',
+                background: '#88C250',
+                cursor: currentPage >= totalPages - 1 ? 'not-allowed' : 'pointer',
+              }}
+            >
+              ▶
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

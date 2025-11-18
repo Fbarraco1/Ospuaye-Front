@@ -1,9 +1,8 @@
+import { useEffect, useState } from 'react';
 import { FaEdit, FaPlus, FaTrash } from 'react-icons/fa';
 import styles from './Localidad.module.css';
-import { useEffect, useState } from 'react';
 import { useAuthStore } from '../../../../auth/store/authStore';
 import axios from 'axios';
-// import { ModalLocalidad } from '../../../ui/Admin/ModalLocalidad/ModalLocalidad';
 import Swal from 'sweetalert2';
 import { useNavigate } from 'react-router-dom';
 const database = import.meta.env.VITE_DATABASE;
@@ -13,7 +12,7 @@ interface Localidad {
     nombre: string;
     codigoPostal: string;
     activo: boolean;
-    departamento: {
+    departamento?: {
         id: number;
         nombre: string;
         activo: boolean;
@@ -26,23 +25,78 @@ export const Localidad = () => {
   const token = useAuthStore((state) => state.token);
   const navigate = useNavigate();
 
-  // 🔹 Estados para paginación
-  const [currentPage, setCurrentPage] = useState(1);
+  // Estados para paginación (0-based como Beneficiarios)
+  const [currentPage, setCurrentPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
   const itemsPerPage = 5;
-  
+
   useEffect(() => {
-    obtenerLocalidades();
+    obtenerLocalidades(0);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const obtenerLocalidades = async () => {
+  // Debounce búsqueda (igual que Beneficiarios)
+  useEffect(() => {
+    const delayDebounce = setTimeout(() => {
+      if (search.trim() === '') {
+        obtenerLocalidades(0);
+      } else {
+        buscarLocalidades(search, 0);
+      }
+      setCurrentPage(0);
+    }, 400);
+    return () => clearTimeout(delayDebounce);
+  }, [search]);
+
+  // Intentar endpoint paginado; fallback a endpoint sin paginar
+  const obtenerLocalidades = async (page = 0, size = itemsPerPage) => {
     try {
-      const response = await axios.get(`${database}/api/localidades`, {});
-      setLocalidades(response.data);
+      const response = await axios.get(`${database}/api/localidades/paginar`, {
+        params: { page, size },
+      });
+      setLocalidades(response.data.content || []);
+      setTotalPages(response.data.totalPages ?? 0);
     } catch (error) {
-      console.error('Error al obtener Localidades:', error);
+      console.error('Error al obtener Localidades paginadas:', error);
+      // fallback a endpoint sin paginar
+      try {
+        const res = await axios.get(`${database}/api/localidades`);
+        const all: Localidad[] = res.data;
+        setLocalidades(all.slice(0, size));
+        setTotalPages(Math.max(1, Math.ceil(all.length / size)));
+      } catch (err) {
+        console.error('Fallback error al obtener Localidades:', err);
+      }
     }
   };
-    
+
+  const buscarLocalidades = async (filtro: string, page = 0, size = itemsPerPage) => {
+    try {
+      const response = await axios.get(`${database}/api/localidades/buscar`, {
+        params: { query: filtro, page, size },
+      });
+      setLocalidades(response.data.content || []);
+      setTotalPages(response.data.totalPages ?? 0);
+    } catch (error) {
+      console.error('Error al buscar Localidades:', error);
+      // fallback: filtrar localmente si no existe búsqueda paginada
+      try {
+        const res = await axios.get(`${database}/api/localidades`);
+        const all: Localidad[] = res.data;
+        const filtered = all.filter(l =>
+          [l.id, l.nombre, l.codigoPostal, l.departamento?.nombre ?? '']
+            .join(' ')
+            .toLowerCase()
+            .includes(filtro.toLowerCase())
+        );
+        setTotalPages(Math.max(1, Math.ceil(filtered.length / size)));
+        setLocalidades(filtered.slice(0, size));
+      } catch (err) {
+        console.error('Fallback error al buscar Localidades:', err);
+      }
+    }
+  };
+
   const agregarLocalidad = () => {
     navigate('/localidad/nuevo');
   }
@@ -62,59 +116,53 @@ export const Localidad = () => {
           confirmButtonText: 'Sí, eliminar',
           cancelButtonText: 'Cancelar'
         });
-    
-        if (result.isConfirmed) {
-          try {
-              await axios.patch(`${database}/api/localidades/${id}/estado`, 
-                {}, {
-                  headers: {
-                  Authorization: `Bearer ${token}`,
-                  },
-              });
-              obtenerLocalidades(); // refrescar la lista
-              Swal.fire({
-                        icon: 'success',
-                        title: 'Eliminado',
-                        text: 'La localidad fue eliminada correctamente.',
-                        timer: 1500,
-                        showConfirmButton: false
-                      });
-              } catch (error) {
-              console.error('Error al eliminar Localidad:', error);
-              Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: 'No se pudo eliminar la localidad.',
-              });
-          }
-        }
+
+    if (!result.isConfirmed) return;
+
+    try {
+        await axios.patch(`${database}/api/localidades/${id}/estado`, 
+          {}, {
+            headers: {
+            Authorization: `Bearer ${token}`,
+            },
+        });
+        // recargar la página actual (considera búsqueda)
+        if (search.trim() === '') obtenerLocalidades(currentPage);
+        else buscarLocalidades(search, currentPage);
+        Swal.fire({
+          icon: 'success',
+          title: 'Eliminado',
+          text: 'La localidad fue eliminada correctamente.',
+          timer: 1500,
+          showConfirmButton: false
+        });
+    } catch (error) {
+        console.error('Error al eliminar Localidad:', error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'No se pudo eliminar la localidad.',
+        });
+    }
   }
 
-  // Barra de búsqueda por cualquier campo
-  const provinciasFiltrados = localidades.filter((r) =>
-    [
-      r.id,
-      r.nombre,
-      r.departamento?.nombre ?? '',
-      r.codigoPostal
-    ]
-      .join(' ')
-      .toLowerCase()
-      .includes(search.toLowerCase())
-  );
-
-  // 🔹 Lógica de paginación
-  const totalPages = Math.ceil(provinciasFiltrados.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const rolesPaginados = provinciasFiltrados.slice(startIndex, endIndex);
-
-  const nextPage = () => {
-    if (currentPage < totalPages) setCurrentPage(currentPage + 1);
+  // Controles de paginado (0-based)
+  const handlePrevPage = () => {
+    if (currentPage > 0) {
+      const newPage = currentPage - 1;
+      setCurrentPage(newPage);
+      if (search.trim() === '') obtenerLocalidades(newPage);
+      else buscarLocalidades(search, newPage);
+    }
   };
 
-  const prevPage = () => {
-    if (currentPage > 1) setCurrentPage(currentPage - 1);
+  const handleNextPage = () => {
+    if (currentPage < totalPages - 1) {
+      const newPage = currentPage + 1;
+      setCurrentPage(newPage);
+      if (search.trim() === '') obtenerLocalidades(newPage);
+      else buscarLocalidades(search, newPage);
+    }
   };
 
   return (
@@ -157,7 +205,7 @@ export const Localidad = () => {
           </tr>
         </thead>
         <tbody>
-          {rolesPaginados.map((b) => (
+          {localidades.map((b) => (
             <tr key={b.id}>
               <td>{b.nombre}</td>
               <td>{b.departamento?.nombre ?? 'No especificado'}</td>
@@ -178,28 +226,40 @@ export const Localidad = () => {
         </tbody>
       </table>
 
-      {/* 🔹 Controles de paginación */}
-      <div className={styles.pagination}>
-        <button 
-          onClick={prevPage} 
-          disabled={currentPage === 1}
-          className={styles.pageButton}
-        >
-          ◀
-        </button>
-        <span className={styles.pageInfo}>
-          Página {currentPage} de {totalPages || 1}
-        </span>
-        <button 
-          onClick={nextPage} 
-          disabled={currentPage === totalPages || totalPages === 0}
-          className={styles.pageButton}
-        >
-          ▶
-        </button>
-      </div>
-
-      {/* Modal ahora es página, se eliminaron referencias al componente modal aquí */}
+      {/* PAGINADO */}
+      {totalPages > 1 && (
+        <div style={{ marginTop: '15px', display: 'flex', justifyContent: 'center', gap: '10px' }}>
+          <button
+            onClick={handlePrevPage}
+            disabled={currentPage === 0}
+            style={{
+              padding: '5px 10px',
+              borderRadius: '8px',
+              border: '1px solid #ccc',
+              background: '#88C250',
+              cursor: currentPage === 0 ? 'not-allowed' : 'pointer',
+            }}
+          >
+            ◀
+          </button>
+          <span style={{ alignSelf: 'center', fontSize: '14px', color: '#555' }}>
+            Página {currentPage + 1} de {totalPages}
+          </span>
+          <button
+            onClick={handleNextPage}
+            disabled={currentPage >= totalPages - 1}
+            style={{
+              padding: '5px 10px',
+              borderRadius: '8px',
+              border: '1px solid #ccc',
+              background: '#88C250',
+              cursor: currentPage >= totalPages - 1 ? 'not-allowed' : 'pointer',
+            }}
+          >
+            ▶
+          </button>
+        </div>
+      )}
     </div>
     </div>
   )

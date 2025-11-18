@@ -1,25 +1,24 @@
+import { useEffect, useState } from 'react';
 import { FaEdit, FaPlus, FaTrash } from 'react-icons/fa';
 import styles from './Empresa.module.css';
-import { useEffect, useState } from 'react';
 import { useAuthStore } from '../../../../auth/store/authStore';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import { useNavigate } from 'react-router-dom';
 const database = import.meta.env.VITE_DATABASE;
 
-
 interface Empresa {
     id: number;
     cuit: string;
     razonSocial: string;
     activo: boolean;
-    domicilio: {
-        id: number;
-        calle: string;
-        numeracion: string;
-        localidad: {
-            id: number;
-            codigoPostal: string;
+    domicilio?: {
+        id?: number;
+        calle?: string;
+        numeracion?: string;
+        localidad?: {
+            id?: number;
+            codigoPostal?: string;
         }
     }
 }
@@ -30,23 +29,84 @@ export const Empresa = () => {
   const token = useAuthStore((state) => state.token);
   const navigate = useNavigate();
 
-  // 🔹 Estados para paginación
-  const [currentPage, setCurrentPage] = useState(1);
+  // Estados para paginación (0-based como Beneficiarios)
+  const [currentPage, setCurrentPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
   const itemsPerPage = 5;
-  
+
   useEffect(() => {
-    obtenerEmpresas();
+    obtenerEmpresas(0);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const obtenerEmpresas = async () => {
+  // Debounce búsqueda
+  useEffect(() => {
+    const delayDebounce = setTimeout(() => {
+      if (search.trim() === '') {
+        obtenerEmpresas(0);
+      } else {
+        buscarEmpresas(search, 0);
+      }
+      setCurrentPage(0);
+    }, 400);
+    return () => clearTimeout(delayDebounce);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [search]);
+
+  // Intentar endpoint paginado; fallback a endpoint sin paginar
+  const obtenerEmpresas = async (page = 0, size = itemsPerPage) => {
     try {
-      const response = await axios.get(`${database}/api/empresas`, {});
-      setEmpresas(response.data);
+      const response = await axios.get(`${database}/api/empresas/paginar`, {
+        params: { page, size },
+      });
+      setEmpresas(response.data.content || []);
+      setTotalPages(response.data.totalPages ?? 0);
     } catch (error) {
-      console.error('Error al obtener empresas:', error);
+      try {
+        const res = await axios.get(`${database}/api/empresas`);
+        const all: Empresa[] = res.data;
+        setEmpresas(all.slice(0, itemsPerPage));
+        setTotalPages(Math.ceil(all.length / itemsPerPage));
+      } catch (err) {
+        console.error('Error al obtener empresas (fallback):', err);
+      }
     }
   };
-    
+
+  const buscarEmpresas = async (filtro: string, page = 0, size = itemsPerPage) => {
+    try {
+      const response = await axios.get(`${database}/api/empresas/buscar`, {
+        params: { query: filtro, page, size },
+      });
+      setEmpresas(response.data.content || []);
+      setTotalPages(response.data.totalPages ?? 0);
+    } catch (error) {
+      // fallback: filtrar localmente si no existe búsqueda paginada
+      try {
+        const res = await axios.get(`${database}/api/empresas`);
+        const all: Empresa[] = res.data;
+        const filtered = all.filter(r =>
+          [
+            r.id,
+            r.cuit,
+            r.razonSocial,
+            r.domicilio?.calle,
+            r.domicilio?.numeracion,
+            r.domicilio?.localidad?.codigoPostal,
+            r.activo ? 'sí' : 'no'
+          ]
+            .join(' ')
+            .toLowerCase()
+            .includes(filtro.toLowerCase())
+        );
+        setTotalPages(Math.ceil(filtered.length / itemsPerPage));
+        setEmpresas(filtered.slice(0, itemsPerPage));
+      } catch (err) {
+        console.error('Error fallback al buscar empresas:', err);
+      }
+    }
+  };
+
   const agregarEmpresa = () => {
     navigate('/empresa/nuevo');
   }
@@ -55,7 +115,7 @@ export const Empresa = () => {
     navigate(`/empresa/editar/${id}`);
   }
 
-  const eliminarEmpresa= async (id: number) => {
+  const eliminarEmpresa = async (id: number) => {
     const result = await Swal.fire({
       title: '¿Estás seguro?',
       text: 'Esta acción eliminará la empresa.',
@@ -75,53 +135,44 @@ export const Empresa = () => {
               Authorization: `Bearer ${token}`,
               },
           });
-          obtenerEmpresas(); // refrescar la lista  
-                  Swal.fire({
-                    icon: 'success',
-                    title: 'Eliminado',
-                    text: 'La empresa fue eliminada correctamente.',
-                    timer: 1500,
-                    showConfirmButton: false
-                  });
-          } catch (error) {
+          // recargar la página actual (considera búsqueda)
+          if (search.trim() === '') obtenerEmpresas(currentPage);
+          else buscarEmpresas(search, currentPage);
+          Swal.fire({
+            icon: 'success',
+            title: 'Eliminado',
+            text: 'La empresa fue eliminada correctamente.',
+            timer: 1500,
+            showConfirmButton: false
+          });
+      } catch (error) {
           console.error('Error al eliminar Empresa:', error);
-                  Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: 'No se pudo eliminar la empresa.',
-                  });
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'No se pudo eliminar la empresa.',
+          });
       }
+    }
   }
-  }
 
-  // Barra de búsqueda por cualquier campo
-  const provinciasFiltrados = empresas.filter((r) =>
-    [
-      r.id,
-      r.cuit,
-      r.razonSocial,
-      r.domicilio?.calle,
-      r.domicilio?.numeracion,
-      r.domicilio?.localidad?.codigoPostal,
-      r.activo ? 'sí' : 'no'
-    ]
-      .join(' ')
-      .toLowerCase()
-      .includes(search.toLowerCase())
-  );
-
-  // 🔹 Lógica de paginación
-  const totalPages = Math.ceil(provinciasFiltrados.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const rolesPaginados = provinciasFiltrados.slice(startIndex, endIndex);
-
-  const nextPage = () => {
-    if (currentPage < totalPages) setCurrentPage(currentPage + 1);
+  // Controles de paginado (0-based)
+  const handlePrevPage = () => {
+    if (currentPage > 0) {
+      const newPage = currentPage - 1;
+      setCurrentPage(newPage);
+      if (search.trim() === '') obtenerEmpresas(newPage);
+      else buscarEmpresas(search, newPage);
+    }
   };
 
-  const prevPage = () => {
-    if (currentPage > 1) setCurrentPage(currentPage - 1);
+  const handleNextPage = () => {
+    if (currentPage < totalPages - 1) {
+      const newPage = currentPage + 1;
+      setCurrentPage(newPage);
+      if (search.trim() === '') obtenerEmpresas(newPage);
+      else buscarEmpresas(search, newPage);
+    }
   };
 
   return (
@@ -165,12 +216,12 @@ export const Empresa = () => {
           </tr>
         </thead>
         <tbody>
-          {rolesPaginados.map((b) => (
+          {empresas.map((b) => (
             <tr key={b.id}>
               <td>{b.razonSocial}</td>
               <td>{b.cuit}</td>
-              <td>{`${b.domicilio.calle} ${b.domicilio.numeracion}`}</td>
-              <td>{`${b.domicilio.localidad.codigoPostal}`}</td>
+              <td>{b.domicilio ? `${b.domicilio.calle ?? ''} ${b.domicilio.numeracion ?? ''}` : 'N/A'}</td>
+              <td>{b.domicilio?.localidad?.codigoPostal ?? 'N/A'}</td>
               <td>{b.activo ? 'Sí' : 'No'}</td>
               <td className={styles.actions}>
                 <FaEdit
@@ -187,26 +238,28 @@ export const Empresa = () => {
         </tbody>
       </table>
 
-      {/* 🔹 Controles de paginación */}
-      <div className={styles.pagination}>
-        <button 
-          onClick={prevPage} 
-          disabled={currentPage === 1}
-          className={styles.pageButton}
-        >
-          ◀
-        </button>
-        <span className={styles.pageInfo}>
-          Página {currentPage} de {totalPages || 1}
-        </span>
-        <button 
-          onClick={nextPage} 
-          disabled={currentPage === totalPages || totalPages === 0}
-          className={styles.pageButton}
-        >
-          ▶
-        </button>
-      </div>
+      {/* Controles de paginación (0-based) */}
+      {totalPages > 1 && (
+        <div className={styles.pagination} style={{ marginTop: '15px', display: 'flex', justifyContent: 'center', gap: '10px' }}>
+          <button 
+            onClick={handlePrevPage} 
+            disabled={currentPage === 0}
+            className={styles.pageButton}
+          >
+            ◀
+          </button>
+          <span style={{ alignSelf: 'center' }}>
+            Página {currentPage + 1} de {totalPages}
+          </span>
+          <button 
+            onClick={handleNextPage} 
+            disabled={currentPage >= totalPages - 1}
+            className={styles.pageButton}
+          >
+            ▶
+          </button>
+        </div>
+      )}
 
     </div>
     </div>
