@@ -56,8 +56,11 @@ import ModalArea from '../components/ui/Admin/ModalArea/ModalArea';
 import ModalGrupoFamiliar from '../components/ui/Admin/ModalGrupoFamiliar/ModalGrupoFamiliar';
 import ModalFamiliar from '../components/ui/Admin/ModalFamiliar/ModalFamiliar';
 import ModalPedido from '../components/ui/Pedidos/ModalPedido/ModalPedido';
-import { PedidoMedico } from '../components/screens/Medico/PedidoMedico/PedidoMedico';
 import ModalUsuario from '../components/ui/Admin/ModalUsuario/ModalUsuario';
+import { PedidoGeneralMedico } from '../components/screens/Medico/PedidoGeneralMedico/PedidoGeneralMedico';
+import { PedidoMedicoOftal } from '../components/screens/Medico/PedidoMedico/PedidoMedicoOftal';
+import { PedidoMedicoOrtop } from '../components/screens/Medico/PedidoMedico/PedidoMedicoOrtop';
+import { PedidoGeneralAuditor } from '../components/screens/Medico/PedidoGeneralAuditor/PedidoGeneralAuditor';
 
 export const AppRouter = () => {
   const { user } = useAuthStore();
@@ -307,8 +310,18 @@ export const AppRouter = () => {
           </PrivateRoutes>} />
 
           <Route path="/pedidos/generales/medico" element={
-          <PrivateRoutes roles={['ADMIN', 'ADMINOFTALMOLOGIA', 'MEDICO AUDITOR GENERAL', 'ADMINORTOPEDIA', 'MEDICO ORTOPEDIA', 'MEDICO OFTALMOLOGO']}>
-            <PedidoMedico /> 
+          <PrivateRoutes roles={['ADMIN', 'MEDICO AUDITOR GENERAL']}>
+            <PedidoGeneralMedico /> 
+          </PrivateRoutes>} />
+
+          <Route path="/pedidos/generales/medico/oftalmologia" element={
+          <PrivateRoutes roles={['ADMIN', 'MEDICO AUDITOR GENERAL', 'MEDICO OFTALMOLOGO']}>
+            <PedidoMedicoOftal /> 
+          </PrivateRoutes>} />
+
+          <Route path="/pedidos/generales/medico/ortopedia" element={
+          <PrivateRoutes roles={['ADMIN', 'MEDICO AUDITOR GENERAL','MEDICO ORTOPEDIA']}>
+            <PedidoMedicoOrtop /> 
           </PrivateRoutes>} />
 
           <Route path="/pedidos/generales/nuevo" element={
@@ -367,14 +380,19 @@ export const AppRouter = () => {
           </PrivateRoutes>} />  
 
         <Route path="/pedidos/oftalmologia/medico" element={
-          <PrivateRoutes roles={['MEDICO OFTALMOLOGO']}>
+          <PrivateRoutes roles={['MEDICO OFTALMOLOGO','MEDICO AUDITOR GENERAL']}>
             <PedidoOftalmologiaMedico /> 
           </PrivateRoutes>} />  
 
         <Route path="/pedidos/ortopedia/medico" element={
-          <PrivateRoutes roles={['MEDICO ORTOPEDIA']}>
+          <PrivateRoutes roles={['MEDICO ORTOPEDIA','MEDICO AUDITOR GENERAL']}>
             <PedidoOrtopediaMedico /> 
-          </PrivateRoutes>} />         
+          </PrivateRoutes>} />  
+
+        <Route path="/pedidos/generales/auditor" element={
+          <PrivateRoutes roles={['MEDICO AUDITOR GENERAL']}>
+            <PedidoGeneralAuditor /> 
+          </PrivateRoutes>} />                   
 
         <Route path="/pedidos/oftalmologia/editar/:id" element={
           <PrivateRoutes roles={['ADMIN', 'ADMINOFTALMOLOGIA']}>

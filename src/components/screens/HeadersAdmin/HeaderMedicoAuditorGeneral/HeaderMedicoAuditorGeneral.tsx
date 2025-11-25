@@ -36,6 +36,16 @@ const HeaderMedicoAuditorGeneral = () => {
                             <a className="page-scroll dd-menu collapsed" href="javascript:void(0)"
                               data-bs-toggle="collapse" data-bs-target="#submenu-1-1"
                               aria-controls="navbarSupportedContent" aria-expanded="false"
+                              aria-label="Toggle navigation">Mi cuenta</a>
+                              <ul className="sub-menu collapse" id="submenu-1-1">
+                                <li className="nav-item" onClick={() => navigate("/gestionCuentaMedico")}>Gestion de Cuenta</li>
+                              </ul>                            
+                        </li>
+
+                        <li  className="nav-item">
+                            <a className="page-scroll dd-menu collapsed" href="javascript:void(0)"
+                              data-bs-toggle="collapse" data-bs-target="#submenu-1-1"
+                              aria-controls="navbarSupportedContent" aria-expanded="false"
                               aria-label="Toggle navigation">Medicos</a>
                               <ul className="sub-menu collapse" id="submenu-1-1">
                                 <li className="nav-item" onClick={() => navigate("/medicos")}>Gestion de Medicos</li>
@@ -48,8 +58,11 @@ const HeaderMedicoAuditorGeneral = () => {
                               aria-controls="navbarSupportedContent" aria-expanded="false"
                               aria-label="Toggle navigation">Gestion de pedidos</a>
                               <ul className="sub-menu collapse" id="submenu-1-4">
-                                <li className="nav-item" onClick={() => navigate("/pedidos/oftalmologia")}>Pedidos Oftalmologia</li>
-                                <li className="nav-item" onClick={() => navigate("/pedidos/ortopedia")}>Pedidos Ortopedia</li>
+                                <li className="nav-item" onClick={() => navigate("/pedidos/generales/medico")}>Tomar Pedidos</li>                                
+                                <li className="nav-item" onClick={() => navigate("/pedidos/oftalmologia/medico")}>Pedidos Oftalmologia</li>
+                                <li className="nav-item" onClick={() => navigate("/pedidos/ortopedia/medico")}>Pedidos Ortopedia</li>
+                                <li className="nav-item" onClick={() => navigate("/pedidos/generales/auditor")}>Pedidos Generales</li>
+
                               </ul>                            
                         </li>                                                                        
                         </ul>

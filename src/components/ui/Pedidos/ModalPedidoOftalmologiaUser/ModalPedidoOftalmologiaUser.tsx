@@ -16,9 +16,7 @@ const ModalPedidoOftalmologiaUser: React.FC<{ onPedidoAdded?: () => void }> = ({
   const [telefono, setTelefono] = useState('');
   const [empresa, setEmpresa] = useState('');
   const [delegacion, setDelegacion] = useState('');
-  const [medicoId, setMedicoId] = useState('');
   const [beneficiarios] = useState<any[]>([]);
-  const [medicos, setMedicos] = useState<any[]>([]);
   const [motivoConsulta, setMotivoConsulta] = useState('');
   const [usaLentes, setUsaLentes] = useState(false);
   const [recetaMedica, setRecetaMedica] = useState(false);
@@ -30,19 +28,9 @@ const ModalPedidoOftalmologiaUser: React.FC<{ onPedidoAdded?: () => void }> = ({
   const [familiaresFiltrados, setFamiliaresFiltrados] = useState<any[]>([]);
 
   useEffect(() => {
-    obtenerMedicos();
     handleBeneficiario(beneficiarioId);
   }, []);
 
-
-  const obtenerMedicos = async () => {
-    try {
-      const response = await axios.get(`${database}/api/medicos`);
-      setMedicos(response.data);
-    } catch (error) {
-      console.error('Error al obtener Médicos:', error);
-    }
-  };
 
   const handleBeneficiario = async (id: number) => {
 
@@ -78,8 +66,7 @@ const ModalPedidoOftalmologiaUser: React.FC<{ onPedidoAdded?: () => void }> = ({
       recetaMedica,
       fechaRevision,
       observacionMedico,
-      beneficiario: { id: Number(beneficiarioId) },
-      medico: { id: Number(medicoId) }
+      beneficiario: { id: Number(beneficiarioId) }
     };
       // 👇 Solo agregamos grupoFamiliar si hay valor
       if (grupoFamiliarId && grupoFamiliarId.trim() !== '') {
@@ -108,7 +95,7 @@ const ModalPedidoOftalmologiaUser: React.FC<{ onPedidoAdded?: () => void }> = ({
         }
       );
       if (onPedidoAdded) onPedidoAdded();
-      navigate('/pedidos/oftalmologia');
+      navigate('/pedidos/oftalmologia/user');
             Swal.fire({
               icon: 'success',
               title: 'Pedido creado',
@@ -173,14 +160,6 @@ const ModalPedidoOftalmologiaUser: React.FC<{ onPedidoAdded?: () => void }> = ({
           <option value="">Seleccione un paciente</option>
           {familiaresFiltrados.map(p => (
             <option key={p.id} value={p.id}>{p.nombre} {p.apellido}</option>
-          ))}
-        </select>
-
-        <label>Médico:</label>
-        <select value={medicoId} onChange={e => setMedicoId(e.target.value)} required>
-          <option value="">Seleccione un médico</option>
-          {medicos.map(m => (
-            <option key={m.id} value={m.id}>{m.nombre} {m.apellido}</option>
           ))}
         </select>
 

@@ -3,6 +3,7 @@ import styles from './ModalMedico.module.css';
 import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
 import Swal from 'sweetalert2';
+import { useAuthStore } from '../../../../auth/store/authStore';
 const database = import.meta.env.VITE_DATABASE;
 
 interface Area {
@@ -25,6 +26,8 @@ const ModalMedico: React.FC<{ modo?: 'editar' | 'crear', onMedicoAdded?: () => v
   const [areaId, setAreaId] = useState('');
   const [areas, setAreas] = useState<Area[]>([]);
   const navigate = useNavigate();
+  const token = useAuthStore((state) => state.token);
+  
   
 
   useEffect(() => {
@@ -45,10 +48,10 @@ const ModalMedico: React.FC<{ modo?: 'editar' | 'crear', onMedicoAdded?: () => v
 
   const cargarMedico = async (medicoId: string) => {
     try {
-      const res = await axios.post(`${database}/api/medicos/${medicoId}`);
+      const res = await axios.get(`${database}/api/medicos/${medicoId}`);
       const medico = res.data;
       setEmail(medico.usuario.email || '');
-      setContrasena(medico.usuario.contrasena || ''); 0
+      setContrasena(medico.usuario.contrasena || ''); 
       setNombre(medico.nombre || '');
       setApellido(medico.apellido || '');
       setDni(medico.dni?.toString() || '');
@@ -68,20 +71,26 @@ const ModalMedico: React.FC<{ modo?: 'editar' | 'crear', onMedicoAdded?: () => v
     try {
       if (modo === 'editar' && id) {
         await axios.put(
-          `${database}/api/medicos/${id}`,
-          {
-            email,
-            nombre,
-            apellido,
-            dni: Number(dni),
-            cuil: Number(cuil),
-            telefono: Number(telefono),
-            sexo,
-            estado,
-            matricula,
-            areaId: Number(areaId),
-          },
-        );
+        `${database}/api/medicos/actualizar/${id}`,
+        {
+          email,
+          nombre,
+          apellido,
+          dni: Number(dni),
+          cuil: Number(cuil),
+          telefono: Number(telefono),
+          sexo,
+          estado,
+          matricula,
+          areaId: Number(areaId),
+          contrasena
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          }
+        }
+      );
         Swal.fire({
           icon: 'success',
           title: 'Médico actualizado',

@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import {FaPlus, FaFileAlt, FaHistory } from 'react-icons/fa';
-import styles from './PedidoOrtopedia.module.css';
-const database = import.meta.env.VITE_DATABASE;
-import { useNavigate } from 'react-router-dom';
-import { useAuthStore } from '../../../../auth/store/authStore';
+import {FaFileAlt, FaHistory } from 'react-icons/fa';
+import styles from './PedidoGeneralAuditor.module.css';
 import ModalDocumento from '../../../ui/Admin/ModalDocumento/ModalDocumento';
 import HistorialMovimiento from '../../../ui/Admin/HistorialMovimiento/HistorialMovimiento';
+import { useAuthStore } from '../../../../auth/store/authStore';
+import { ModalEstadoGeneral } from '../../../ui/Admin/ModalEstado/ModalEstadoGeneral';
+const database = import.meta.env.VITE_DATABASE;
+
 
 interface Beneficiario {
   nombre: string;
@@ -39,32 +40,33 @@ interface Documento {
   subidoPor: { email: string };
 }
 
-
-export const PedidoOrtopediaUser: React.FC = () => {
+export const PedidoGeneralAuditor: React.FC = () => {
   const [pedidos, setPedidos] = useState<PedidoOrtopedia[]>([]);
   const [documentos, setDocumentos] = useState<Documento[]>([]);
   const [modalDocsOpen, setModalDocsOpen] = useState(false);
   const [modalHistOpen, setModalHistOpen] = useState(false);
+  const [modalEstado, setModalEstado] = useState(false);
+  const [idPedidoEstado, setIdPedidoEstado] = useState<number | null>(null);
   const [search, setSearch] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
-  const navigate = useNavigate();
-  const idBenef = useAuthStore((state) => state.user?.idBeneficiario || 0);
+  const idMedico = useAuthStore((state) => state.user?.idMedico || 0);
   const [pedidoIdSeleccionado, setPedidoIdSeleccionado] = useState<number | null>(null);
 
   
   useEffect(() => {
-    obtenerPedidos(idBenef);
+    obtenerPedidos(idMedico);
   }, []);
 
   const obtenerPedidos = async (id: number) => {
     try {
-      const response = await axios.get(`${database}/api/pedidos/ortopedia/beneficiario/${id}`);
+      const response = await axios.get(`${database}/api/pedidos/medico/${id}`);
       setPedidos(response.data);
     } catch (error) {
-      console.error('Error al obtener pedidos de Ortopedia:', error);
+      console.error('Error al obtener pedidos de ortopedia:', error);
     }
   };
+
 
 
   const verDocumentos = async (id: number) => {
@@ -110,6 +112,15 @@ export const PedidoOrtopediaUser: React.FC = () => {
     if (currentPage < totalPages) setCurrentPage((prev) => prev + 1);
   };
 
+  const handleChangeEstado = (id: number) => {
+    setIdPedidoEstado(id);
+    setModalEstado(true);
+  };
+
+  const handleEstadoActualizado = async () => {
+    await obtenerPedidos(idMedico);
+  };
+
   return (
     <div>
     <div className="breadcrumbs overlay">
@@ -117,7 +128,7 @@ export const PedidoOrtopediaUser: React.FC = () => {
           <div className="row align-items-center">
             <div className="col-lg-8 offset-lg-2 col-md-12 col-12">
               <div className="breadcrumbs-content">
-                <h1 className="page-title">MIS PEDIDOS ORTOPEDIA</h1>
+                <h1 className="page-title">MIS PEDIDOS GENERALES</h1>
               </div>
               <ul className="breadcrumb-nav">
               </ul>
@@ -126,7 +137,7 @@ export const PedidoOrtopediaUser: React.FC = () => {
         </div>
       </div>
     <div className={styles.container}>
-      <h2 className={styles.title}>Pedidos de Ortopedia</h2>
+      <h2 className={styles.title}>Pedidos de Generales</h2>
 
       <input
         type="text"
@@ -139,10 +150,6 @@ export const PedidoOrtopediaUser: React.FC = () => {
         style={{ marginBottom: '10px', padding: '5px', width: '250px' }}
       />
 
-      <button className={styles.addButton} onClick={() => navigate('/pedidos/ortopedia/user/nuevo')}>
-        <FaPlus /> Agregar Pedido
-      </button>
-
       <table className={styles.table}>
         <thead>
           <tr>
@@ -151,7 +158,8 @@ export const PedidoOrtopediaUser: React.FC = () => {
             <th>DNI</th>
             <th>Fecha Ingreso</th>
             <th>Estado</th>
-            <th>Médico</th>
+            <th>Beneficiario</th>
+            <th>Cambiar Estado</th>
             <th>Acciones</th>
           </tr>
         </thead>
@@ -163,7 +171,8 @@ export const PedidoOrtopediaUser: React.FC = () => {
               <td>{p.dni}</td>
               <td>{new Date(p.fechaIngreso).toLocaleDateString()}</td>
               <td>{p.estado}</td>
-              <td>{p.medico?.matricula}</td>
+              <td>{p.beneficiario ? `${p.beneficiario.nombre} ${p.beneficiario.apellido}` : ''}</td>
+              <td>{<button className={styles.addButton} onClick={() => handleChangeEstado(p.id)}>Cambiar</button>}</td>
               <td className={styles.actions}>
                 <FaFileAlt
                   className={styles.icon}
@@ -226,6 +235,13 @@ export const PedidoOrtopediaUser: React.FC = () => {
         isOpen={modalHistOpen}
         pedidoId={pedidoIdSeleccionado}
         onClose={() => setModalHistOpen(false)}
+      />
+
+      <ModalEstadoGeneral
+        isOpen={modalEstado}
+        idPedido={idPedidoEstado ?? 0}
+        onClose={() => setModalEstado(false)}
+        onChangeEstado={handleEstadoActualizado}
       />
     </div>
     </div>

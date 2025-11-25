@@ -128,7 +128,10 @@ const ModalPedidoOftalmologia: React.FC<{ modo?: 'editar' | 'crear', onPedidoAdd
     }
 
     const formData = new FormData();
-    formData.append('pedido', JSON.stringify(pedido));
+    formData.append(
+      "pedido",
+      new Blob([JSON.stringify(pedido)], { type: "application/json" })
+    );
     documentos.forEach(file => formData.append("documentos", file));
 
     try {
@@ -138,7 +141,6 @@ const ModalPedidoOftalmologia: React.FC<{ modo?: 'editar' | 'crear', onPedidoAdd
           formData,
           {
             headers: {
-              "Content-Type": "multipart/form-data",
               Authorization: `Bearer ${token}`,
             }
           }
@@ -156,7 +158,6 @@ const ModalPedidoOftalmologia: React.FC<{ modo?: 'editar' | 'crear', onPedidoAdd
           formData,
           {
             headers: {
-              "Content-Type": "multipart/form-data",
               Authorization: `Bearer ${token}`,
             }
           }

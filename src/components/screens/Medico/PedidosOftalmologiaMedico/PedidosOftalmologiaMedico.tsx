@@ -40,18 +40,10 @@ interface Documento {
   subidoPor: { email: string };
 }
 
-interface Movimiento {
-  id: number;
-  fecha: string;
-  tipoMovimiento: string;
-  comentario: string;
-  usuario: { email: string };
-}
 
 export const PedidoOftalmologiaMedico: React.FC = () => {
   const [pedidos, setPedidos] = useState<PedidoOftalmologia[]>([]);
   const [documentos, setDocumentos] = useState<Documento[]>([]);
-  const [historial, setHistorial] = useState<Movimiento[]>([]);
   const [modalDocsOpen, setModalDocsOpen] = useState(false);
   const [modalHistOpen, setModalHistOpen] = useState(false);
   const [modalEstado, setModalEstado] = useState(false);
@@ -60,53 +52,26 @@ export const PedidoOftalmologiaMedico: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
   const idMedico = useAuthStore((state) => state.user?.idMedico || 0);
+  const [pedidoIdSeleccionado, setPedidoIdSeleccionado] = useState<number | null>(null);
+
   
   useEffect(() => {
+    // cargar sólo cuando idMedico esté disponible
+    if (!idMedico || idMedico === 0) return;
     obtenerPedidos(idMedico);
-  }, []);
-
+  }, [idMedico]);
+  
   const obtenerPedidos = async (id: number) => {
     try {
       const response = await axios.get(`${database}/api/pedidos/oftalmologia/medico/${id}`);
-      setPedidos(response.data);
+      // manejar respuesta tipo array o paginada { content, totalPages }
+      const data = Array.isArray(response.data) ? response.data : (response.data.content ?? response.data);
+      setPedidos(data || []);
+      setCurrentPage(1);
     } catch (error) {
       console.error('Error al obtener pedidos de oftalmología:', error);
     }
   };
-
-//   const eliminarPedido = async (id: number) => {
-//     const result = await Swal.fire({
-//       title: '¿Estás seguro?',
-//       text: 'Esta acción eliminará el pedido de forma permanente.',
-//       icon: 'warning',
-//       showCancelButton: true,
-//       confirmButtonColor: '#d33',
-//       cancelButtonColor: '#3085d6',
-//       confirmButtonText: 'Sí, eliminar',
-//       cancelButtonText: 'Cancelar'
-//     });
-
-//     if (result.isConfirmed) {    
-//       try {
-//         await axios.delete(`http://vps-5301866-x.dattaweb.com:9000/api/pedidos/oftalmologia/${id}`);
-//         setPedidos((prev) => prev.filter((p) => p.id !== id));
-//           Swal.fire({
-//             icon: 'success',
-//             title: 'Eliminado',
-//             text: 'El pedido fue eliminado correctamente.',
-//             timer: 1500,
-//             showConfirmButton: false
-//           });      
-//       } catch (error) {
-//         console.error('Error al eliminar pedido:', error);
-//           Swal.fire({
-//             icon: 'error',
-//             title: 'Error',
-//             text: 'No se pudo eliminar el pedido.',
-//           });      
-//       }
-//   }
-//   };
 
 
   const verDocumentos = async (id: number) => {
@@ -119,22 +84,22 @@ export const PedidoOftalmologiaMedico: React.FC = () => {
     }
   };
 
-  const verHistorial = async (id: number) => {
-    try {
-      const res = await axios.get(`${database}/api/historial-movimientos/${id}`);
-      setHistorial([res.data]);
-      setModalHistOpen(true);
-    } catch (error) {
-      console.error('Error al obtener historial:', error);
-    }
+  const verHistorial = (id: number) => {
+    setPedidoIdSeleccionado(id);
+    setModalHistOpen(true);
   };
 
-  // Filtrar pedidos por cualquier campo visible
+  // Filtrar pedidos por cualquier campo visible (igual que la versión admin)
   const pedidosFiltrados = pedidos.filter((p) =>
     [
-      p.id,  
+      p.id,
       p.nombre,
+      p.beneficiario?.nombre,
+      p.beneficiario?.apellido,
       p.dni,
+      p.telefono,
+      p.empresa,
+      p.delegacion,
       p.fechaIngreso,
       p.estado,
       p.medico?.matricula,
@@ -143,11 +108,17 @@ export const PedidoOftalmologiaMedico: React.FC = () => {
       .toLowerCase()
       .includes(search.toLowerCase())
   );
-
+  
   // --- PAGINACIÓN ---
   const totalPages = Math.ceil(pedidosFiltrados.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const currentItems = pedidosFiltrados.slice(startIndex, startIndex + itemsPerPage);
+  
+  // opcional: logs de ayuda rápida para debugging (quitar en producción)
+  useEffect(() => {
+    console.debug('pedidos (medico):', pedidos);
+    console.debug('pedidosFiltrados:', pedidosFiltrados.length, 'currentItems:', currentItems.length, 'currentPage:', currentPage, 'totalPages:', totalPages);
+  }, [pedidos, search, currentPage]);
 
   const handlePrevPage = () => {
     if (currentPage > 1) setCurrentPage((prev) => prev - 1);
@@ -279,7 +250,7 @@ export const PedidoOftalmologiaMedico: React.FC = () => {
 
       <HistorialMovimiento
         isOpen={modalHistOpen}
-        historial={historial}
+        pedidoId={pedidoIdSeleccionado}
         onClose={() => setModalHistOpen(false)}
       />
 

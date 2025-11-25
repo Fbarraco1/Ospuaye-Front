@@ -1,9 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import styles from './ModalGrupoFamiliar.module.css';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import { useAuthStore } from '../../../../auth/store/authStore';
+import { debounce } from 'lodash';
+
 const database = import.meta.env.VITE_DATABASE;
 
 interface Beneficiario {
@@ -12,110 +14,213 @@ interface Beneficiario {
   apellido: string;
 }
 
-const ModalGrupoFamiliar: React.FC<{ modo?: 'editar' | 'crear'; onGrupoFamiliarAdded?: () => void }> = ({ modo = 'crear', onGrupoFamiliarAdded }) => {
+const ModalGrupoFamiliar: React.FC<{ modo?: 'editar' | 'crear'; onGrupoFamiliarAdded?: () => void }> = ({
+  modo = 'crear',
+  onGrupoFamiliarAdded
+}) => {
+
   const { id } = useParams<{ id?: string }>();
   const [nombreGrupo, setNombreGrupo] = useState('');
-  const [beneficiarios, setBeneficiarios] = useState<Beneficiario[]>([]);
-  const [titular, setTitular] = useState<number>(0);
+
+  // 🔵 AUTOCOMPLETADO DEL TITULAR
+  const [titularTexto, setTitularTexto] = useState('');
+  const [titularId, setTitularId] = useState<number | null>(null);
+  const [sugerencias, setSugerencias] = useState<Beneficiario[]>([]);
+  const [showSug, setShowSug] = useState(false);
+
   const token = useAuthStore((state) => state.token);
   const navigate = useNavigate();
 
   useEffect(() => {
-    obtenerBeneficiarios();
     if (modo === 'editar' && id) cargarGrupo(Number(id));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, modo]);
 
-  const obtenerBeneficiarios = async () => {
-    try {
-      const response = await axios.get(`${database}/api/beneficiarios`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setBeneficiarios(response.data);
-    } catch (error) {
-      console.error('Error al obtener Beneficiarios:', error);
-    }
+  // Debounced fetch para buscar titulares (reemplaza timerRef)
+  const buscarTitularesDebounced = useCallback(
+    debounce(async (texto: string) => {
+      if (texto.trim().length < 2) {
+        setSugerencias([]);
+        return;
+      }
+      try {
+        const res = await axios.get(
+          `${database}/api/beneficiarios/buscar-simple?filtro=${texto}`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        setSugerencias(res.data);
+        setShowSug(true);
+      } catch (err) {
+        console.error("Error al buscar titulares:", err);
+      }
+    }, 350),
+    [token]
+  );
+
+  // cleanup del debounce al desmontar
+  useEffect(() => {
+    return () => {
+      buscarTitularesDebounced.cancel?.();
+    };
+  }, [buscarTitularesDebounced]);
+
+  // ===============================================================
+  // 🔵 AUTOCOMPLETADO: BUSCAR TITULAR (usa debounce)
+  // ===============================================================
+  const handleTitularChange = (texto: string) => {
+    setTitularTexto(texto);
+    setTitularId(null);
+    buscarTitularesDebounced(texto);
   };
 
+  const seleccionarTitular = (b: Beneficiario) => {
+    setTitularTexto(`${b.nombre} ${b.apellido}`);
+    setTitularId(b.id);
+    setShowSug(false);
+  };
+
+
+  // ===============================================================
+  // CARGAR GRUPO EN MODO EDITAR
+  // ===============================================================
   const cargarGrupo = async (grupoId: number) => {
     try {
       const res = await axios.get(`${database}/api/grupoFamiliar/${grupoId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
+
       const g = res.data;
       setNombreGrupo(g.nombreGrupo || '');
-      setTitular(g.titular?.id || 0);
+
+      if (g.titular) {
+        setTitularId(g.titular.id);
+        setTitularTexto(`${g.titular.nombre} ${g.titular.apellido}`);
+      }
+
     } catch (error) {
-      console.error('Error al cargar grupo familiar:', error);
+      console.error("Error al cargar grupo familiar:", error);
     }
   };
 
-  const createGrupoFamiliar = async (nombre: string, titularId: number) => {
+
+  // ===============================================================
+  // CREAR
+  // ===============================================================
+  const createGrupoFamiliar = async () => {
+    if (!titularId) {
+      return Swal.fire("Error", "Debe seleccionar un titular válido", "error");
+    }
+
     try {
-      const response = await axios.post(
+      await axios.post(
         `${database}/api/grupoFamiliar/crear`,
-        { nombreGrupo: nombre, titular: { id: titularId }, fechaAlta: new Date(), activo: true, familiares: [] },
-        { headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` } }
+        {
+          nombreGrupo,
+          titular: { id: titularId },
+          fechaAlta: new Date(),
+          activo: true,
+          familiares: []
+        },
+        { headers: { Authorization: `Bearer ${token}` } }
       );
-      if (response.status < 200 || response.status >= 300) throw new Error('Error al crear Grupo Familiar');
+
       Swal.fire({ icon: 'success', title: 'Grupo familiar creado', timer: 1500, showConfirmButton: false });
+
     } catch (error) {
-      console.error('error:', error);
-      Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo crear el grupo familiar.' });
-      throw error;
+      console.error(error);
+      Swal.fire("Error", "No se pudo crear el grupo familiar", "error");
     }
   };
 
-  const updateGrupoFamiliar = async (grupoId: number, nombre: string, titularId: number) => {
+  // ===============================================================
+  // EDITAR
+  // ===============================================================
+  const updateGrupoFamiliar = async (grupoId: number) => {
+    if (!titularId) {
+      return Swal.fire("Error", "Debe seleccionar un titular válido", "error");
+    }
+
     try {
-      const response = await axios.put(
+      await axios.put(
         `${database}/api/grupoFamiliar/${grupoId}`,
-        { nombreGrupo: nombre, titular: { id: titularId }, fechaAlta: new Date(), activo: true },
-        { headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` } }
+        {
+          nombreGrupo,
+          titular: { id: titularId },
+          fechaAlta: new Date(),
+          activo: true
+        },
+        { headers: { Authorization: `Bearer ${token}` } }
       );
-      if (response.status < 200 || response.status >= 300) throw new Error('Error al editar Grupo Familiar');
+
       Swal.fire({ icon: 'success', title: 'Grupo familiar editado', timer: 1500, showConfirmButton: false });
+
     } catch (error) {
-      console.error('error:', error);
-      Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo editar el grupo familiar.' });
-      throw error;
+      console.error(error);
+      Swal.fire("Error", "No se pudo editar el grupo familiar", "error");
     }
   };
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    try {
-      if (modo === 'editar' && id) {
-        await updateGrupoFamiliar(Number(id), nombreGrupo, titular);
-      } else {
-        await createGrupoFamiliar(nombreGrupo, titular);
-      }
-      if (onGrupoFamiliarAdded) onGrupoFamiliarAdded();
-      navigate('/grupoFamiliar');
-    } catch (error) {
-      console.error('Error al guardar Grupo Familiar:', error);
-    }
+    if (modo === "editar" && id) await updateGrupoFamiliar(Number(id));
+    else await createGrupoFamiliar();
+
+    if (onGrupoFamiliarAdded) onGrupoFamiliarAdded();
+    navigate('/grupoFamiliar');
   };
 
-  const handleVolver = () => navigate('/grupoFamiliar');
 
   return (
     <div className={styles.container}>
-      <button type="button" onClick={handleVolver} style={{ marginBottom: 10 }}>Volver</button>
+      <button type="button" onClick={() => navigate('/grupoFamiliar')} style={{ marginBottom: 10 }}>
+        Volver
+      </button>
+
       <div className={styles.modal}>
         <h2>{modo === 'editar' ? 'Editar Grupo Familiar' : 'Agregar Grupo Familiar'}</h2>
+
         <form onSubmit={handleSubmit}>
+          
           <label>Nombre del Grupo:</label>
-          <input type="text" value={nombreGrupo} onChange={(e) => setNombreGrupo(e.target.value)} required />
+          <input
+            type="text"
+            value={nombreGrupo}
+            onChange={(e) => setNombreGrupo(e.target.value)}
+            required
+          />
+
+          {/* ======================================================= */}
+          {/* AUTOCOMPLETADO TITULAR */}
+          {/* ======================================================= */}
           <label>Titular:</label>
-          <select value={titular} onChange={(e) => setTitular(Number(e.target.value))} required>
-            <option value={0} disabled>Seleccione un titular</option>
-            {beneficiarios.map((b) => (<option key={b.id} value={b.id}>{b.nombre} {b.apellido}</option>))}
-          </select>
+          <input
+            type="text"
+            value={titularTexto}
+            onChange={(e) => handleTitularChange(e.target.value)}
+            placeholder="Buscar titular por nombre, apellido, DNI o CUIL..."
+            autoComplete="off"
+            required
+          />
+
+          {showSug && sugerencias.length > 0 && (
+            <div className={styles.sugerenciasBox}>
+              {sugerencias.map((b) => (
+                <div
+                  key={b.id}
+                  className={styles.sugerenciaItem}
+                  onClick={() => seleccionarTitular(b)}
+                >
+                  {b.nombre} {b.apellido}
+                </div>
+              ))}
+            </div>
+          )}
+
           <div className={styles.actions}>
             <button type="submit">Aceptar</button>
-            <button type="button" onClick={handleVolver}>Cancelar</button>
+            <button type="button" onClick={() => navigate('/grupoFamiliar')}>Cancelar</button>
           </div>
+
         </form>
       </div>
     </div>

@@ -1,6 +1,3 @@
-/*======================================
-    Login CSS
-========================================*/
 .login {
   background-color: #f9f9f9;
 }
@@ -44,6 +41,60 @@
   outline: 0;
   background-color: #fff;
   font-size: 15px;
+}
+
+/* Mejora visual para los checkboxes */
+.login .form-head form .form-group label {
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: #333;
+  font-size: 14px;
+  user-select: none;
+}
+
+/* Estilo personalizado para el input checkbox */
+.login .form-head form .form-group input[type="checkbox"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  min-width: 18px;
+  margin: 0;
+  border: 2px solid #cfcfcf;
+  border-radius: 4px;
+  background-color: #fff;
+  display: inline-block;
+  vertical-align: middle;
+  position: relative;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.12s ease;
+}
+
+/* Hover / focus */
+.login .form-head form .form-group input[type="checkbox"]:hover {
+  box-shadow: 0 0 0 6px rgba(136,194,80,0.08);
+}
+.login .form-head form .form-group input[type="checkbox"]:focus {
+  outline: none;
+  box-shadow: 0 0 0 6px rgba(136,194,80,0.14);
+}
+
+/* Estado checked con marca blanca centrada (SVG inline) */
+.login .form-head form .form-group input[type="checkbox"]:checked {
+  background-color: #88C250;
+  border-color: #88C250;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><path fill='white' d='M6.173 11.414L2.293 7.535l1.414-1.414L6.173 8.586l6.12-6.12 1.414 1.414z'/></svg>");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 12px 12px;
+}
+
+/* Alineación cuando el checkbox está dentro del flujo del formulario */
+.login .form-head form .form-group label input[type="checkbox"] + span,
+.login .form-head form .form-group label input[type="checkbox"] ~ span {
+  margin-left: 8px;
 }
 
 .login .form-head form .check-and-pass .form-check {

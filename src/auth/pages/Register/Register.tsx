@@ -30,7 +30,7 @@ export const Register = () => {
       afiliadoSindical,
       esJubilado
     );
-    navigate('/login');
+    navigate('/');
   };
 
   return (

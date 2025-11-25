@@ -43,3 +43,25 @@
   border: 1px solid #ddd;
   padding: 8px;
 }
+
+/* Contenedor con scroll */
+.scrollContainer {
+  max-height: 350px; /* ajustable */
+  overflow-y: auto;
+  margin-top: 10px;
+  padding-right: 5px;
+}
+
+/* Opcional: estilizar barra de scroll */
+.scrollContainer::-webkit-scrollbar {
+  width: 6px;
+}
+
+.scrollContainer::-webkit-scrollbar-thumb {
+  background: #999;
+  border-radius: 10px;
+}
+
+.scrollContainer::-webkit-scrollbar-thumb:hover {
+  background: #666;
+}

@@ -18,6 +18,8 @@ interface Beneficiario {
 
 interface Medico {
   matricula: string;
+  nombre: string;
+  apellido: string;
 }
 
 interface PedidoOrtopedia {
@@ -43,25 +45,18 @@ interface Documento {
   subidoPor: { email: string };
 }
 
-interface Movimiento {
-  id: number;
-  fecha: string;
-  tipoMovimiento: string;
-  comentario: string;
-  usuario: { email: string };
-}
-
 export const PedidoOrtopedia: React.FC = () => {
   const [pedidos, setPedidos] = useState<PedidoOrtopedia[]>([]);
   const [documentos, setDocumentos] = useState<Documento[]>([]);
-  const [historial, setHistorial] = useState<Movimiento[]>([]);
   const [modalDocsOpen, setModalDocsOpen] = useState(false);
   const [modalHistOpen, setModalHistOpen] = useState(false);
   const [search, setSearch] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
   const navigate = useNavigate();
-    const token = useAuthStore((state) => state.token);
+  const token = useAuthStore((state) => state.token);
+  const [pedidoIdSeleccionado, setPedidoIdSeleccionado] = useState<number | null>(null);
+
   
 
   useEffect(() => {
@@ -131,13 +126,8 @@ const eliminarPedido = async (id: number) => {
   };
 
   const verHistorial = async (id: number) => {
-    try {
-      const res = await axios.get(`${database}/api/historial-movimientos/${id}`);
-      setHistorial([res.data]);
-      setModalHistOpen(true);
-    } catch (error) {
-      console.error('Error al obtener historial:', error);
-    }
+    setPedidoIdSeleccionado(id);
+    setModalHistOpen(true);
   };
 
   // 🔍 Filtrar pedidos por cualquier campo
@@ -237,7 +227,7 @@ const eliminarPedido = async (id: number) => {
               <td>{p.delegacion}</td>
               <td>{new Date(p.fechaIngreso).toLocaleDateString()}</td>
               <td>{p.estado}</td>
-              <td>{p.medico?.matricula}</td>
+              <td>{p.medico?.nombre +" "+p.medico?.apellido}</td>
               <td>{p.activo? 'si' : 'No'}</td>
               <td className={styles.actions}>
                 <FaFileAlt className={styles.icon} onClick={() => verDocumentos(p.id)} title="Ver documentos" />
@@ -293,7 +283,7 @@ const eliminarPedido = async (id: number) => {
 
       <HistorialMovimiento
         isOpen={modalHistOpen}
-        historial={historial}
+        pedidoId={pedidoIdSeleccionado}
         onClose={() => setModalHistOpen(false)}
       />
     </div>

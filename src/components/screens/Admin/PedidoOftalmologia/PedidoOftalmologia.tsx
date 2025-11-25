@@ -17,6 +17,8 @@ interface Beneficiario {
 
 interface Medico {
   matricula: string;
+  nombre: string;
+  apellido: string;
 }
 
 interface PedidoOftalmologia {
@@ -42,18 +44,10 @@ interface Documento {
   subidoPor: { email: string };
 }
 
-interface Movimiento {
-  id: number;
-  fecha: string;
-  tipoMovimiento: string;
-  comentario: string;
-  usuario: { email: string };
-}
 
 export const PedidoOftalmologia: React.FC = () => {
   const [pedidos, setPedidos] = useState<PedidoOftalmologia[]>([]);
   const [documentos, setDocumentos] = useState<Documento[]>([]);
-  const [historial, setHistorial] = useState<Movimiento[]>([]);
   const [modalDocsOpen, setModalDocsOpen] = useState(false);
   const [modalHistOpen, setModalHistOpen] = useState(false);
   const [search, setSearch] = useState('');
@@ -61,6 +55,8 @@ export const PedidoOftalmologia: React.FC = () => {
   const itemsPerPage = 5;
   const navigate = useNavigate();
   const token = useAuthStore((state) => state.token);
+  const [pedidoIdSeleccionado, setPedidoIdSeleccionado] = useState<number | null>(null);
+
   
 
   useEffect(() => {
@@ -130,13 +126,8 @@ export const PedidoOftalmologia: React.FC = () => {
   };
 
   const verHistorial = async (id: number) => {
-    try {
-      const res = await axios.get(`${database}/api/historial-movimientos/${id}`);
-      setHistorial([res.data]);
-      setModalHistOpen(true);
-    } catch (error) {
-      console.error('Error al obtener historial:', error);
-    }
+    setPedidoIdSeleccionado(id);
+    setModalHistOpen(true);
   };
 
   // Filtrar pedidos por cualquier campo visible
@@ -233,7 +224,7 @@ export const PedidoOftalmologia: React.FC = () => {
               <td>{p.delegacion}</td>
               <td>{new Date(p.fechaIngreso).toLocaleDateString()}</td>
               <td>{p.estado}</td>
-              <td>{p.medico?.matricula}</td>
+              <td>{p.medico?.nombre +" "+p.medico?.apellido}</td>
               <td>{p.activo ? 'Sí' : 'No'}</td>
               <td className={styles.actions}>
                 <FaFileAlt
@@ -305,7 +296,7 @@ export const PedidoOftalmologia: React.FC = () => {
 
       <HistorialMovimiento
         isOpen={modalHistOpen}
-        historial={historial}
+        pedidoId={pedidoIdSeleccionado}
         onClose={() => setModalHistOpen(false)}
       />
     </div>

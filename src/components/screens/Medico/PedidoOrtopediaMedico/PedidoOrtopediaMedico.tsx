@@ -40,18 +40,9 @@ interface Documento {
   subidoPor: { email: string };
 }
 
-interface Movimiento {
-  id: number;
-  fecha: string;
-  tipoMovimiento: string;
-  comentario: string;
-  usuario: { email: string };
-}
-
 export const PedidoOrtopediaMedico: React.FC = () => {
   const [pedidos, setPedidos] = useState<PedidoOrtopedia[]>([]);
   const [documentos, setDocumentos] = useState<Documento[]>([]);
-  const [historial, setHistorial] = useState<Movimiento[]>([]);
   const [modalDocsOpen, setModalDocsOpen] = useState(false);
   const [modalHistOpen, setModalHistOpen] = useState(false);
   const [modalEstado, setModalEstado] = useState(false);
@@ -60,6 +51,8 @@ export const PedidoOrtopediaMedico: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
   const idMedico = useAuthStore((state) => state.user?.idMedico || 0);
+  const [pedidoIdSeleccionado, setPedidoIdSeleccionado] = useState<number | null>(null);
+
   
   useEffect(() => {
     obtenerPedidos(idMedico);
@@ -74,39 +67,6 @@ export const PedidoOrtopediaMedico: React.FC = () => {
     }
   };
 
-//   const eliminarPedido = async (id: number) => {
-//     const result = await Swal.fire({
-//       title: '¿Estás seguro?',
-//       text: 'Esta acción eliminará el pedido de forma permanente.',
-//       icon: 'warning',
-//       showCancelButton: true,
-//       confirmButtonColor: '#d33',
-//       cancelButtonColor: '#3085d6',
-//       confirmButtonText: 'Sí, eliminar',
-//       cancelButtonText: 'Cancelar'
-//     });
-
-//     if (result.isConfirmed) {    
-//       try {
-//         await axios.delete(`http://vps-5301866-x.dattaweb.com:9000/api/pedidos/oftalmologia/${id}`);
-//         setPedidos((prev) => prev.filter((p) => p.id !== id));
-//           Swal.fire({
-//             icon: 'success',
-//             title: 'Eliminado',
-//             text: 'El pedido fue eliminado correctamente.',
-//             timer: 1500,
-//             showConfirmButton: false
-//           });      
-//       } catch (error) {
-//         console.error('Error al eliminar pedido:', error);
-//           Swal.fire({
-//             icon: 'error',
-//             title: 'Error',
-//             text: 'No se pudo eliminar el pedido.',
-//           });      
-//       }
-//   }
-//   };
 
 
   const verDocumentos = async (id: number) => {
@@ -120,13 +80,8 @@ export const PedidoOrtopediaMedico: React.FC = () => {
   };
 
   const verHistorial = async (id: number) => {
-    try {
-      const res = await axios.get(`${database}/api/historial-movimientos/${id}`);
-      setHistorial([res.data]);
-      setModalHistOpen(true);
-    } catch (error) {
-      console.error('Error al obtener historial:', error);
-    }
+    setPedidoIdSeleccionado(id);
+    setModalHistOpen(true);
   };
 
   // Filtrar pedidos por cualquier campo visible
@@ -278,7 +233,7 @@ export const PedidoOrtopediaMedico: React.FC = () => {
 
       <HistorialMovimiento
         isOpen={modalHistOpen}
-        historial={historial}
+        pedidoId={pedidoIdSeleccionado}
         onClose={() => setModalHistOpen(false)}
       />
 

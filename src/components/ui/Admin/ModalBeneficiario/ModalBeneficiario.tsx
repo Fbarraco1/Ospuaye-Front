@@ -170,13 +170,17 @@ const ModalBeneficiario: React.FC<{ modo?: 'editar' | 'crear', onBeneficiarioAdd
             onChange={(e) => setEmail(e.target.value)}
             required
           />
-          <label>Contraseña:</label>
-          <input
-            type="password"
-            value={contrasena}
-            onChange={(e) => setContrasena(e.target.value)}
-            required
-          />
+          {modo !== 'editar' && (
+            <>
+              <label>Contraseña:</label>
+              <input
+                type="password"
+                value={contrasena}
+                onChange={(e) => setContrasena(e.target.value)}
+                required
+              />
+            </>
+          )}
 
           <label>DNI:</label>
           <input

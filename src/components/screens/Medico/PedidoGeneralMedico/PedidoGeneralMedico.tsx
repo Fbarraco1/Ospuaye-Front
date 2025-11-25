@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { FaPlus, FaFileAlt, FaHistory, FaCheck } from 'react-icons/fa';
-import styles from './PedidoMedico.module.css';
+import styles from './PedidoGeneralMedico.module.css';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import { useAuthStore } from '../../../../auth/store/authStore';
@@ -40,18 +40,9 @@ interface Documento {
   subidoPor: { email: string };
 }
 
-interface Movimiento {
-  id: number;
-  fecha: string;
-  tipoMovimiento: string;
-  comentario: string;
-  usuario: { email: string };
-}
-
-export const PedidoMedico: React.FC = () => {
+export const PedidoGeneralMedico: React.FC = () => {
   const [pedidos, setPedidos] = useState<Pedido[]>([]);
   const [documentos, setDocumentos] = useState<Documento[]>([]);
-  const [historial, setHistorial] = useState<Movimiento[]>([]);
   const [modalDocsOpen, setModalDocsOpen] = useState(false);
   const [modalHistOpen, setModalHistOpen] = useState(false);
   const [search, setSearch] = useState('');
@@ -60,6 +51,8 @@ export const PedidoMedico: React.FC = () => {
   const navigate = useNavigate();
   const token = useAuthStore((state) => state.token);
   const idMedico = useAuthStore((state) => state.user?.idMedico || 0);
+  const [pedidoIdSeleccionado, setPedidoIdSeleccionado] = useState<number | null>(null);
+  
   
 
   useEffect(() => {
@@ -119,13 +112,8 @@ export const PedidoMedico: React.FC = () => {
   };
 
   const verHistorial = async (id: number) => {
-    try {
-      const res = await axios.get(`${database}/api/historial-movimientos/${id}`);
-      setHistorial([res.data]);
-      setModalHistOpen(true);
-    } catch (error) {
-      console.error('Error al obtener historial:', error);
-    }
+    setPedidoIdSeleccionado(id);
+    setModalHistOpen(true);
   };
 
   // Filtrar pedidos por cualquier campo visible
@@ -288,7 +276,7 @@ export const PedidoMedico: React.FC = () => {
 
       <HistorialMovimiento
         isOpen={modalHistOpen}
-        historial={historial}
+        pedidoId={pedidoIdSeleccionado}
         onClose={() => setModalHistOpen(false)}
       />
     </div>

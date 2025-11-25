@@ -59,7 +59,7 @@ export const GestionDeCuentaMedico = () => {
     e.preventDefault();
     try {
       await axios.put(
-       `${database}/api/medicos/${user?.idMedico}`,
+       `${database}/api/medicos/actualizar/${user?.idMedico}`,
         {
           ...medico,
           dni: medico.dni ? Number(medico.dni) : null,
@@ -155,7 +155,7 @@ export const GestionDeCuentaMedico = () => {
         <input
           className={styles.input}
           type="text"
-          name="telefono"
+          name="matricula"
           value={medico.matricula}
           onChange={handleChange}
           required

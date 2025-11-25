@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import styles from './ModalEmpresa.module.css';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import { useAuthStore } from '../../../../auth/store/authStore';
 import { useNavigate, useParams } from 'react-router-dom';
+import { debounce } from 'lodash';
 const database = import.meta.env.VITE_DATABASE;
 
 interface Domicilio {
@@ -16,27 +17,21 @@ const ModalEmpresa: React.FC<{ modo?: 'editar' | 'crear'; onEmpresaAdded?: () =>
   const { id } = useParams<{ id: string }>();
   const [cuit, setCuit] = useState('');
   const [razonSocial, setRazonSocial] = useState('');
-  const [domicilios, setDomicilios] = useState<Domicilio[]>([]);
   const [domicilio, setDomicilio] = useState<number>(0);
+
+  // Autocomplete dinamico para domicilio (basado en ModalProvincia)
+  const [busquedaDomicilio, setBusquedaDomicilio] = useState('');
+  const [resultadosDomicilios, setResultadosDomicilios] = useState<Domicilio[]>([]);
+  const [mostrandoResultadosDomicilios, setMostrandoResultadosDomicilios] = useState(false);
+
   const token = useAuthStore((state) => state.token);
   const navigate = useNavigate();
 
   useEffect(() => {
-    obtenerDomicilios();
     if (modo === 'editar' && id) {
       cargarEmpresa(id);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, modo]);
-
-  const obtenerDomicilios = async () => {
-    try {
-      const response = await axios.get(`${database}/api/domicilios`);
-      setDomicilios(response.data);
-    } catch (error) {
-      console.error('Error al obtener domicilios:', error);
-    }
-  };
 
   const cargarEmpresa = async (empresaId: string) => {
     try {
@@ -45,10 +40,34 @@ const ModalEmpresa: React.FC<{ modo?: 'editar' | 'crear'; onEmpresaAdded?: () =>
       setCuit(e.cuit ?? '');
       setRazonSocial(e.razonSocial ?? '');
       setDomicilio(e.domicilio?.id ?? 0);
+      // mostrar texto del domicilio en el campo de búsqueda
+      setBusquedaDomicilio(e.domicilio ? `${e.domicilio.calle} ${e.domicilio.numeracion}` : '');
     } catch (error) {
       console.error('Error al cargar empresa:', error);
     }
   };
+
+  // Debounce para buscar domicilios (cambia endpoint si lo deseas)
+  const buscarDomicilios = useCallback(
+    debounce(async (q: string) => {
+      if (!q.trim()) {
+        setResultadosDomicilios([]);
+        return;
+      }
+      try {
+        // endpoint ejemplo: /api/domicilios/buscar?query=...
+        const res = await axios.get(`${database}/api/domicilios/buscar-simple?filtro=${encodeURIComponent(q)}`);
+        setResultadosDomicilios(res.data);
+      } catch (error) {
+        console.error('Error al buscar domicilios:', error);
+      }
+    }, 300),
+    []
+  );
+
+  useEffect(() => {
+    buscarDomicilios(busquedaDomicilio);
+  }, [busquedaDomicilio, buscarDomicilios]);
 
   const createEmpresa = async (cuit: string, razonSocial: string, domicilioId: number) => {
     try {
@@ -115,6 +134,10 @@ const ModalEmpresa: React.FC<{ modo?: 'editar' | 'crear'; onEmpresaAdded?: () =>
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!domicilio || domicilio === 0) {
+      Swal.fire({ icon: 'warning', title: 'Selecciona un domicilio antes de continuar' });
+      return;
+    }
     try {
       if (modo === 'editar' && id) {
         await updateEmpresa(Number(id), cuit, razonSocial, domicilio);
@@ -130,6 +153,12 @@ const ModalEmpresa: React.FC<{ modo?: 'editar' | 'crear'; onEmpresaAdded?: () =>
 
   const handleVolver = () => {
     navigate('/empresa');
+  };
+
+  const handleSeleccionarDomicilio = (d: Domicilio) => {
+    setDomicilio(d.id);
+    setBusquedaDomicilio(`${d.calle} ${d.numeracion}`);
+    setMostrandoResultadosDomicilios(false);
   };
 
   return (
@@ -155,18 +184,31 @@ const ModalEmpresa: React.FC<{ modo?: 'editar' | 'crear'; onEmpresaAdded?: () =>
             required
           />
           <label>Domicilio:</label>
-          <select
-            value={domicilio}
-            onChange={(e) => setDomicilio(Number(e.target.value))}
-            required
-          >
-            <option value={0} disabled>Seleccione un domicilio</option>
-            {domicilios.map((a) => (
-              <option key={a.id} value={a.id}>
-                {a.calle + ' ' + a.numeracion}
-              </option>
-            ))}
-          </select>
+          <div className={styles.autocomplete}>
+            <input
+              type="text"
+              placeholder="Escribe para buscar domicilio..."
+              value={busquedaDomicilio}
+              onChange={(e) => {
+                setBusquedaDomicilio(e.target.value);
+                setMostrandoResultadosDomicilios(true);
+                // limpiar id de domicilio si se edita el texto
+                setDomicilio(0);
+              }}
+              onFocus={() => setMostrandoResultadosDomicilios(true)}
+              required
+            />
+
+            {mostrandoResultadosDomicilios && resultadosDomicilios.length > 0 && (
+              <ul className={styles.resultados}>
+                {resultadosDomicilios.map((d) => (
+                  <li key={d.id} onClick={() => handleSeleccionarDomicilio(d)}>
+                    {d.calle} {d.numeracion}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
 
           <div className={styles.actions}>
             <button type="submit">Aceptar</button>

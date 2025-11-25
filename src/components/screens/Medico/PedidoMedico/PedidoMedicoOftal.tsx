@@ -1,23 +1,22 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import {FaPlus, FaFileAlt, FaHistory } from 'react-icons/fa';
-import styles from './PedidoOrtopedia.module.css';
-const database = import.meta.env.VITE_DATABASE;
+import { FaPlus, FaFileAlt, FaHistory, FaCheck } from 'react-icons/fa';
+import styles from './PedidoMedico.module.css';
 import { useNavigate } from 'react-router-dom';
+import Swal from 'sweetalert2';
 import { useAuthStore } from '../../../../auth/store/authStore';
 import ModalDocumento from '../../../ui/Admin/ModalDocumento/ModalDocumento';
 import HistorialMovimiento from '../../../ui/Admin/HistorialMovimiento/HistorialMovimiento';
+const database = import.meta.env.VITE_DATABASE;
+
 
 interface Beneficiario {
   nombre: string;
   apellido: string;
 }
 
-interface Medico {
-  matricula: string;
-}
 
-interface PedidoOrtopedia {
+interface Pedido {
   id: number;
   nombre: string;
   beneficiario: Beneficiario;
@@ -27,7 +26,9 @@ interface PedidoOrtopedia {
   delegacion: string;
   fechaIngreso: string;
   estado: string;
-  medico: Medico;
+  pedidoTipo: string;
+  medico: { id: number };
+  activo: boolean;
 }
 
 interface Documento {
@@ -40,8 +41,8 @@ interface Documento {
 }
 
 
-export const PedidoOrtopediaUser: React.FC = () => {
-  const [pedidos, setPedidos] = useState<PedidoOrtopedia[]>([]);
+export const PedidoMedicoOftal: React.FC = () => {
+  const [pedidos, setPedidos] = useState<Pedido[]>([]);
   const [documentos, setDocumentos] = useState<Documento[]>([]);
   const [modalDocsOpen, setModalDocsOpen] = useState(false);
   const [modalHistOpen, setModalHistOpen] = useState(false);
@@ -49,23 +50,57 @@ export const PedidoOrtopediaUser: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
   const navigate = useNavigate();
-  const idBenef = useAuthStore((state) => state.user?.idBeneficiario || 0);
+  const token = useAuthStore((state) => state.token);
+  const idMedico = useAuthStore((state) => state.user?.idMedico || 0);
   const [pedidoIdSeleccionado, setPedidoIdSeleccionado] = useState<number | null>(null);
-
   
+  
+
   useEffect(() => {
-    obtenerPedidos(idBenef);
+    obtenerPedidos();
   }, []);
 
-  const obtenerPedidos = async (id: number) => {
+  const obtenerPedidos = async () => {
     try {
-      const response = await axios.get(`${database}/api/pedidos/ortopedia/beneficiario/${id}`);
+      const response = await axios.get(`${database}/api/pedidos/oftalmologia/libres`);
       setPedidos(response.data);
     } catch (error) {
-      console.error('Error al obtener pedidos de Ortopedia:', error);
+      console.error('Error al obtener pedidos:', error);
     }
   };
 
+
+  const TomarPedido = async (id: number) => {
+    try {
+       await axios.put(
+        `${database}/api/pedidos/tomar/${id}`,
+        { medico: { id: idMedico }},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      Swal.fire({
+        icon: 'success',
+        title: 'Pedido actualizado',
+        text: 'El pedido se actualizó correctamente.',
+        timer: 2000,
+        showConfirmButton: false,
+      });
+
+      // Refrescar la lista de pedidos
+      obtenerPedidos();
+    } catch (error) {
+      console.error('Error al tomar pedido:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'No se pudo tomar el pedido.',
+      });
+    }
+  };
 
   const verDocumentos = async (id: number) => {
     try {
@@ -85,12 +120,16 @@ export const PedidoOrtopediaUser: React.FC = () => {
   // Filtrar pedidos por cualquier campo visible
   const pedidosFiltrados = pedidos.filter((p) =>
     [
-      p.id,  
+      p.id,
       p.nombre,
+      p.beneficiario?.nombre,
+      p.beneficiario?.apellido,
       p.dni,
+      p.telefono,
+      p.empresa,
+      p.delegacion,
       p.fechaIngreso,
       p.estado,
-      p.medico?.matricula,
     ]
       .join(' ')
       .toLowerCase()
@@ -117,7 +156,7 @@ export const PedidoOrtopediaUser: React.FC = () => {
           <div className="row align-items-center">
             <div className="col-lg-8 offset-lg-2 col-md-12 col-12">
               <div className="breadcrumbs-content">
-                <h1 className="page-title">MIS PEDIDOS ORTOPEDIA</h1>
+                <h1 className="page-title">PEDIDOS GENERALES</h1>
               </div>
               <ul className="breadcrumb-nav">
               </ul>
@@ -125,8 +164,9 @@ export const PedidoOrtopediaUser: React.FC = () => {
           </div>
         </div>
       </div>
+      <br />
     <div className={styles.container}>
-      <h2 className={styles.title}>Pedidos de Ortopedia</h2>
+      <h2 className={styles.title}>Todos los pedidos</h2>
 
       <input
         type="text"
@@ -139,31 +179,39 @@ export const PedidoOrtopediaUser: React.FC = () => {
         style={{ marginBottom: '10px', padding: '5px', width: '250px' }}
       />
 
-      <button className={styles.addButton} onClick={() => navigate('/pedidos/ortopedia/user/nuevo')}>
+      <button className={styles.addButton} onClick={() => navigate('/pedidos/generales/nuevo')}>
         <FaPlus /> Agregar Pedido
       </button>
 
       <table className={styles.table}>
         <thead>
           <tr>
-            <th>ID</th>
             <th>Nombre</th>
+            <th>Beneficiario</th>
             <th>DNI</th>
+            <th>Teléfono</th>
+            <th>Empresa</th>
+            <th>Delegación</th>
             <th>Fecha Ingreso</th>
             <th>Estado</th>
-            <th>Médico</th>
+            <th>Tipo Pedido</th>
+            <th>Activo</th>
             <th>Acciones</th>
           </tr>
         </thead>
         <tbody>
           {currentItems.map((p) => (
             <tr key={p.id}>
-              <td>{p.id}</td>
               <td>{p.nombre}</td>
+              <td>{`${p.beneficiario?.nombre} ${p.beneficiario?.apellido}`}</td>
               <td>{p.dni}</td>
+              <td>{p.telefono}</td>
+              <td>{p.empresa}</td>
+              <td>{p.delegacion}</td>
               <td>{new Date(p.fechaIngreso).toLocaleDateString()}</td>
               <td>{p.estado}</td>
-              <td>{p.medico?.matricula}</td>
+              <td>{p.pedidoTipo}</td>
+              <td>{p.activo ? 'Sí' : 'No'}</td>
               <td className={styles.actions}>
                 <FaFileAlt
                   className={styles.icon}
@@ -174,6 +222,11 @@ export const PedidoOrtopediaUser: React.FC = () => {
                   className={styles.icon}
                   onClick={() => verHistorial(p.id)}
                   title="Ver historial"
+                />
+                <FaCheck
+                  className={styles.icon}
+                  onClick={() => TomarPedido(p.id)}
+                  title="Tomar pedido"
                 />
               </td>
             </tr>

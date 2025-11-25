@@ -31,7 +31,7 @@ const ModalProvincia: React.FC<{ modo?: 'editar' | 'crear'; onProvinciaAdded?: (
         return;
       }
       try {
-        const res = await axios.get(`${database}/api/paises/buscar?nombre=${nombre}`);
+        const res = await axios.get(`${database}/api/paises/buscar-simple?nombre=${nombre}`);
         setResultados(res.data);
       } catch (error) {
         console.error('Error al buscar países:', error);
@@ -43,6 +43,27 @@ const ModalProvincia: React.FC<{ modo?: 'editar' | 'crear'; onProvinciaAdded?: (
   useEffect(() => {
     buscarPaises(busqueda);
   }, [busqueda, buscarPaises]);
+
+  useEffect(() => {
+    const cargarProvincia = async (provId: string) => {
+      try {
+        const res = await axios.get(`${database}/api/provincias/${provId}`);
+        const p = res.data;
+        setNombre(p.nombre || '');
+        if (p.pais) {
+          const paisData: Pais = { id: p.pais.id, nombre: p.pais.nombre };
+          setPaisSeleccionado(paisData);
+          setBusqueda(paisData.nombre);
+        }
+      } catch (error) {
+        console.error('Error al cargar provincia:', error);
+      }
+    };
+
+    if (modo === 'editar' && id) {
+      cargarProvincia(id);
+    }
+  }, [id, modo]);
 
   const handleSeleccionarPais = (pais: Pais) => {
     setPaisSeleccionado(pais);
