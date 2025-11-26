@@ -51,6 +51,73 @@ export const Beneficiarios: React.FC = () => {
     return () => clearTimeout(delayDebounce);
   }, [search]);
 
+
+  // 🔽 DESCARGAR TXT DE BENEFICIARIOS
+const descargarBeneficiariosTXT = async () => {
+  try {
+    // 🔹 Bloquear pantalla mientras se genera
+    Swal.fire({
+      title: "Generando archivo...",
+      text: "Por favor espere unos segundos",
+      allowOutsideClick: false,
+      allowEscapeKey: false,
+      didOpen: () => {
+        Swal.showLoading();
+      },
+    });
+
+    const response = await axios.get(`${database}/api/beneficiarios/export`, {
+      responseType: "blob",
+    });
+
+    // Crear blob para generar archivo
+    const blob = new Blob([response.data], { type: "text/plain" });
+    const url = window.URL.createObjectURL(blob);
+
+    // Detectar nombre del archivo
+    let fileName = "beneficiarios.txt";
+    const disposition = response.headers["content-disposition"];
+    if (disposition) {
+      const match = disposition.match(/filename="(.+)"/);
+      if (match && match.length === 2) fileName = match[1];
+    }
+
+    // Descargar archivo
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+
+    a.remove();
+    window.URL.revokeObjectURL(url);
+
+    // 🔹 Cerrar alerta
+    Swal.close();
+
+    // 🔹 Avisar éxito
+    Swal.fire({
+      icon: "success",
+      title: "Archivo descargado",
+      text: "El archivo se generó correctamente.",
+      timer: 2000,
+      showConfirmButton: false
+    });
+
+  } catch (error) {
+    Swal.close();
+    console.error("Error al descargar beneficiarios:", error);
+
+    Swal.fire({
+      icon: "error",
+      title: "Error",
+      text: "Hubo un problema al generar el archivo.",
+    });
+  }
+};
+
+
+
   // 🧩 OBTENER LISTA PAGINADA
   const obtenerBeneficiarios = async (page = 0, size = itemsPerPage) => {
     try {
@@ -166,6 +233,19 @@ export const Beneficiarios: React.FC = () => {
         <button className={styles.addButton} onClick={agregarBeneficiario}>
           <FaPlus /> Agregar Beneficiario
         </button>
+
+        <button className={styles.addButton} onClick={agregarBeneficiario}>
+          <FaPlus /> Agregar Beneficiario
+        </button>
+
+        <button
+          className={styles.addButton}
+          style={{ backgroundColor: "#3b7ddd" }}
+          onClick={descargarBeneficiariosTXT}
+          >
+          Descargar TXT
+        </button>
+
 
         <table className={styles.table}>
           <thead>

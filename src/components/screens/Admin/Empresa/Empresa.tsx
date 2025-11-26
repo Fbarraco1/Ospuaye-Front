@@ -115,6 +115,46 @@ export const Empresa = () => {
     navigate(`/empresa/editar/${id}`);
   }
 
+
+const descargarEmpresas = async () => {
+  try {
+    Swal.fire({
+      title: "Preparando archivo...",
+      text: "Por favor espera unos segundos",
+      allowOutsideClick: false,
+      didOpen: () => Swal.showLoading(),
+    });
+
+    const response = await fetch("http://localhost:9000/api/empresas/export");
+
+    if (!response.ok) {
+      Swal.close();
+      Swal.fire("Error", "No se pudo descargar el archivo.", "error");
+      return;
+    }
+
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "empresas.txt";
+    document.body.appendChild(link);
+    link.click();
+
+    link.remove();
+    window.URL.revokeObjectURL(url);
+
+    Swal.close();
+    Swal.fire("Descargado", "El archivo se descargó correctamente.", "success");
+
+  } catch (error) {
+    Swal.close();
+    Swal.fire("Error", "Hubo un problema al descargar el archivo.", "error");
+  }
+};
+
+
   const eliminarEmpresa = async (id: number) => {
     const result = await Swal.fire({
       title: '¿Estás seguro?',
@@ -203,6 +243,11 @@ export const Empresa = () => {
       <button className={styles.addButton} onClick={agregarEmpresa}>
         <FaPlus /> Agregar Empresa
       </button>
+
+      <button onClick={descargarEmpresas}>
+        Descargar Empresas
+      </button>
+
 
       <table className={styles.table}>
         <thead>
