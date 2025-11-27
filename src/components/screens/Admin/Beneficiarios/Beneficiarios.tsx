@@ -234,10 +234,6 @@ const descargarBeneficiariosTXT = async () => {
           <FaPlus /> Agregar Beneficiario
         </button>
 
-        <button className={styles.addButton} onClick={agregarBeneficiario}>
-          <FaPlus /> Agregar Beneficiario
-        </button>
-
         <button
           className={styles.addButton}
           style={{ backgroundColor: "#3b7ddd" }}
