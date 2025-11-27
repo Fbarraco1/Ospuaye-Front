@@ -125,7 +125,7 @@ const descargarEmpresas = async () => {
       didOpen: () => Swal.showLoading(),
     });
 
-    const response = await fetch("http://localhost:9000/api/empresas/export");
+    const response = await fetch(`${database}/api/empresas/export`);
 
     if (!response.ok) {
       Swal.close();

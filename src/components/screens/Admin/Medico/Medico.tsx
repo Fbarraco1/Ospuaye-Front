@@ -124,7 +124,7 @@ export const Medico: React.FC = () => {
       didOpen: () => Swal.showLoading(),
     });
 
-    const response = await fetch("http://localhost:9000/api/medicos/export");
+    const response = await fetch(`${database}/api/medicos/export`);
 
     if (!response.ok) {
       Swal.close();
