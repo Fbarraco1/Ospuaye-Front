@@ -16,7 +16,7 @@ interface Beneficiario {
   telefono: number;
   afiliadoSindical: boolean;
   esJubilado: boolean;
-  grupoFamiliarId: {
+  grupoFamiliar: {
     id: number;
     nombre: string;
   };
@@ -253,7 +253,6 @@ const descargarBeneficiariosTXT = async () => {
               <th>Teléfono</th>
               <th>Afiliado Sindical</th>
               <th>¿Es Jubilado?</th>
-              <th>Grupo Familiar</th>
               <th>Activo</th>
               <th>Acciones</th>
             </tr>
@@ -268,7 +267,6 @@ const descargarBeneficiariosTXT = async () => {
                 <td>{b.telefono}</td>
                 <td>{b.afiliadoSindical ? 'Sí' : 'No'}</td>
                 <td>{b.esJubilado ? 'Sí' : 'No'}</td>
-                <td>{b.grupoFamiliarId ? b.grupoFamiliarId.nombre : 'N/A'}</td>
                 <td>{b.activo ? 'Sí' : 'No'}</td>
                 <td className={styles.actions}>
                   <FaEdit className={styles.editIcon} onClick={() => editarBeneficiario(b.id)} />

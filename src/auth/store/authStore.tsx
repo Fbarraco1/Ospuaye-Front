@@ -3,6 +3,7 @@ import Swal from 'sweetalert2';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 const database = import.meta.env.VITE_DATABASE;
+let inactivityTimer: ReturnType<typeof setTimeout>;
 
 interface User {
   email: string;
@@ -88,16 +89,43 @@ export const useAuthStore = create<AuthState>()(
       },
 
       timeSesion: () => {
-        setTimeout(() => {
-          set({ token: null, isAuthenticated: false, user: null });
-          localStorage.removeItem('auth-storage'); 
-          Swal.fire({
-            icon: 'info',
-            title: 'Sesión expirada',
-            text: 'Tu sesión ha expirado. Por favor, inicia sesión nuevamente.',
-          });
-        }, 1500000);
+
+        const resetTimer = () => {
+          clearTimeout(inactivityTimer);
+
+            localStorage.setItem('lastActivity', Date.now().toString());
+
+            inactivityTimer = setTimeout(() => {
+              set({ token: null, isAuthenticated: false, user: null });
+              localStorage.removeItem('auth-storage');
+              localStorage.removeItem('lastActivity');
+
+              Swal.fire({
+                icon: 'info',
+                title: 'Sesión expirada',
+                text: 'Tu sesión fue cerrada por inactividad.',
+              });
+            }, 15 * 60 * 1000);
+        };
+
+        // Eventos que cuentan como actividad
+        const events = [
+          'click',
+          'mousemove',
+          'keydown',
+          'scroll',
+          'touchstart'
+        ];
+
+        // Escuchar actividad del usuario
+        events.forEach(event => {
+          window.addEventListener(event, resetTimer);
+        });
+
+        // Inicializar temporizador al iniciar sesión
+        resetTimer();
       },
+
 
       startRegister: async (email, contrasena) => {
         try {
@@ -172,8 +200,10 @@ export const useAuthStore = create<AuthState>()(
       },
 
       logout: () => {
+        clearTimeout(inactivityTimer);
+        localStorage.removeItem('auth-storage');
+        localStorage.removeItem('lastActivity');
         set({ token: null, isAuthenticated: false, user: null });
-        localStorage.removeItem('auth-storage'); // opcional si usás persistencia local
       },
     }),
     {

@@ -29,7 +29,7 @@ type Parentesco =
 
 interface Familiar {
   id?: number;
-  grupoFamiliar: { id: number };
+  grupoFamiliar?: { id: number };
   beneficiario: { id: number };
   nombre: string;
   apellido: string;
@@ -66,6 +66,17 @@ const ModalFamiliar: React.FC<{ modo?: 'editar' | 'crear' }> = ({ modo = 'crear'
     if (modo === 'editar' && id) cargarFamiliar(Number(id));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, modo, grupoId, beneficiarioId]);
+
+  // Asegurar que el grupoFamiliar se setee cuando llega el param grupoId (especialmente al crear)
+  useEffect(() => {
+    if (grupoId) {
+      setFamiliar(prev => ({
+        ...prev,
+        grupoFamiliar: { id: Number(grupoId) }
+      }));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [grupoId]);
 
   const obtenerNacionalidades = async () => {
     try {
@@ -117,7 +128,7 @@ const ModalFamiliar: React.FC<{ modo?: 'editar' | 'crear' }> = ({ modo = 'crear'
 
   const updateFamiliar = async (data: Familiar) => {
     try {
-      const response = await axios.put(`${database}/api/familiares/actualizar`, data, {
+      const response = await axios.put(`${database}/api/familiares/${id}`, data, {
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
       });
       if (response.status < 200 || response.status >= 300) throw new Error('Error al actualizar familiar');
@@ -142,10 +153,20 @@ const ModalFamiliar: React.FC<{ modo?: 'editar' | 'crear' }> = ({ modo = 'crear'
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      const payload: Familiar = {
+        ...familiar,
+        id: Number(id),
+        grupoFamiliar:
+          grupoId
+            ? { id: Number(grupoId) }
+            : familiar.grupoFamiliar?.id
+            ? { id: familiar.grupoFamiliar.id }
+            : undefined
+      };
       if (modo === 'editar' && id) {
-        await updateFamiliar(familiar);
+        await updateFamiliar(payload);
       } else {
-        await createFamiliar(familiar);
+        await createFamiliar(payload);
       }
       navigate('/grupoFamiliar');
     } catch (error) {
@@ -164,8 +185,8 @@ const ModalFamiliar: React.FC<{ modo?: 'editar' | 'crear' }> = ({ modo = 'crear'
           <input type="text" name="apellido" value={familiar.apellido} onChange={handleChange} placeholder="Apellido" required />
           <input type="text" name="dni" value={familiar.dni} onChange={handleChange} placeholder="DNI" required />
           <input type="text" name="cuil" value={familiar.cuil} onChange={handleChange} placeholder="Cuil" required />
-          <input type="text" name="telefono" value={familiar.telefono} onChange={handleChange} placeholder="Teléfono" required />
-          <input type="email" name="correoElectronico" value={familiar.correoElectronico} onChange={handleChange} placeholder="Correo Electrónico" />
+          <input type="text" name="telefono" value={familiar.telefono} onChange={handleChange} placeholder="Teléfono" />
+          <input type="text" name="correoElectronico" value={familiar.correoElectronico} onChange={handleChange} placeholder="Correo Electrónico" />
           <label>Sexo:</label>
           <select name="sexo" value={familiar.sexo} onChange={handleChange} required>
             <option value="SIN_INFORMACION">Sin información</option>
@@ -183,8 +204,20 @@ const ModalFamiliar: React.FC<{ modo?: 'editar' | 'crear' }> = ({ modo = 'crear'
             <option value="Sin_Informacion">Sin información</option>
             <option value="Conyuge">Cónyuge</option>
             <option value="Hijo_Soltero_Menor_De_21">Hijo soltero menor de 21</option>
-            {/* agrega las demás opciones si las necesitas */}
-          </select>
+            <option value="Sin_Informacion">Sin información</option>
+            <option value="Titular">Titular</option>
+            <option value="Conyuge">Cónyuge</option>
+            <option value="Concubino_Concubina">Concubino / Concubina</option>
+            <option value="Hijo_Soltero_Menor_De_21">Hijo soltero menor de 21</option>
+            <option value="Hijo_Soltero_Entre_21_25_Estudiando">Hijo soltero entre 21 y 25 (estudiando)</option>
+            <option value="Hijo_Conyuge_Menor_De_21">Hijo del cónyuge menor de 21</option>
+            <option value="Hijo_Conyuge_Entre_21_25_Estudiando">Hijo del cónyuge entre 21 y 25 (estudiando)</option>
+            <option value="Menor_Bajo_Guarda_Tutela">Menor bajo guarda/tutela</option>
+            <option value="Familiar_A_Cargo">Familiar a cargo</option>
+            <option value="Mayor_de_25_Discapacitado">Mayor de 25 discapacitado</option>
+            <option value="Solo_Parentescos">Solo parentescos</option>
+            <option value="Grupo_Familiar_Completos">Grupo familiar completos</option>
+           </select>
           <div className={styles.actions}>
             <button type="submit" className={styles.saveButton}>Aceptar</button>
             <button type="button" onClick={handleVolver} className={styles.cancelButton}>Cancelar</button>

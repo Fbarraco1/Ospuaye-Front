@@ -3,6 +3,7 @@ import styles from './modalBeneficiario.module.css';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useAuthStore } from '../../../../auth/store/authStore';
 const database = import.meta.env.VITE_DATABASE;
 
 
@@ -18,6 +19,8 @@ const ModalBeneficiario: React.FC<{ modo?: 'editar' | 'crear', onBeneficiarioAdd
   const [afiliadoSindical, setafiliadoSindical] = useState(false);
   const [esJubilado, setEsJubilado] = useState(false);
   const navigate = useNavigate();
+  const token = useAuthStore((state) => state.token);
+  
 
   useEffect(() => {
     if (modo === 'editar' && id) {
@@ -53,26 +56,31 @@ const ModalBeneficiario: React.FC<{ modo?: 'editar' | 'crear', onBeneficiarioAdd
     esJubilado: boolean
   ) => {
     try {
-      const response = await axios.put(
-       `${database}/api/beneficiarios/${id}`,
-        { nombre, apellido, email, dni, cuil, telefono, afiliadoSindical, esJubilado },
+      await axios.put(
+        `${database}/api/beneficiarios/${id}`,
         {
-          headers: {
-            'Content-Type': 'application/json'
-          },
-        }
+          nombre,
+          apellido,
+          usuario: { email },
+          dni,
+          cuil,
+          telefono,
+          afiliadoSindical,
+          esJubilado,
+        },
+        { headers: { Authorization: `Bearer ${token}` } }
       );
-
-      if (response.status < 200 || response.status >= 300) throw new Error('Error al crear beneficiario');
       Swal.fire({
         icon: 'success',
         title: 'Beneficiario actualizado',
-        text: 'El beneficiario se actualizo correctamente.',
-        timer: 2000,
-        showConfirmButton: false
+        timer: 1500,
+        showConfirmButton: false,
       });
+      // Llamar callback para que el padre (Beneficiarios.tsx) recargue la lista
+      if (onBeneficiarioAdded) {
+        onBeneficiarioAdded();
+      }
     } catch (error) {
-      console.error('Error al actualizar beneficiario:', error);
       Swal.fire({
         icon: 'error',
         title: 'Error',
@@ -128,14 +136,15 @@ const ModalBeneficiario: React.FC<{ modo?: 'editar' | 'crear', onBeneficiarioAdd
         await updateBene(nombre, apellido, email, dni, cuil, telefono, afiliadoSindical, esJubilado);
         handleVolver();
       } else {
-      await createBene(nombre, apellido, email, contrasena, dni, cuil, telefono, afiliadoSindical, esJubilado);
-      if (onBeneficiarioAdded) onBeneficiarioAdded();
-      handleVolver();}
+        await createBene(nombre, apellido, email, contrasena, dni, cuil, telefono, afiliadoSindical, esJubilado);
+        if (onBeneficiarioAdded) onBeneficiarioAdded();
+        handleVolver();
+      }
     } catch (error) {
-      console.error('Error al crear beneficiario:', error);
+      console.error('Error:', error);
     }
-    handleVolver();
   };
+
 
     const handleVolver = () => {
     navigate('/beneficiarios');
@@ -203,7 +212,6 @@ const ModalBeneficiario: React.FC<{ modo?: 'editar' | 'crear', onBeneficiarioAdd
             type="text"
             value={telefono}
             onChange={(e) => setTelefono(e.target.value)}
-            required
           />
 
           <label>¿Es Afiliado Sindical?:</label>
