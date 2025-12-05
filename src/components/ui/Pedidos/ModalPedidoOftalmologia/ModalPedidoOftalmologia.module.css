@@ -61,3 +61,130 @@ button[type="button"] {
 button[type="button"]:hover {
   background: #d0d0d0;
 }
+
+
+/* ===== ERRORES DE VALIDACIÓN (YUP) ===== */
+
+.errorText {
+  display: block;
+  margin-top: 4px;
+  font-size: 0.85rem;
+  color: #d32f2f; /* rojo material */
+  font-weight: 500;
+}
+
+.inputError {
+  border: 1px solid #d32f2f !important;
+  background-color: #fff5f5;
+}
+
+.inputError:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(211, 47, 47, 0.15);
+}
+
+/* Error documentos */
+.errorDocument {
+  display: block;
+  margin-top: 6px;
+  font-size: 0.9rem;
+  color: #b71c1c;
+  font-weight: 600;
+}
+
+/* Animación suave */
+@keyframes fadeInError {
+  from {
+    opacity: 0;
+    transform: translateY(-3px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.errorText,
+.errorDocument {
+  animation: fadeInError 0.2s ease-in-out;
+}
+
+.formError {
+  background-color: #fdecea;
+  color: #b71c1c;
+  padding: 10px;
+  border-radius: 6px;
+  font-weight: 600;
+  margin-bottom: 15px;
+}
+
+/* CONTENEDOR DEL AUTOCOMPLETE */
+.autocomplete {
+  position: relative;
+  width: 100%;
+}
+
+/* INPUT DE BÚSQUEDA */
+.autocomplete input {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+  outline: none;
+  transition: border 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* INPUT AL ENFOCAR */
+.autocomplete input:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.15);
+}
+
+/* INPUT ERROR */
+.inputError {
+  border: 1px solid #dc3545 !important;
+  background-color: #fff5f5;
+}
+
+.inputError:focus {
+  box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.2);
+}
+
+/* LISTA DE RESULTADOS */
+.resultados {
+  position: absolute;
+  top: calc(100% + 3px);
+  left: 0;
+  right: 0;
+  background: #ffffff;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  max-height: 220px;
+  overflow-y: auto;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* ITEM DEL RESULTADO */
+.resultados li {
+  padding: 10px 12px;
+  cursor: pointer;
+  font-size: 14px;
+  border-bottom: 1px solid #f1f1f1;
+  transition: background 0.15s ease;
+}
+
+/* EFECTO HOVER SOBRE RESULTADO */
+.resultados li:hover {
+  background-color: #007bff;
+  color: #fff;
+}
+
+/* ÚLTIMO ITEM SIN BORDE */
+.resultados li:last-child {
+  border-bottom: none;
+}

@@ -50,6 +50,7 @@ const HeaderBeneficiario = () => {
                               <ul className="sub-menu collapse" id="submenu-1-4">
                                 <li className="nav-item" onClick={() => navigate("/pedidos/oftalmologia/user")}>Pedidos Oftalmologia</li>
                                 <li className="nav-item" onClick={() => navigate("/pedidos/ortopedia/user")}>Pedidos Ortopedia</li>
+                                <li className="nav-item" onClick={() => navigate("/pedidos/general/user")}>Pedidos Generales</li>
                               </ul>                            
                         </li>                                                                        
                         </ul>

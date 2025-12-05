@@ -29,3 +29,31 @@ input {
   border-radius: 4px;
   border: 1px solid #ccc;
 }
+
+
+.errorText {
+  display: block;
+  margin-top: 4px;
+  font-size: 0.85rem;
+  color: #d32f2f; /* rojo material */
+  font-weight: 500;
+}
+
+.inputError {
+  border: 1px solid #d32f2f !important;
+  background-color: #fff5f5;
+}
+
+.inputError:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(211, 47, 47, 0.15);
+}
+
+.formError {
+  background-color: #fdecea;
+  color: #b71c1c;
+  padding: 10px;
+  border-radius: 6px;
+  font-weight: 600;
+  margin-bottom: 15px;
+}

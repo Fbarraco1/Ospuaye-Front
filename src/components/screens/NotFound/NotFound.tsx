@@ -35,7 +35,7 @@ const NotFound: React.FC = () => {
 
   useEffect(() => {
     document.title = `${status} - ${content.title}`;
-    // Ocultar preloader después de un breve tiempo
+
     const fadeout = () => {
       const preloader = document.querySelector('.preloader') as HTMLElement;
       if (preloader) {
@@ -43,9 +43,16 @@ const NotFound: React.FC = () => {
         preloader.style.display = 'none';
       }
     };
+
     const timeout = setTimeout(fadeout, 500);
-    return () => clearTimeout(timeout);
+
+    // ✅ al salir del componente restauramos el título
+    return () => {
+      document.title = "OSPUAYE";
+      clearTimeout(timeout);
+    };
   }, [status, content.title]);
+
 
   return (
     <>

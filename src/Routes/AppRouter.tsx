@@ -61,6 +61,8 @@ import { PedidoGeneralMedico } from '../components/screens/Medico/PedidoGeneralM
 import { PedidoMedicoOftal } from '../components/screens/Medico/PedidoMedico/PedidoMedicoOftal';
 import { PedidoMedicoOrtop } from '../components/screens/Medico/PedidoMedico/PedidoMedicoOrtop';
 import { PedidoGeneralAuditor } from '../components/screens/Medico/PedidoGeneralAuditor/PedidoGeneralAuditor';
+import ModalPedidoUser from '../components/ui/Pedidos/ModalPedidoUser/ModalPedidoUser';
+import { PedidoUser } from '../components/screens/User/PedidoUser/PedidoUser';
 
 export const AppRouter = () => {
   const { user } = useAuthStore();
@@ -309,6 +311,12 @@ export const AppRouter = () => {
             <Pedido /> 
           </PrivateRoutes>} />
 
+        <Route path="/pedidos/generales/editar/:id" element={
+          <PrivateRoutes roles={['ADMIN', 'ADMINOFTALMOLOGIA', 'MEDICO AUDITOR GENERAL', 'ADMINORTOPEDIA', 'MEDICO ORTOPEDIA', 'MEDICO OFTALMOLOGO']}>
+            <ModalPedido modo='editar'/> 
+          </PrivateRoutes>} />
+
+
           <Route path="/pedidos/generales/medico" element={
           <PrivateRoutes roles={['ADMIN', 'MEDICO AUDITOR GENERAL']}>
             <PedidoGeneralMedico /> 
@@ -368,6 +376,16 @@ export const AppRouter = () => {
           <PrivateRoutes roles={['USER']}>
             <ModalPedidoOrtopediaUser /> 
           </PrivateRoutes>} />  
+
+        <Route path="/pedidos/general/user" element={
+          <PrivateRoutes roles={['USER']}>
+            <PedidoUser /> 
+          </PrivateRoutes>} /> 
+
+        <Route path="/pedidos/general/user/nuevo" element={
+          <PrivateRoutes roles={['USER']}>
+            <ModalPedidoUser /> 
+          </PrivateRoutes>} /> 
 
         <Route path="/gestionCuenta" element={
           <PrivateRoutes roles={['USER', 'MEDICO OFTALMOLOGO', 'MEDICO ORTOPEDIA']}>
