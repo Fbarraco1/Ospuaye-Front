@@ -232,14 +232,16 @@ export const Domicilio = () => {
               <td>{b.tipo}</td>
               <td>{b.activo ? 'Sí' : 'No'}</td>
               <td className={styles.actions}>
-                <FaEdit
-                  className={styles.editIcon}
-                  onClick={() => editarDomicilio(b.id)}
-                />
-                <FaTrash
-                  className={styles.deleteIcon}
-                  onClick={() => eliminarDomicilio(b.id)}
-                />
+                <div className={styles.actionWrapper}>
+                  <FaEdit
+                    className={styles.editIcon}
+                    onClick={() => editarDomicilio(b.id)}
+                  />
+                  <FaTrash
+                    className={styles.deleteIcon}
+                    onClick={() => eliminarDomicilio(b.id)}
+                  />
+                </div>
               </td>
             </tr>
           ))}

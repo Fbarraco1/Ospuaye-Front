@@ -269,8 +269,10 @@ const descargarBeneficiariosTXT = async () => {
                 <td>{b.esJubilado ? 'Sí' : 'No'}</td>
                 <td>{b.activo ? 'Sí' : 'No'}</td>
                 <td className={styles.actions}>
-                  <FaEdit className={styles.editIcon} onClick={() => editarBeneficiario(b.id)} />
-                  <FaTrash className={styles.deleteIcon} onClick={() => eliminarBeneficiario(b.id)} />
+                  <div className={styles.actionWrapper}>
+                    <FaEdit className={styles.editIcon} onClick={() => editarBeneficiario(b.id)} />
+                    <FaTrash className={styles.deleteIcon} onClick={() => eliminarBeneficiario(b.id)} />
+                  </div>
                 </td>
               </tr>
             ))}

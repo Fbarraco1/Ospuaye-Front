@@ -32,6 +32,7 @@
   background-color: #45a049;
 }
 
+/* ===== TABLA ===== */
 .table {
   width: 100%;
   border-collapse: collapse;
@@ -42,6 +43,7 @@
   border: 1px solid #dddddd;
   padding: 12px;
   text-align: left;
+  vertical-align: middle;
 }
 
 .table th {
@@ -57,11 +59,31 @@
   background-color: #f1f1f1;
 }
 
-.actions {
-  display: flex;
-  gap: 10px;
+.table tr {
+  height: auto;
 }
 
+/* ===== ACCIONES (CLAVE) ===== */
+.actions {
+  display: table-cell !important;  /* restaura comportamiento de celda */
+  vertical-align: middle;
+  padding: 12px;
+  min-width: 90px;
+  box-sizing: border-box;
+  white-space: nowrap;
+}
+
+/* contenedor interno con flex */
+.actionWrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  height: 100%;
+  width: 100%;
+}
+
+/* ===== ICONOS ===== */
 .editIcon {
   color: #1976d2;
   cursor: pointer;
@@ -82,10 +104,11 @@
   color: darkred;
 }
 
+/* PAGINADO */
 .pageButton{
-  padding: '5px 10px';
-  border-radius: '8px';
-  border: '1px solid #ccc';
+  padding: 5px 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
   background: #88C250;
-  cursor: 'pointer';
+  cursor: pointer;
 }
