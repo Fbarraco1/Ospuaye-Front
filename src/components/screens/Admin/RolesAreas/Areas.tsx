@@ -198,6 +198,7 @@ export const Areas = () => {
               <td>{b.nombre}</td>
               <td>{b.activo ? 'Sí' : 'No'}</td>
               <td className={styles.actions}>
+                  <div className={styles.actionWrapper}>
                 <FaEdit
                   className={styles.editIcon}
                   onClick={() => editarArea(b.id)}
@@ -206,6 +207,7 @@ export const Areas = () => {
                   className={styles.deleteIcon}
                   onClick={() => eliminarArea(b.id)}
                 />
+                </div>
               </td>
             </tr>
           ))}

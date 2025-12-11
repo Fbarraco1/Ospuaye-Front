@@ -202,8 +202,10 @@ export const Roles = () => {
                 <td>{b.area?.nombre ?? 'N/A'}</td>
                 <td>{b.activo ? 'Sí' : 'No'}</td>
                 <td className={styles.actions}>
+                    <div className={styles.actionWrapper}>
                   <FaEdit className={styles.editIcon} onClick={() => editarRol(b.id)} />
                   <FaTrash className={styles.deleteIcon} onClick={() => eliminarRol(b.id)} />
+                  </div>
                 </td>
               </tr>
             ))}

@@ -189,8 +189,10 @@ export const Pais = () => {
                 <td>{p.nombre}</td>
                 <td>{p.activo ? 'Sí' : 'No'}</td>
                 <td className={styles.actions}>
+                    <div className={styles.actionWrapper}>
                   <FaEdit className={styles.editIcon} onClick={() => editarPais(p.id)} />
                   <FaTrash className={styles.deleteIcon} onClick={() => eliminarPais(p.id)} />
+                  </div>
                 </td>
               </tr>
             ))}

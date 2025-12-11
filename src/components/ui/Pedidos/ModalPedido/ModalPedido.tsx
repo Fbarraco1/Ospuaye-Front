@@ -29,7 +29,6 @@ const validationSchema = Yup.object().shape({
     .positive("Teléfono inválido"),
   empresa: Yup.string().required('La empresa es obligatoria'),
   delegacion: Yup.string().required('La delegación es obligatoria'),
-  motivoConsulta: Yup.string().required('El motivo de consulta es obligatorio'),
   fechaRevision: Yup.date().required('La fecha de revisión es obligatoria').typeError('Fecha inválida'),
   observacionMedico: Yup.string(),
   pacienteId: Yup.string(),
@@ -51,8 +50,8 @@ const ModalPedido: React.FC<{ modo?: 'editar' | 'crear', onPedidoAdded?: () => v
   const [telefono, setTelefono] = useState('');
   const [empresa, setEmpresa] = useState('');
   const [delegacion, setDelegacion] = useState('');
-  const [motivoConsulta, setMotivoConsulta] = useState('');
-  const [recetaMedica, setRecetaMedica] = useState(false);
+  //const [motivoConsulta, setMotivoConsulta] = useState('');
+  //const [recetaMedica, setRecetaMedica] = useState(false);
   const [fechaRevision, setFechaRevision] = useState('');
   const [observacionMedico, setObservacionMedico] = useState('');
   const [grupoFamiliarId, setGrupoFamiliarId] = useState('');
@@ -90,7 +89,7 @@ const ModalPedido: React.FC<{ modo?: 'editar' | 'crear', onPedidoAdded?: () => v
   handleBeneficiarioChange(b);
 };
 
-  const cargarPedido = async (pedidoId: string) => {
+const cargarPedido = async (pedidoId: string) => {
   try {
     const resp = await axios.get(`${database}/api/pedidos/${pedidoId}`);
     const pedido = resp.data;
@@ -98,24 +97,34 @@ const ModalPedido: React.FC<{ modo?: 'editar' | 'crear', onPedidoAdded?: () => v
     setNombre(pedido.nombre || '');
     setBeneficiarioId(pedido.beneficiario?.id?.toString() || '');
     setDni(pedido.dni?.toString() || '');
-    setTelefono(pedido.telefono?.toString() || '');
+    setTelefono(pedido.telefono != null ? pedido.telefono.toString() : ''); // ✅ Corrección del teléfono
     setEmpresa(pedido.empresa || '');
     setDelegacion(pedido.delegacion || '');
-    setMotivoConsulta(pedido.motivoConsulta || '');
-    setRecetaMedica(!!pedido.recetaMedica);
-    setFechaRevision(pedido.fechaRevision ? pedido.fechaRevision.slice(0, 10) : '');
+    //setMotivoConsulta(pedido.motivoConsulta || '');
+    //setRecetaMedica(!!pedido.recetaMedica);
+    
+    // ✅ Convertir fecha de dd-MM-yyyy a yyyy-MM-dd para el input
+    if (pedido.fechaRevision) {
+      const partes = pedido.fechaRevision.split('-');
+      if (partes.length === 3) {
+        const [day, month, year] = partes;
+        setFechaRevision(`${year}-${month}-${day}`);
+      } else {
+        setFechaRevision('');
+      }
+    } else {
+      setFechaRevision('');
+    }
+    
     setObservacionMedico(pedido.observacionMedico || '');
     setGrupoFamiliarId(pedido.grupoFamiliar?.id?.toString() || '');
     setPacienteId(pedido.paciente?.id?.toString() || '');
 
-    // ✅ Mostrar beneficiario seleccionado en el input
     if (pedido.beneficiario) {
       const nombreCompleto = `${pedido.beneficiario.nombre} ${pedido.beneficiario.apellido}`;
       setBusqueda(nombreCompleto);
       setMostrandoResultados(false);
-
-      // ✅ recargar familiares automáticamente
-      handleBeneficiarioChange(pedido.beneficiario);
+      handleBeneficiarioChange(pedido.beneficiario, true); // ✅ Flag de edición
     }
 
   } catch (error) {
@@ -124,20 +133,21 @@ const ModalPedido: React.FC<{ modo?: 'editar' | 'crear', onPedidoAdded?: () => v
 };
 
 
-  const handleBeneficiarioChange = async (beneficiario: any) => {
-
+  const handleBeneficiarioChange = async (beneficiario: any, esEdicion = false) => {
   setBeneficiarioId(beneficiario.id.toString());
   setBusqueda(`${beneficiario.nombre} ${beneficiario.apellido}`);
   setMostrandoResultados(false);
 
-  // ✅ Autocompletar datos
-  setDni(beneficiario.dni || '');
-  setTelefono(beneficiario.telefono || '');
+  // ✅ Solo autocompletar si NO estamos en modo edición o si el campo está vacío
+  if (!esEdicion) {
+    setDni(beneficiario.dni || '');
+    setTelefono(beneficiario.telefono || '');
+  }
+  
   setGrupoFamiliarId(beneficiario.grupoFamiliarId?.toString() || '');
-
   validarCampo('beneficiarioId', beneficiario.id);
 
-  // ✅ Cargar familiares
+  // Cargar familiares
   try {
     const resp = await axios.get(
       `${database}/api/familiares/beneficiario/${beneficiario.id}`
@@ -235,96 +245,103 @@ const ModalPedido: React.FC<{ modo?: 'editar' | 'crear', onPedidoAdded?: () => v
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    try {
-      // Validar todo el formulario
-      await validationSchema.validate({
-        nombre,
-        beneficiarioId,
-        dni,
-        telefono,
-        empresa,
-        delegacion,
-        motivoConsulta,
-        fechaRevision,
-        observacionMedico,
-        pacienteId,
-      }, { abortEarly: false });
+  try {
+    await validationSchema.validate({
+      nombre,
+      beneficiarioId,
+      dni,
+      telefono,
+      empresa,
+      delegacion,
+      //motivoConsulta,
+      fechaRevision,
+      observacionMedico,
+      pacienteId,
+    }, { abortEarly: false });
 
-      const pedido: any = {
-        nombre,
-        dni: dni ? Number(dni) : null,
-        telefono: telefono ? Number(telefono) : null,
-        empresa,
-        delegacion,
-        motivoConsulta,
-        recetaMedica,
-        fechaRevision: fechaRevision ? new Date(fechaRevision) : null,
-        observacionMedico,
-        beneficiario: { id: Number(beneficiarioId) },
-      };
-      if (grupoFamiliarId && grupoFamiliarId.trim() !== '') {
-        pedido.grupoFamiliar = { id: Number(grupoFamiliarId) };
-      }
-      if (pacienteId && pacienteId.trim() !== '') {
-        pedido.paciente = { id: Number(pacienteId) };
-      }
-
-      const formData = new FormData();
-      formData.append('pedido', JSON.stringify(pedido));
-      documentos.forEach(file => formData.append("documentos", file));
-
-      if (modo === 'editar' && id) {
-        await axios.put(
-          `${database}/api/pedidos/editar/${id}`,
-          formData,
-          {
-            headers: {
-              "Content-Type": "multipart/form-data",
-              Authorization: `Bearer ${token}`,
-            }
-          }
-        );
-        Swal.fire({
-          icon: 'success',
-          title: 'Pedido actualizado',
-          text: 'El pedido se actualizó correctamente.',
-          timer: 2000,
-          showConfirmButton: false
-        });
-      } else {
-        await axios.post(
-          `${database}/api/pedidos`,
-          formData,
-          {
-            headers: {
-              "Content-Type": "multipart/form-data",
-              Authorization: `Bearer ${token}`,
-            }
-          }
-        );
-        Swal.fire({
-          icon: 'success',
-          title: 'Pedido creado',
-          text: 'El pedido se creó correctamente.',
-          timer: 2000,
-          showConfirmButton: false
-        });
-      }
-      if (onPedidoAdded) onPedidoAdded();
-      navigate('/pedidos/generales');
-    } catch (error: any) {
-      if (error.inner) {
-        const newErrors: Record<string, string> = {};
-        error.inner.forEach((err: any) => {
-          newErrors[err.path] = err.message;
-        });
-        setErrors(newErrors);
-      }
-      console.error('Error al guardar pedido:', error);
+    // ✅ Convertir fecha a formato dd-MM-yyyy
+    let fechaFormateada = null;
+    if (fechaRevision) {
+      const [year, month, day] = fechaRevision.split('-');
+      fechaFormateada = `${day}-${month}-${year}`;
     }
-  };
+
+    const pedido: any = {
+      nombre,
+      dni: dni ? Number(dni) : null,
+      telefono: telefono ? Number(telefono) : null,
+      empresa,
+      delegacion,
+      //motivoConsulta,
+      //recetaMedica,
+      fechaRevision: fechaFormateada, // ✅ Enviar en formato dd-MM-yyyy
+      observacionMedico,
+      beneficiario: { id: Number(beneficiarioId) },
+    };
+    
+    if (grupoFamiliarId && grupoFamiliarId.trim() !== '') {
+      pedido.grupoFamiliar = { id: Number(grupoFamiliarId) };
+    }
+    if (pacienteId && pacienteId.trim() !== '') {
+      pedido.paciente = { id: Number(pacienteId) };
+    }
+
+    const formData = new FormData();
+    formData.append('pedido', JSON.stringify(pedido));
+    documentos.forEach(file => formData.append("documentos", file));
+
+    if (modo === 'editar' && id) {
+      await axios.put(
+        `${database}/api/pedidos/editar/${id}`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${token}`,
+          }
+        }
+      );
+      Swal.fire({
+        icon: 'success',
+        title: 'Pedido actualizado',
+        text: 'El pedido se actualizó correctamente.',
+        timer: 2000,
+        showConfirmButton: false
+      });
+    } else {
+      await axios.post(
+        `${database}/api/pedidos`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${token}`,
+          }
+        }
+      );
+      Swal.fire({
+        icon: 'success',
+        title: 'Pedido creado',
+        text: 'El pedido se creó correctamente.',
+        timer: 2000,
+        showConfirmButton: false
+      });
+    }
+    if (onPedidoAdded) onPedidoAdded();
+    navigate('/pedidos/generales');
+  } catch (error: any) {
+    if (error.inner) {
+      const newErrors: Record<string, string> = {};
+      error.inner.forEach((err: any) => {
+        newErrors[err.path] = err.message;
+      });
+      setErrors(newErrors);
+    }
+    console.error('Error al guardar pedido:', error);
+  }
+};
 
   const handleVolver = () => {
     navigate('/pedidos/generales');
@@ -428,7 +445,7 @@ const ModalPedido: React.FC<{ modo?: 'editar' | 'crear', onPedidoAdded?: () => v
       {errors.delegacion && (
         <span className={styles.errorText}>{errors.delegacion}</span>
       )}
-
+{/* 
       <label>Motivo de Consulta:</label>
       <input
         type="text"
@@ -438,14 +455,14 @@ const ModalPedido: React.FC<{ modo?: 'editar' | 'crear', onPedidoAdded?: () => v
       />
       {errors.motivoConsulta && (
         <span className={styles.errorText}>{errors.motivoConsulta}</span>
-      )}
+      )} */}
 
-      <label>Receta Médica:</label>
+      {/* <label>Receta Médica:</label>
       <input
         type="checkbox"
         checked={recetaMedica}
         onChange={e => setRecetaMedica(e.target.checked)}
-      />
+      /> */}
 
       <label>Fecha de Revisión:</label>
       <input

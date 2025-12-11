@@ -30,7 +30,6 @@ const validationSchema = Yup.object().shape({
   delegacion: Yup.string().required('La delegación es obligatoria'),
   motivoConsulta: Yup.string().required('El motivo de consulta es obligatorio'),
   fechaRevision: Yup.date().required('La fecha es obligatoria').typeError('Fecha inválida'),
-  medicoId: Yup.string().required('Debe seleccionar un médico'),
   observacionMedico: Yup.string(),
   pacienteId: Yup.string(),
 });

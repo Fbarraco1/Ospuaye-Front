@@ -65,10 +65,25 @@
 }
 
 .actions {
-  display: flex;
-  gap: 10px;
+  display: table-cell !important;  /* restaura comportamiento de celda */
+  vertical-align: middle;
+  padding: 12px;
+  min-width: 90px;
+  box-sizing: border-box;
+  white-space: nowrap;
 }
 
+/* contenedor interno con flex */
+.actionWrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  height: 100%;
+  width: 100%;
+}
+
+/* ===== ICONOS ===== */
 .editIcon {
   color: #1976d2;
   cursor: pointer;

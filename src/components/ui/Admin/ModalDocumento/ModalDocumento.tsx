@@ -1,5 +1,8 @@
 import React from 'react';
 import styles from './ModalDocumento.module.css';
+
+const database = import.meta.env.VITE_DATABASE; // ✅ Importar tu variable de entorno
+
 interface Documento {
   id: number;
   nombreArchivo: string;
@@ -19,6 +22,12 @@ interface Props {
 
 const ModalDocumento: React.FC<Props> = ({ isOpen, documentos, onClose }) => {
   if (!isOpen) return null;
+
+  // ✅ Función para construir la URL de descarga
+  const construirUrlDescarga = (path: string) => {
+    // path contiene solo el nombre del archivo (ej: "abc123.pdf")
+    return `${database}/api/documentos/descargar/${path}`;
+  };
 
   return (
     <div className={styles.overlay}>
@@ -42,7 +51,12 @@ const ModalDocumento: React.FC<Props> = ({ isOpen, documentos, onClose }) => {
                 <td>{doc.observacion || 'Sin observación'}</td>
                 <td>{doc.subidoPor?.email || 'Desconocido'}</td>
                 <td>
-                  <a href={doc.path} target="_blank" rel="noopener noreferrer">
+                  {/* ✅ Construir URL completa */}
+                  <a 
+                    href={construirUrlDescarga(doc.path)} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                  >
                     Ver archivo
                   </a>
                 </td>

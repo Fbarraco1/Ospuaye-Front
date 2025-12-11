@@ -236,6 +236,7 @@ export const Medico: React.FC = () => {
               <td>{m.area?.nombre}</td> 
               <td>{m.activo ? 'Sí' : 'No'}</td>
               <td className={styles.actions}>
+                  <div className={styles.actionWrapper}>
                 <FaEdit
                   className={styles.editIcon}
                   onClick={() => editarMedico(m.id)}
@@ -244,6 +245,7 @@ export const Medico: React.FC = () => {
                   className={styles.deleteIcon}
                   onClick={() => eliminarMedico(m.id)}
                 />
+                </div>
               </td>
             </tr>
           ))}

@@ -212,6 +212,7 @@ export const Localidad = () => {
               <td>{b.codigoPostal}</td>
               <td>{b.activo ? 'Sí' : 'No'}</td>
               <td className={styles.actions}>
+                  <div className={styles.actionWrapper}>
                 <FaEdit
                   className={styles.editIcon}
                   onClick={() => editarLocalidad(b.id)}
@@ -220,6 +221,7 @@ export const Localidad = () => {
                   className={styles.deleteIcon}
                   onClick={() => eliminarLocalidad(b.id)}
                 />
+                </div>
               </td>
             </tr>
           ))}

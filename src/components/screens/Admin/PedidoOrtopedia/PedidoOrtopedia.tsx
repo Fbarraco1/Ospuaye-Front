@@ -230,10 +230,12 @@ const eliminarPedido = async (id: number) => {
               <td>{p.medico?.nombre +" "+p.medico?.apellido}</td>
               <td>{p.activo? 'si' : 'No'}</td>
               <td className={styles.actions}>
+                  <div className={styles.actionWrapper}>
                 <FaFileAlt className={styles.icon} onClick={() => verDocumentos(p.id)} title="Ver documentos" />
                 <FaHistory className={styles.icon} onClick={() => verHistorial(p.id)} title="Ver historial" />
                 <FaEdit className={styles.editIcon} onClick={() => editarPedido(p.id)} title="Editar" />
                 <FaTrash className={styles.deleteIcon} onClick={() => eliminarPedido(p.id)} title="Eliminar" />
+                </div>
               </td>
             </tr>
           ))}

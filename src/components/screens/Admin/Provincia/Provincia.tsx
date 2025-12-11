@@ -209,6 +209,7 @@ export const Provincia = () => {
               <td>{b.pais?.nombre ?? 'Sin nombre'}</td>
               <td>{b.activo ? 'Sí' : 'No'}</td>
               <td className={styles.actions}>
+                  <div className={styles.actionWrapper}>
                 <FaEdit
                   className={styles.editIcon}
                   onClick={() => editarProvincia(b.id)}
@@ -217,6 +218,7 @@ export const Provincia = () => {
                   className={styles.deleteIcon}
                   onClick={() => eliminarProvincia(b.id)}
                 />
+                </div>
               </td>
             </tr>
           ))}

@@ -182,6 +182,7 @@ export const Usuarios: React.FC = () => {
               <td>{usuario.rol?.nombre}</td>
               <td>{usuario.activo ? 'Sí' : 'No'}</td>
               <td className={styles.actions}>
+                  <div className={styles.actionWrapper}>
                 <FaEdit
                   className={styles.editIcon}
                   onClick={() => editarUsuario(usuario.id)}
@@ -190,6 +191,7 @@ export const Usuarios: React.FC = () => {
                   className={styles.deleteIcon}
                   onClick={() => eliminarUsuario(usuario.id)}
                 />
+                </div>
               </td>
             </tr>
           ))}

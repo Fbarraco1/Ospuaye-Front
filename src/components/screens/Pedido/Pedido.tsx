@@ -215,11 +215,17 @@ export const Pedido: React.FC = () => {
               <td>{p.telefono}</td>
               <td>{p.empresa}</td>
               <td>{p.delegacion}</td>
-              <td>{new Date(p.fechaIngreso).toLocaleDateString()}</td>
+              <td>
+                {p.fechaIngreso 
+                  ? new Date(p.fechaIngreso.split('-').reverse().join('-')).toLocaleDateString('es-AR')
+                  : '-'
+                }
+              </td>              
               <td>{p.estado}</td>
               <td>{p.pedidoTipo}</td>
               <td>{p.activo ? 'Sí' : 'No'}</td>
               <td className={styles.actions}>
+                  <div className={styles.actionWrapper}>
                 <FaFileAlt
                   className={styles.icon}
                   onClick={() => verDocumentos(p.id)}
@@ -240,6 +246,7 @@ export const Pedido: React.FC = () => {
                   onClick={() => eliminarPedido(p.id)}
                   title="Eliminar"
                 />
+                </div>
               </td>
             </tr>
           ))}

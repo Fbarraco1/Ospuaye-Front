@@ -182,8 +182,10 @@ export const Nacionalidad = () => {
                 <td>{b.nombre}</td>
                 <td>{b.activo ? 'Si' : 'No'}</td>
                 <td className={styles.actions}>
+                    <div className={styles.actionWrapper}>
                   <FaEdit className={styles.editIcon} onClick={() => editarNacionalidad(b.id)} />
                   <FaTrash className={styles.deleteIcon} onClick={() => eliminarNacionalidad(b.id)} />
+                  </div>
                 </td>
               </tr>
             ))}

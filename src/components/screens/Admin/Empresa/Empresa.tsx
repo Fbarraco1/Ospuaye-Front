@@ -269,6 +269,7 @@ const descargarEmpresas = async () => {
               <td>{b.domicilio?.localidad?.codigoPostal ?? 'N/A'}</td>
               <td>{b.activo ? 'Sí' : 'No'}</td>
               <td className={styles.actions}>
+                <div className={styles.actionWrapper}>
                 <FaEdit
                   className={styles.editIcon}
                   onClick={() => editarEmpresa(b.id)}
@@ -277,6 +278,7 @@ const descargarEmpresas = async () => {
                   className={styles.deleteIcon}
                   onClick={() => eliminarEmpresa(b.id)}
                 />
+                </div>
               </td>
             </tr>
           ))}

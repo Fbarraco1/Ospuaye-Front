@@ -227,6 +227,7 @@ export const PedidoOftalmologia: React.FC = () => {
               <td>{p.medico?.nombre +" "+p.medico?.apellido}</td>
               <td>{p.activo ? 'Sí' : 'No'}</td>
               <td className={styles.actions}>
+                  <div className={styles.actionWrapper}>
                 <FaFileAlt
                   className={styles.icon}
                   onClick={() => verDocumentos(p.id)}
@@ -247,6 +248,7 @@ export const PedidoOftalmologia: React.FC = () => {
                   onClick={() => eliminarPedido(p.id)}
                   title="Eliminar"
                 />
+                </div>
               </td>
             </tr>
           ))}
