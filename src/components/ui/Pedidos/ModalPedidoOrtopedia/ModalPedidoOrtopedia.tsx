@@ -30,7 +30,6 @@ const validationSchema = Yup.object().shape({
   delegacion: Yup.string().required('La delegación es obligatoria'),
   motivoConsulta: Yup.string().required('El motivo de consulta es obligatorio'),
   fechaRevision: Yup.date().required('La fecha es obligatoria').typeError('Fecha inválida'),
-  medicoId: Yup.string().required('Debe seleccionar un médico'),
   observacionMedico: Yup.string(),
   pacienteId: Yup.string(),
 });
@@ -107,14 +106,17 @@ const ModalPedidoOrtopedia: React.FC<{ modo?: 'editar' | 'crear', onPedidoAdded?
     handleBeneficiarioChange(b);
   };
 
-  const handleBeneficiarioChange = async (beneficiario: any) => {
+  const handleBeneficiarioChange = async (beneficiario: any, esEdicion = false) => {
 
     setBeneficiarioId(beneficiario.id.toString());
     setBusqueda(`${beneficiario.nombre} ${beneficiario.apellido}`);
     setMostrandoResultados(false);
 
-    setDni(beneficiario.dni || '');
-    setTelefono(beneficiario.telefono || '');
+    // ✅ Solo autocompletar si NO estamos en modo edición o si el campo está vacío
+    if (!esEdicion) {
+      setDni(beneficiario.dni || '');
+      setTelefono(beneficiario.telefono || '');
+    }
     setGrupoFamiliarId(beneficiario.grupoFamiliarId?.toString() || '');
 
     validarCampo('beneficiarioId', beneficiario.id);
@@ -209,12 +211,25 @@ const ModalPedidoOrtopedia: React.FC<{ modo?: 'editar' | 'crear', onPedidoAdded?
     setNombre(pedido.nombre || '');
     setBeneficiarioId(pedido.beneficiario?.id?.toString() || '');
     setDni(pedido.dni?.toString() || '');
-    setTelefono(pedido.telefono?.toString() || '');
+    setTelefono(pedido.telefono != null ? pedido.telefono.toString() : ''); // ✅ Corrección del teléfono
     setEmpresa(pedido.empresa || '');
     setDelegacion(pedido.delegacion || '');
     setMotivoConsulta(pedido.motivoConsulta || '');
     setRecetaMedica(!!pedido.recetaMedica);
-    setFechaRevision(pedido.fechaRevision?.slice(0, 10) || '');
+    
+    // ✅ Convertir fecha de dd-MM-yyyy a yyyy-MM-dd para el input
+    if (pedido.fechaRevision) {
+      const partes = pedido.fechaRevision.split('-');
+      if (partes.length === 3) {
+        const [day, month, year] = partes;
+        setFechaRevision(`${year}-${month}-${day}`);
+      } else {
+        setFechaRevision('');
+      }
+    } else {
+      setFechaRevision('');
+    }
+    
     setObservacionMedico(pedido.observacionMedico || '');
     setGrupoFamiliarId(pedido.grupoFamiliar?.id?.toString() || '');
     setPacienteId(pedido.paciente?.id?.toString() || '');
@@ -222,7 +237,7 @@ const ModalPedidoOrtopedia: React.FC<{ modo?: 'editar' | 'crear', onPedidoAdded?
 
     if (pedido.beneficiario) {
       setBusqueda(`${pedido.beneficiario.nombre} ${pedido.beneficiario.apellido}`);
-      handleBeneficiarioChange(pedido.beneficiario);
+      handleBeneficiarioChange(pedido.beneficiario, true); // ✅ Flag de edición
     }
   };
 
@@ -244,6 +259,13 @@ const ModalPedidoOrtopedia: React.FC<{ modo?: 'editar' | 'crear', onPedidoAdded?
         delegacion, motivoConsulta, fechaRevision, medicoId, observacionMedico, pacienteId
       }, { abortEarly: false });
 
+      // ✅ Convertir fecha a formato dd-MM-yyyy
+      let fechaFormateada = null;
+      if (fechaRevision) {
+        const [year, month, day] = fechaRevision.split('-');
+        fechaFormateada = `${day}-${month}-${year}`;
+      }
+
       const pedido: any = {
         nombre,
         dni: Number(dni),
@@ -252,14 +274,18 @@ const ModalPedidoOrtopedia: React.FC<{ modo?: 'editar' | 'crear', onPedidoAdded?
         delegacion,
         motivoConsulta,
         recetaMedica,
-        fechaRevision,
+        fechaRevision: fechaFormateada, // ✅ Enviar en formato dd-MM-yyyy
         observacionMedico,
         beneficiario: { id: Number(beneficiarioId) },
         medico: { id: Number(medicoId) }
       };
 
-      if (grupoFamiliarId) pedido.grupoFamiliar = { id: Number(grupoFamiliarId) };
-      if (pacienteId) pedido.paciente = { id: Number(pacienteId) };
+      if (grupoFamiliarId && grupoFamiliarId.trim() !== '') {
+        pedido.grupoFamiliar = { id: Number(grupoFamiliarId) };
+      }
+      if (pacienteId && pacienteId.trim() !== '') {
+        pedido.paciente = { id: Number(pacienteId) };
+      }
 
       const formData = new FormData();
       formData.append("pedido", JSON.stringify(pedido));
@@ -267,15 +293,34 @@ const ModalPedidoOrtopedia: React.FC<{ modo?: 'editar' | 'crear', onPedidoAdded?
 
       if (modo === 'editar' && id) {
         await axios.put(`${database}/api/pedidos/ortopedia/${id}`, formData, {
-          headers: { Authorization: `Bearer ${token}` }
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${token}`
+          }
+        });
+        Swal.fire({
+          icon: 'success',
+          title: 'Pedido actualizado',
+          text: 'El pedido se actualizó correctamente.',
+          timer: 2000,
+          showConfirmButton: false
         });
       } else {
         await axios.post(`${database}/api/pedidos/ortopedia`, formData, {
-          headers: { Authorization: `Bearer ${token}` }
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${token}`
+          }
+        });
+        Swal.fire({
+          icon: 'success',
+          title: 'Pedido creado',
+          text: 'El pedido se creó correctamente.',
+          timer: 2000,
+          showConfirmButton: false
         });
       }
 
-      Swal.fire('Éxito', 'Pedido guardado correctamente', 'success');
       if (onPedidoAdded) onPedidoAdded();
       navigate('/pedidos/ortopedia');
 

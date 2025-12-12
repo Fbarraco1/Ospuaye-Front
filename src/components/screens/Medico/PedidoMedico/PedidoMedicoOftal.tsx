@@ -213,6 +213,7 @@ export const PedidoMedicoOftal: React.FC = () => {
               <td>{p.pedidoTipo}</td>
               <td>{p.activo ? 'Sí' : 'No'}</td>
               <td className={styles.actions}>
+                  <div className={styles.actionWrapper}>
                 <FaFileAlt
                   className={styles.icon}
                   onClick={() => verDocumentos(p.id)}
@@ -224,10 +225,11 @@ export const PedidoMedicoOftal: React.FC = () => {
                   title="Ver historial"
                 />
                 <FaCheck
-                  className={styles.icon}
+                  className={styles.iconCheck}
                   onClick={() => TomarPedido(p.id)}
                   title="Tomar pedido"
                 />
+                </div>
               </td>
             </tr>
           ))}

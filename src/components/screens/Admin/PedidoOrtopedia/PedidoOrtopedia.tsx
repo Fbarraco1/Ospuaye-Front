@@ -227,7 +227,7 @@ const eliminarPedido = async (id: number) => {
               <td>{p.delegacion}</td>
               <td>{new Date(p.fechaIngreso).toLocaleDateString()}</td>
               <td>{p.estado}</td>
-              <td>{p.medico?.nombre +" "+p.medico?.apellido}</td>
+              <td>{p.medico ? `${p.medico.nombre} ${p.medico.apellido}` : "Pendiente"}</td>
               <td>{p.activo? 'si' : 'No'}</td>
               <td className={styles.actions}>
                   <div className={styles.actionWrapper}>

@@ -58,26 +58,29 @@
 }
 
 .actions {
-  display: flex;
-  gap: 10px;
+  display: table-cell !important;  /* restaura comportamiento de celda */
+  vertical-align: middle;
+  padding: 12px;
+  min-width: 90px;
+  box-sizing: border-box;
+  white-space: nowrap;
 }
 
-.editIcon {
+/* contenedor interno con flex */
+.actionWrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  height: 100%;
+  width: 100%;
+}
+
+.icon {
   color: #1976d2;
   cursor: pointer;
-  height: 1.4rem;
 }
 
-.editIcon:hover {
+.icon:hover {
   color: #1259a3;
-}
-
-.deleteIcon {
-  color: red;
-  cursor: pointer;
-  height: 1.4rem;
-}
-
-.deleteIcon:hover {
-  color: darkred;
 }

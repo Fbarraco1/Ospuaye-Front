@@ -1,32 +1,23 @@
 .container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-top: 60px;
-  min-height: 80vh;
-  background: #f7f9fb;
-  border-radius: 18px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.10);
-  padding: 40px 32px;
-  max-width: 420px;
-  margin-left: auto;
-  margin-right: auto;
+  padding: 20px;
+  max-width: 600px;
+  margin: auto;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 h2 {
-  margin-bottom: 28px;
-  color: #0a2540;
-  font-size: 2.2rem;
-  font-weight: 800;
-  letter-spacing: 1px;
-  font-family: 'Montserrat', Arial, sans-serif;
+  margin-bottom: 20px;
+  color: #333;
+  font-size: 1.5rem;
+  font-weight: 600;
 }
 
 .form {
   display: flex;
   flex-direction: column;
-  gap: 22px;
-  width: 100%;
+  gap: 15px;
 }
 
 .inputGroup {
@@ -38,27 +29,26 @@ h2 {
 
 .inputGroup input {
   width: 100%;
-  padding-right: 70px; /* Espacio para el botón */
+  padding-right: 70px;
   margin: 0;
   box-sizing: border-box;
 }
 
 input {
-  padding: 12px 44px 12px 14px;
-  font-size: 1.08rem;
-  border-radius: 8px;
-  border: 1.5px solid #bfc8d6;
-  background: #fff;
-  transition: border 0.2s;
+  display: block;
   width: 100%;
+  padding: 0.5rem;
+  margin-top: 0.25rem;
+  margin-bottom: 1rem;
+  border-radius: 4px;
+  border: 1px solid #ccc;
   box-sizing: border-box;
-  font-family: 'Montserrat', Arial, sans-serif;
-  outline: none;
 }
 
 input:focus {
-  border: 2px solid #007bff;
-  box-shadow: 0 0 0 2px #e3f0ff;
+  outline: none;
+  border: 1px solid #007bff;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.15);
 }
 
 .showBtn {
@@ -66,92 +56,55 @@ input:focus {
   right: 12px;
   top: 50%;
   transform: translateY(-50%);
-  background: linear-gradient(90deg, #e3f0ff 60%, #cbe2ff 100%);
-  color: #007bff;
+  background: #007bff;
+  color: white;
   border: none;
-  font-size: 1rem;
+  font-size: 0.85rem;
   cursor: pointer;
-  padding: 6px 18px;
-  border-radius: 6px;
-  font-weight: 600;
-  box-shadow: 0 2px 8px rgba(0,123,255,0.08);
-  transition: 
-    background 0.35s cubic-bezier(.4,0,.2,1),
-    color 0.35s cubic-bezier(.4,0,.2,1),
-    box-shadow 0.35s cubic-bezier(.4,0,.2,1),
-    transform 0.2s cubic-bezier(.4,0,.2,1);
+  padding: 4px 12px;
+  border-radius: 4px;
+  font-weight: 500;
   outline: none;
-  border: 1.5px solid transparent;
-  height: 36px;
+  transition: background 0.2s;
+  height: 28px;
   display: flex;
   align-items: center;
 }
 
-.showBtn:active {
-  transform: scale(0.96);
-  background: linear-gradient(90deg, #cbe2ff 60%, #e3f0ff 100%);
-  color: #0056b3;
-  border: 1.5px solid #007bff;
+.showBtn:hover {
+  background: #0056b3;
 }
 
-.showBtn:hover, .showBtn:focus {
-  background: linear-gradient(90deg, #d0e7ff 60%, #b3d8ff 100%);
-  color: #0056b3;
-  box-shadow: 0 4px 16px rgba(0,123,255,0.16);
-  border: 1.5px solid #007bff;
+.showBtn:active {
+  transform: translateY(-50%) scale(0.95);
 }
 
 button {
-  padding: 10px 24px;
+  padding: 0.5rem;
   background: #007bff;
   color: white;
   border: none;
-  border-radius: 6px;
+  border-radius: 4px;
   cursor: pointer;
   font-size: 1rem;
+  font-weight: 600;
+  transition: background 0.2s;
 }
 
-button[type="submit"] {
-  padding: 14px 0;
-  background: #88C250;
-  color: white;
-  border: none;
-  border-radius: 10px;
-  cursor: pointer;
-  font-size: 1.15rem;
-  font-weight: 700;
-  box-shadow: 0 2px 12px rgba(0,123,255,0.10);
-  font-family: 'Montserrat', Arial, sans-serif;
-  margin-top: 10px;
-  transition: 
-    background 0.45s cubic-bezier(.4,0,.2,1),
-    box-shadow 0.45s cubic-bezier(.4,0,.2,1),
-    transform 0.18s cubic-bezier(.4,0,.2,1);
+button:hover:not(:disabled) {
+  background: #0056b3;
 }
 
-button[type="submit"]:hover:not(:disabled), button[type="submit"]:focus:not(:disabled) {
-  background: linear-gradient(90deg, #0056b3 60%, #007bff 100%);
-  box-shadow: 0 4px 20px rgba(0,123,255,0.18);
-  transform: translateY(-2px) scale(1.03);
-}
-
-button[type="submit"]:active:not(:disabled) {
-  transform: scale(0.98);
-}
-
-button[type="submit"]:disabled {
-  background: #bfc8d6;
+button:disabled {
+  background: #ccc;
   cursor: not-allowed;
-  color: #fff;
   opacity: 0.7;
 }
 
 .mensaje {
-  margin-top: 18px;
+  display: block;
+  margin-top: 10px;
+  font-size: 0.85rem;
   color: #d32f2f;
-  font-weight: bold;
-  text-align: center;
-  font-size: 1.08rem;
-  min-height: 24px;
-  font-family: 'Montserrat', Arial, sans-serif;
+  font-weight: 500;
 }

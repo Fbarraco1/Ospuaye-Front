@@ -164,7 +164,7 @@ export const PedidoOftalmologia: React.FC = () => {
   };
 
   return (
-    <div>
+    <>
     <div className="breadcrumbs overlay">
         <div className="container">
           <div className="row align-items-center">
@@ -224,7 +224,7 @@ export const PedidoOftalmologia: React.FC = () => {
               <td>{p.delegacion}</td>
               <td>{new Date(p.fechaIngreso).toLocaleDateString()}</td>
               <td>{p.estado}</td>
-              <td>{p.medico?.nombre +" "+p.medico?.apellido}</td>
+              <td>{p.medico ? `${p.medico.nombre} ${p.medico.apellido}` : "Pendiente"}</td>
               <td>{p.activo ? 'Sí' : 'No'}</td>
               <td className={styles.actions}>
                   <div className={styles.actionWrapper}>
@@ -302,6 +302,6 @@ export const PedidoOftalmologia: React.FC = () => {
         onClose={() => setModalHistOpen(false)}
       />
     </div>
-    </div>
+    </>
   );
 };

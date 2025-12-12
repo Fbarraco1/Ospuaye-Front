@@ -165,6 +165,7 @@ export const PedidoUser: React.FC = () => {
               <td>{p.estado}</td>
               <td>{p.medico?.matricula}</td>
               <td className={styles.actions}>
+                <div className={styles.actionWrapper}>
                 <FaFileAlt
                   className={styles.icon}
                   onClick={() => verDocumentos(p.id)}
@@ -175,6 +176,7 @@ export const PedidoUser: React.FC = () => {
                   onClick={() => verHistorial(p.id)}
                   title="Ver historial"
                 />
+                </div>
               </td>
             </tr>
           ))}

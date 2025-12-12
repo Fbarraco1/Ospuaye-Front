@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { FaEdit, FaTrash, FaPlus, FaChevronDown, FaChevronUp } from 'react-icons/fa';
+import { FaEdit, FaTrash, FaPlus, FaChevronDown, FaChevronUp, FaDownload } from 'react-icons/fa';
 import styles from './GrupoFamiliar.module.css';
 import { useAuthStore } from '../../../../auth/store/authStore';
 import Swal from 'sweetalert2';
@@ -152,6 +152,45 @@ export const GrupoFamiliar: React.FC = () => {
     navigate(`/grupoFamiliar/editar/${id}`);
   };
 
+ const descargarGrupo = async (id: number) => {
+  try {
+    Swal.fire({
+      title: "Generando archivo...",
+      html: "Por favor espera unos segundos",
+      allowOutsideClick: false,
+      didOpen: () => Swal.showLoading(),
+    });
+
+    const response = await axios.get(`${database}/api/grupoFamiliar/${id}/export`, {
+      responseType: "blob",
+    });
+
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", `grupo_familiar_${id}.txt`);
+    document.body.appendChild(link);
+    link.click();
+
+    Swal.close();
+
+    Swal.fire({
+      icon: "success",
+      title: "Archivo descargado",
+      text: "El archivo del grupo familiar se descargó correctamente!",
+      timer: 1800,
+      showConfirmButton: false
+    });
+
+  } catch (error) {
+    Swal.close();
+    console.error("Error al descargar grupo familiar:", error);
+    Swal.fire("Error", "No se pudo generar el archivo TXT", "error");
+  }
+};
+
+
+
   const handleExpandRow = (id: number) => {
     setExpandedRows(prev => prev.includes(id) ? prev.filter(r => r !== id) : [...prev, id]);
   };
@@ -271,6 +310,7 @@ export const GrupoFamiliar: React.FC = () => {
                   <td>{g.fechaAlta ? new Date(g.fechaAlta).toLocaleDateString() : 'N/A'}</td>
                   <td>{g.activo ? 'Sí' : 'No'}</td>
                   <td className={styles.actions} onClick={e => e.stopPropagation()}>
+                      <div className={styles.actionWrapper}>
                     <button
                       className={styles.addButton}
                       title="Agregar Familiar"
@@ -278,8 +318,17 @@ export const GrupoFamiliar: React.FC = () => {
                     >
                       <FaPlus />
                     </button>
+                    <button
+                      className={styles.addButton}
+                      title="Descargar TXT"
+                      onClick={() => descargarGrupo(g.id)}
+                    >
+                      <FaDownload /> 
+                    </button>
+
                     <FaEdit className={styles.editIcon} onClick={() => editarGrupo(g.id)} />
                     <FaTrash className={styles.deleteIcon} onClick={() => eliminarGrupo(g.id)} />
+                    </div>
                   </td>
                 </tr>
                 {expandedRows.includes(g.id) && (
@@ -306,6 +355,7 @@ export const GrupoFamiliar: React.FC = () => {
                                   <td>{f.tipoParentesco}</td>
                                   <td>{f.activo ? 'Sí' : 'No'}</td>
                                   <td className={styles.actions}>
+                                    <div className={styles.actionWrapper}>
                                     <FaEdit
                                       className={styles.editIcon}
                                       onClick={() => {
@@ -318,6 +368,7 @@ export const GrupoFamiliar: React.FC = () => {
                                       onClick={() => { eliminarFamiliar(f.id); }}
                                       style={{ cursor: "pointer" }}
                                     />
+                                    </div>
                                   </td>
                                 </tr>
                               ))}

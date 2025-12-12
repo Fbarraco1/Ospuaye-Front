@@ -189,8 +189,13 @@ export const PedidoOftalmologiaMedico: React.FC = () => {
               <td>{new Date(p.fechaIngreso).toLocaleDateString()}</td>
               <td>{p.estado}</td>
               <td>{p.beneficiario ? `${p.beneficiario.nombre} ${p.beneficiario.apellido}` : ''}</td>
-              <td>{<button className={styles.addButton} onClick={() => handleChangeEstado(p.id)}>Cambiar</button>}</td>
+              <td>
+                <div className={styles.actionWrapper}>
+                  {<button className={styles.addButton} onClick={() => handleChangeEstado(p.id)}>Cambiar</button>}
+                </div>
+              </td>
               <td className={styles.actions}>
+                <div className={styles.actionWrapper}>
                 <FaFileAlt
                   className={styles.icon}
                   onClick={() => verDocumentos(p.id)}
@@ -201,6 +206,7 @@ export const PedidoOftalmologiaMedico: React.FC = () => {
                   onClick={() => verHistorial(p.id)}
                   title="Ver historial"
                 />
+                </div>
               </td>
             </tr>
           ))}
