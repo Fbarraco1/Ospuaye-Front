@@ -13,7 +13,7 @@ const HeaderMedicoOftalmologo = () => {
                 <div className="nav-inner">
                     {/* Start Navbar */}
                     <nav className="navbar navbar-expand-lg">
-                    <a className="navbar-brand" href="/main">
+                    <a className="navbar-brand" href="/admin">
                         <img src={logo} alt="Logo" />
                     </a>
                     <button

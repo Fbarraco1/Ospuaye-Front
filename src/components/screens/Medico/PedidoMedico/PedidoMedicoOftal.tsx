@@ -31,19 +31,9 @@ interface Pedido {
   activo: boolean;
 }
 
-interface Documento {
-  id: number;
-  nombreArchivo: string;
-  path: string;
-  observacion: string;
-  fechaSubida: string;
-  subidoPor: { email: string };
-}
-
 
 export const PedidoMedicoOftal: React.FC = () => {
   const [pedidos, setPedidos] = useState<Pedido[]>([]);
-  const [documentos, setDocumentos] = useState<Documento[]>([]);
   const [modalDocsOpen, setModalDocsOpen] = useState(false);
   const [modalHistOpen, setModalHistOpen] = useState(false);
   const [search, setSearch] = useState('');
@@ -53,6 +43,7 @@ export const PedidoMedicoOftal: React.FC = () => {
   const token = useAuthStore((state) => state.token);
   const idMedico = useAuthStore((state) => state.user?.idMedico || 0);
   const [pedidoIdSeleccionado, setPedidoIdSeleccionado] = useState<number | null>(null);
+  const [pedidoIdDocumentos, setPedidoIdDocumentos] = useState<number | null>(null);
   
   
 
@@ -90,7 +81,6 @@ export const PedidoMedicoOftal: React.FC = () => {
         showConfirmButton: false,
       });
 
-      // Refrescar la lista de pedidos
       obtenerPedidos();
     } catch (error) {
       console.error('Error al tomar pedido:', error);
@@ -102,22 +92,16 @@ export const PedidoMedicoOftal: React.FC = () => {
     }
   };
 
-  const verDocumentos = async (id: number) => {
-    try {
-      const res = await axios.get(`${database}/api/documentos/${id}`);
-      setDocumentos([res.data]);
-      setModalDocsOpen(true);
-    } catch (error) {
-      console.error('Error al obtener documentos:', error);
-    }
+  const verDocumentos = (id: number) => {
+    setPedidoIdDocumentos(id);
+    setModalDocsOpen(true);
   };
 
-  const verHistorial = async (id: number) => {
+  const verHistorial = (id: number) => {
     setPedidoIdSeleccionado(id);
     setModalHistOpen(true);
   };
 
-  // Filtrar pedidos por cualquier campo visible
   const pedidosFiltrados = pedidos.filter((p) =>
     [
       p.id,
@@ -136,7 +120,6 @@ export const PedidoMedicoOftal: React.FC = () => {
       .includes(search.toLowerCase())
   );
 
-  // --- PAGINACIÓN ---
   const totalPages = Math.ceil(pedidosFiltrados.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const currentItems = pedidosFiltrados.slice(startIndex, startIndex + itemsPerPage);
@@ -166,123 +149,121 @@ export const PedidoMedicoOftal: React.FC = () => {
       </div>
       <br />
     <div className={styles.container}>
-      <h2 className={styles.title}>Todos los pedidos</h2>
+<h2 className={styles.title}>Todos los pedidos</h2>
+  <input
+    type="text"
+    placeholder="Buscar por cualquier campo..."
+    value={search}
+    onChange={(e) => {
+      setSearch(e.target.value);
+      setCurrentPage(1);
+    }}
+    style={{ marginBottom: '10px', padding: '5px', width: '250px' }}
+  />
 
-      <input
-        type="text"
-        placeholder="Buscar por cualquier campo..."
-        value={search}
-        onChange={(e) => {
-          setSearch(e.target.value);
-          setCurrentPage(1); // resetear página al filtrar
+  <button className={styles.addButton} onClick={() => navigate('/pedidos/generales/nuevo')}>
+    <FaPlus /> Agregar Pedido
+  </button>
+
+  <table className={styles.table}>
+    <thead>
+      <tr>
+        <th>Nombre</th>
+        <th>Beneficiario</th>
+        <th>DNI</th>
+        <th>Teléfono</th>
+        <th>Empresa</th>
+        <th>Delegación</th>
+        <th>Fecha Ingreso</th>
+        <th>Estado</th>
+        <th>Tipo Pedido</th>
+        <th>Activo</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      {currentItems.map((p) => (
+        <tr key={p.id}>
+          <td>{p.nombre}</td>
+          <td>{`${p.beneficiario?.nombre} ${p.beneficiario?.apellido}`}</td>
+          <td>{p.dni}</td>
+          <td>{p.telefono}</td>
+          <td>{p.empresa}</td>
+          <td>{p.delegacion}</td>
+          <td>{new Date(p.fechaIngreso).toLocaleDateString()}</td>
+          <td>{p.estado}</td>
+          <td>{p.pedidoTipo}</td>
+          <td>{p.activo ? 'Sí' : 'No'}</td>
+          <td className={styles.actions}>
+              <div className={styles.actionWrapper}>
+            <FaFileAlt
+              className={styles.icon}
+              onClick={() => verDocumentos(p.id)}
+              title="Ver documentos"
+            />
+            <FaHistory
+              className={styles.icon}
+              onClick={() => verHistorial(p.id)}
+              title="Ver historial"
+            />
+            <FaCheck
+              className={styles.iconCheck}
+              onClick={() => TomarPedido(p.id)}
+              title="Tomar pedido"
+            />
+            </div>
+          </td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+
+  {totalPages > 1 && (
+    <div style={{ marginTop: '15px', display: 'flex', justifyContent: 'center', gap: '10px' }}>
+      <button
+        onClick={handlePrevPage}
+        disabled={currentPage === 1}
+        style={{
+          padding: '5px 10px',
+          borderRadius: '8px',
+          border: '1px solid #ccc',
+          background: currentPage === 1 ? '#88C250' : '#88C250',
+          cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
         }}
-        style={{ marginBottom: '10px', padding: '5px', width: '250px' }}
-      />
-
-      <button className={styles.addButton} onClick={() => navigate('/pedidos/generales/nuevo')}>
-        <FaPlus /> Agregar Pedido
+      >
+        ◀
       </button>
-
-      <table className={styles.table}>
-        <thead>
-          <tr>
-            <th>Nombre</th>
-            <th>Beneficiario</th>
-            <th>DNI</th>
-            <th>Teléfono</th>
-            <th>Empresa</th>
-            <th>Delegación</th>
-            <th>Fecha Ingreso</th>
-            <th>Estado</th>
-            <th>Tipo Pedido</th>
-            <th>Activo</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          {currentItems.map((p) => (
-            <tr key={p.id}>
-              <td>{p.nombre}</td>
-              <td>{`${p.beneficiario?.nombre} ${p.beneficiario?.apellido}`}</td>
-              <td>{p.dni}</td>
-              <td>{p.telefono}</td>
-              <td>{p.empresa}</td>
-              <td>{p.delegacion}</td>
-              <td>{new Date(p.fechaIngreso).toLocaleDateString()}</td>
-              <td>{p.estado}</td>
-              <td>{p.pedidoTipo}</td>
-              <td>{p.activo ? 'Sí' : 'No'}</td>
-              <td className={styles.actions}>
-                  <div className={styles.actionWrapper}>
-                <FaFileAlt
-                  className={styles.icon}
-                  onClick={() => verDocumentos(p.id)}
-                  title="Ver documentos"
-                />
-                <FaHistory
-                  className={styles.icon}
-                  onClick={() => verHistorial(p.id)}
-                  title="Ver historial"
-                />
-                <FaCheck
-                  className={styles.iconCheck}
-                  onClick={() => TomarPedido(p.id)}
-                  title="Tomar pedido"
-                />
-                </div>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-
-      {/* PAGINADO */}
-      {totalPages > 1 && (
-        <div style={{ marginTop: '15px', display: 'flex', justifyContent: 'center', gap: '10px' }}>
-          <button
-            onClick={handlePrevPage}
-            disabled={currentPage === 1}
-            style={{
-              padding: '5px 10px',
-              borderRadius: '8px',
-              border: '1px solid #ccc',
-              background: currentPage === 1 ? '#88C250' : '#88C250',
-              cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
-            }}
-          >
-            ◀
-          </button>
-          <span style={{ alignSelf: 'center', fontSize: '14px', color: '#555' }}>
-            Página {currentPage} de {totalPages}
-          </span>
-          <button
-            onClick={handleNextPage}
-            disabled={currentPage === totalPages}
-            style={{
-              padding: '5px 10px',
-              borderRadius: '8px',
-              border: '1px solid #ccc',
-              background: currentPage === totalPages ? '#88C250' : '#88C250',
-              cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
-            }}
-          >
-            ▶
-          </button>
-        </div>
-      )}
-
-      <ModalDocumento
-        isOpen={modalDocsOpen}
-        documentos={documentos}
-        onClose={() => setModalDocsOpen(false)}
-      />
-
-      <HistorialMovimiento
-        isOpen={modalHistOpen}
-        pedidoId={pedidoIdSeleccionado}
-        onClose={() => setModalHistOpen(false)}
-      />
+      <span style={{ alignSelf: 'center', fontSize: '14px', color: '#555' }}>
+        Página {currentPage} de {totalPages}
+      </span>
+      <button
+        onClick={handleNextPage}
+        disabled={currentPage === totalPages}
+        style={{
+          padding: '5px 10px',
+          borderRadius: '8px',
+          border: '1px solid #ccc',
+          background: currentPage === totalPages ? '#88C250' : '#88C250',
+          cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+        }}
+      >
+        ▶
+      </button>
     </div>
-    </div>
-  );
+  )}
+
+  <ModalDocumento
+    isOpen={modalDocsOpen}
+    pedidoId={pedidoIdDocumentos}
+    onClose={() => setModalDocsOpen(false)}
+  />
+
+  <HistorialMovimiento
+    isOpen={modalHistOpen}
+    pedidoId={pedidoIdSeleccionado}
+    onClose={() => setModalHistOpen(false)}
+  />
+</div>
+</div>
+);
 };

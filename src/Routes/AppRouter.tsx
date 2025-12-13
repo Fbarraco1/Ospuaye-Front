@@ -106,7 +106,7 @@ export const AppRouter = () => {
           
          {/* Rutas Admin */}
         <Route path="/admin" element={
-          <PrivateRoutes roles={['ADMIN', 'MEDICO AUDITOR GENERAL', 'USER', 'MEDICO OFTALMOLOGIA', 'MEDICO ORTOPEDIA']}>
+          <PrivateRoutes roles={['ADMIN', 'MEDICO AUDITOR GENERAL', 'USER', 'MEDICO OFTALMOLOGO', 'MEDICO ORTOPEDIA']}>
             <ImgSistema /> 
           </PrivateRoutes>} />
 

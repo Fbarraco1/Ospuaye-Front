@@ -35,19 +35,9 @@ interface PedidoOftalmologia {
   activo: boolean;
 }
 
-interface Documento {
-  id: number;
-  nombreArchivo: string;
-  path: string;
-  observacion: string;
-  fechaSubida: string;
-  subidoPor: { email: string };
-}
-
 
 export const PedidoOftalmologia: React.FC = () => {
-  const [pedidos, setPedidos] = useState<PedidoOftalmologia[]>([]);
-  const [documentos, setDocumentos] = useState<Documento[]>([]);
+  const [pedidos, setPedidos] = useState<PedidoOftalmologia[]>([]);  
   const [modalDocsOpen, setModalDocsOpen] = useState(false);
   const [modalHistOpen, setModalHistOpen] = useState(false);
   const [search, setSearch] = useState('');
@@ -56,8 +46,9 @@ export const PedidoOftalmologia: React.FC = () => {
   const navigate = useNavigate();
   const token = useAuthStore((state) => state.token);
   const [pedidoIdSeleccionado, setPedidoIdSeleccionado] = useState<number | null>(null);
-
   
+  // ✅ AGREGAR este nuevo estado para los documentos
+  const [pedidoIdDocumentos, setPedidoIdDocumentos] = useState<number | null>(null);
 
   useEffect(() => {
     obtenerPedidos();
@@ -92,7 +83,7 @@ export const PedidoOftalmologia: React.FC = () => {
                 Authorization: `Bearer ${token}`,
                 },
             });
-            obtenerPedidos(); // refrescar la lista
+            obtenerPedidos();
             Swal.fire({
               icon: 'success',
               title: 'Eliminado',
@@ -115,17 +106,13 @@ export const PedidoOftalmologia: React.FC = () => {
     navigate(`/pedidos/oftalmologia/editar/${id}`);
   };
 
-  const verDocumentos = async (id: number) => {
-    try {
-      const res = await axios.get(`${database}/api/documentos/${id}`);
-      setDocumentos([res.data]);
-      setModalDocsOpen(true);
-    } catch (error) {
-      console.error('Error al obtener documentos:', error);
-    }
+  // ✅ REEMPLAZAR toda esta función
+  const verDocumentos = (id: number) => {
+    setPedidoIdDocumentos(id);
+    setModalDocsOpen(true);
   };
 
-  const verHistorial = async (id: number) => {
+  const verHistorial = (id: number) => {
     setPedidoIdSeleccionado(id);
     setModalHistOpen(true);
   };
@@ -188,7 +175,7 @@ export const PedidoOftalmologia: React.FC = () => {
         value={search}
         onChange={(e) => {
           setSearch(e.target.value);
-          setCurrentPage(1); // resetear página al filtrar
+          setCurrentPage(1);
         }}
         style={{ marginBottom: '10px', padding: '5px', width: '250px' }}
       />
@@ -290,9 +277,10 @@ export const PedidoOftalmologia: React.FC = () => {
         </div>
       )}
 
+      {/* ✅ CAMBIAR estas props */}
       <ModalDocumento
         isOpen={modalDocsOpen}
-        documentos={documentos}
+        pedidoId={pedidoIdDocumentos}
         onClose={() => setModalDocsOpen(false)}
       />
 

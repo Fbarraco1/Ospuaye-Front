@@ -27,7 +27,6 @@ const validationSchema = Yup.object().shape({
     .positive("Teléfono inválido"),
   empresa: Yup.string().required('La empresa es obligatoria'),
   delegacion: Yup.string().required('La delegación es obligatoria'),
-  motivoConsulta: Yup.string().required('El motivo de consulta es obligatorio'),
   fechaRevision: Yup.date().required('La fecha de revisión es obligatoria').typeError('Fecha inválida'),
   observacionMedico: Yup.string(),
   pacienteId: Yup.string(),
@@ -49,8 +48,6 @@ const ModalPedidoUser: React.FC<{ onPedidoAdded?: () => void }> = ({ onPedidoAdd
   const [telefono, setTelefono] = useState('');
   const [empresa, setEmpresa] = useState('');
   const [delegacion, setDelegacion] = useState('');
-  const [motivoConsulta, setMotivoConsulta] = useState('');
-  const [recetaMedica, setRecetaMedica] = useState(false);
   const [fechaRevision, setFechaRevision] = useState('');
   const [observacionMedico, setObservacionMedico] = useState('');
   const [grupoFamiliarId, setGrupoFamiliarId] = useState('');
@@ -196,7 +193,6 @@ const ModalPedidoUser: React.FC<{ onPedidoAdded?: () => void }> = ({ onPedidoAdd
         telefono,
         empresa,
         delegacion,
-        motivoConsulta,
         fechaRevision,
         observacionMedico,
         pacienteId,
@@ -213,8 +209,6 @@ const ModalPedidoUser: React.FC<{ onPedidoAdded?: () => void }> = ({ onPedidoAdd
         telefono: telefono ? Number(telefono) : null,
         empresa,
         delegacion,
-        motivoConsulta,
-        recetaMedica,
         fechaRevision: fechaRevision ? new Date(fechaRevision) : null,
         observacionMedico,
         beneficiario: { id: Number(beneficiarioId) },
@@ -340,22 +334,6 @@ const ModalPedidoUser: React.FC<{ onPedidoAdded?: () => void }> = ({ onPedidoAdd
           className={errors.delegacion ? styles.inputError : ''}
         />
         {errors.delegacion && <span className={styles.errorText}>{errors.delegacion}</span>}
-
-        <label>Motivo de Consulta:</label>
-        <input
-          type="text"
-          value={motivoConsulta}
-          onChange={e => handleInputChange(e, setMotivoConsulta, 'motivoConsulta')}
-          className={errors.motivoConsulta ? styles.inputError : ''}
-        />
-        {errors.motivoConsulta && <span className={styles.errorText}>{errors.motivoConsulta}</span>}
-
-        <label>Receta Médica:</label>
-        <input
-          type="checkbox"
-          checked={recetaMedica}
-          onChange={e => setRecetaMedica(e.target.checked)}
-        />
 
         <label>Fecha de Revisión:</label>
         <input

@@ -30,19 +30,9 @@ interface Pedido {
   activo: boolean;
 }
 
-interface Documento {
-  id: number;
-  nombreArchivo: string;
-  path: string;
-  observacion: string;
-  fechaSubida: string;
-  subidoPor: { email: string };
-}
-
 
 export const Pedido: React.FC = () => {
   const [pedidos, setPedidos] = useState<Pedido[]>([]);
-  const [documentos, setDocumentos] = useState<Documento[]>([]);
   const [modalDocsOpen, setModalDocsOpen] = useState(false);
   const [modalHistOpen, setModalHistOpen] = useState(false);
   const [search, setSearch] = useState('');
@@ -51,6 +41,7 @@ export const Pedido: React.FC = () => {
   const navigate = useNavigate();
   const token = useAuthStore((state) => state.token);
   const [pedidoIdSeleccionado, setPedidoIdSeleccionado] = useState<number | null>(null);
+  const [pedidoIdDocumentos, setPedidoIdDocumentos] = useState<number | null>(null);
   
 
   useEffect(() => {
@@ -86,7 +77,7 @@ export const Pedido: React.FC = () => {
                 Authorization: `Bearer ${token}`,
                 },
             });
-            obtenerPedidos(); // refrescar la lista
+            obtenerPedidos();
             Swal.fire({
               icon: 'success',
               title: 'Eliminado',
@@ -109,22 +100,16 @@ export const Pedido: React.FC = () => {
     navigate(`/pedidos/generales/editar/${id}`);
   };
 
-  const verDocumentos = async (id: number) => {
-    try {
-      const res = await axios.get(`${database}/api/documentos/${id}`);
-      setDocumentos([res.data]);
-      setModalDocsOpen(true);
-    } catch (error) {
-      console.error('Error al obtener documentos:', error);
-    }
+  const verDocumentos = (id: number) => {
+    setPedidoIdDocumentos(id);
+    setModalDocsOpen(true);
   };
 
-  const verHistorial = async (id: number) => {
+  const verHistorial = (id: number) => {
     setPedidoIdSeleccionado(id);
     setModalHistOpen(true);
   };
 
-  // Filtrar pedidos por cualquier campo visible
   const pedidosFiltrados = pedidos.filter((p) =>
     [
       p.id,
@@ -143,7 +128,6 @@ export const Pedido: React.FC = () => {
       .includes(search.toLowerCase())
   );
 
-  // --- PAGINACIÓN ---
   const totalPages = Math.ceil(pedidosFiltrados.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const currentItems = pedidosFiltrados.slice(startIndex, startIndex + itemsPerPage);
@@ -181,7 +165,7 @@ export const Pedido: React.FC = () => {
         value={search}
         onChange={(e) => {
           setSearch(e.target.value);
-          setCurrentPage(1); // resetear página al filtrar
+          setCurrentPage(1);
         }}
         style={{ marginBottom: '10px', padding: '5px', width: '250px' }}
       />
@@ -253,7 +237,6 @@ export const Pedido: React.FC = () => {
         </tbody>
       </table>
 
-      {/* PAGINADO */}
       {totalPages > 1 && (
         <div style={{ marginTop: '15px', display: 'flex', justifyContent: 'center', gap: '10px' }}>
           <button
@@ -290,7 +273,7 @@ export const Pedido: React.FC = () => {
 
       <ModalDocumento
         isOpen={modalDocsOpen}
-        documentos={documentos}
+        pedidoId={pedidoIdDocumentos}
         onClose={() => setModalDocsOpen(false)}
       />
 

@@ -63,13 +63,12 @@ export const ModalEstadoOrtopedia: React.FC<ModalEstadoProps> = ({
     };
 
     return (
-        <div className={styles.modalOverlay}>
-            <div className={styles.modalContent}>
-                <h3 className={styles.title}>Cambiar Estado del Pedido</h3>
-                <form onSubmit={handleSubmit} className={styles.form}>
-                    <label className={styles.label}>Nuevo Estado:</label>
+        <div className={styles.overlay}>
+            <div className={styles.modal}>
+                <h2>Cambiar Estado del Pedido</h2>
+                <form onSubmit={handleSubmit}>
+                    <label>Nuevo Estado:</label>
                     <select
-                        className={styles.input}
                         value={nuevoEstado}
                         onChange={e => setNuevoEstado(e.target.value)}
                         required
@@ -80,8 +79,8 @@ export const ModalEstadoOrtopedia: React.FC<ModalEstadoProps> = ({
                         ))}
                     </select>
                     <div className={styles.actions}>
-                        <button type="submit" className={styles.addButton}>Aceptar</button>
-                        <button type="button" className={styles.addButton} style={{backgroundColor:'#888'}} onClick={onClose}>Cancelar</button>
+                        <button type="submit">Aceptar</button>
+                        <button type="button" onClick={onClose}>Cancelar</button>
                     </div>
                 </form>
             </div>

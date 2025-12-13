@@ -44,16 +44,6 @@ const HeaderMedicoAuditorGeneral = () => {
 
                         <li  className="nav-item">
                             <a className="page-scroll dd-menu collapsed" href="javascript:void(0)"
-                              data-bs-toggle="collapse" data-bs-target="#submenu-1-1"
-                              aria-controls="navbarSupportedContent" aria-expanded="false"
-                              aria-label="Toggle navigation">Medicos</a>
-                              <ul className="sub-menu collapse" id="submenu-1-1">
-                                <li className="nav-item" onClick={() => navigate("/medicos")}>Gestion de Medicos</li>
-                              </ul>                            
-                        </li>
-
-                        <li  className="nav-item">
-                            <a className="page-scroll dd-menu collapsed" href="javascript:void(0)"
                               data-bs-toggle="collapse" data-bs-target="#submenu-1-4"
                               aria-controls="navbarSupportedContent" aria-expanded="false"
                               aria-label="Toggle navigation">Gestion de pedidos</a>

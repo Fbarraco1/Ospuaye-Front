@@ -31,19 +31,9 @@ interface PedidoOftalmologia {
   medico: Medico;
 }
 
-interface Documento {
-  id: number;
-  nombreArchivo: string;
-  path: string;
-  observacion: string;
-  fechaSubida: string;
-  subidoPor: { email: string };
-}
-
 
 export const PedidoOftalmologiaMedico: React.FC = () => {
   const [pedidos, setPedidos] = useState<PedidoOftalmologia[]>([]);
-  const [documentos, setDocumentos] = useState<Documento[]>([]);
   const [modalDocsOpen, setModalDocsOpen] = useState(false);
   const [modalHistOpen, setModalHistOpen] = useState(false);
   const [modalEstado, setModalEstado] = useState(false);
@@ -53,10 +43,10 @@ export const PedidoOftalmologiaMedico: React.FC = () => {
   const itemsPerPage = 5;
   const idMedico = useAuthStore((state) => state.user?.idMedico || 0);
   const [pedidoIdSeleccionado, setPedidoIdSeleccionado] = useState<number | null>(null);
+  const [pedidoIdDocumentos, setPedidoIdDocumentos] = useState<number | null>(null);
 
   
   useEffect(() => {
-    // cargar sólo cuando idMedico esté disponible
     if (!idMedico || idMedico === 0) return;
     obtenerPedidos(idMedico);
   }, [idMedico]);
@@ -64,7 +54,6 @@ export const PedidoOftalmologiaMedico: React.FC = () => {
   const obtenerPedidos = async (id: number) => {
     try {
       const response = await axios.get(`${database}/api/pedidos/oftalmologia/medico/${id}`);
-      // manejar respuesta tipo array o paginada { content, totalPages }
       const data = Array.isArray(response.data) ? response.data : (response.data.content ?? response.data);
       setPedidos(data || []);
       setCurrentPage(1);
@@ -74,14 +63,9 @@ export const PedidoOftalmologiaMedico: React.FC = () => {
   };
 
 
-  const verDocumentos = async (id: number) => {
-    try {
-      const res = await axios.get(`${database}/api/documentos/${id}`);
-      setDocumentos([res.data]);
-      setModalDocsOpen(true);
-    } catch (error) {
-      console.error('Error al obtener documentos:', error);
-    }
+  const verDocumentos = (id: number) => {
+    setPedidoIdDocumentos(id);
+    setModalDocsOpen(true);
   };
 
   const verHistorial = (id: number) => {
@@ -89,7 +73,6 @@ export const PedidoOftalmologiaMedico: React.FC = () => {
     setModalHistOpen(true);
   };
 
-  // Filtrar pedidos por cualquier campo visible (igual que la versión admin)
   const pedidosFiltrados = pedidos.filter((p) =>
     [
       p.id,
@@ -109,12 +92,10 @@ export const PedidoOftalmologiaMedico: React.FC = () => {
       .includes(search.toLowerCase())
   );
   
-  // --- PAGINACIÓN ---
   const totalPages = Math.ceil(pedidosFiltrados.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const currentItems = pedidosFiltrados.slice(startIndex, startIndex + itemsPerPage);
   
-  // opcional: logs de ayuda rápida para debugging (quitar en producción)
   useEffect(() => {
     console.debug('pedidos (medico):', pedidos);
     console.debug('pedidosFiltrados:', pedidosFiltrados.length, 'currentItems:', currentItems.length, 'currentPage:', currentPage, 'totalPages:', totalPages);
@@ -162,7 +143,7 @@ export const PedidoOftalmologiaMedico: React.FC = () => {
         value={search}
         onChange={(e) => {
           setSearch(e.target.value);
-          setCurrentPage(1); // resetear página al filtrar
+          setCurrentPage(1);
         }}
         style={{ marginBottom: '10px', padding: '5px', width: '250px' }}
       />
@@ -213,7 +194,6 @@ export const PedidoOftalmologiaMedico: React.FC = () => {
         </tbody>
       </table>
 
-      {/* PAGINADO */}
       {totalPages > 1 && (
         <div style={{ marginTop: '15px', display: 'flex', justifyContent: 'center', gap: '10px' }}>
           <button
@@ -250,7 +230,7 @@ export const PedidoOftalmologiaMedico: React.FC = () => {
 
       <ModalDocumento
         isOpen={modalDocsOpen}
-        documentos={documentos}
+        pedidoId={pedidoIdDocumentos}
         onClose={() => setModalDocsOpen(false)}
       />
 
