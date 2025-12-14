@@ -141,9 +141,10 @@ export const GrupoFamiliar: React.FC = () => {
         if (search.trim() === '') obtenerGrupos(currentPage);
         else buscarGrupos(search, currentPage);
         Swal.fire({ icon: 'success', title: 'Eliminado', text: 'El grupo familiar fue eliminado correctamente.', timer: 1500, showConfirmButton: false });
-      } catch (error) {
+      } catch (error: any) {
         console.error('Error al eliminar grupo familiar:', error);
-        Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo eliminar el grupo familiar.' });
+        const backendMessage = error?.response?.data?.message || error?.response?.data || 'No se pudo eliminar el grupo familiar.';
+        Swal.fire({ icon: 'error', title: 'Error', text: backendMessage });
       }
     }
   };
@@ -182,10 +183,11 @@ export const GrupoFamiliar: React.FC = () => {
       showConfirmButton: false
     });
 
-  } catch (error) {
+  } catch (error: any) {
     Swal.close();
     console.error("Error al descargar grupo familiar:", error);
-    Swal.fire("Error", "No se pudo generar el archivo TXT", "error");
+    const backendMessage = error?.response?.data?.message || error?.response?.data || "No se pudo generar el archivo TXT";
+    Swal.fire("Error", backendMessage, "error");
   }
 };
 
@@ -224,9 +226,10 @@ export const GrupoFamiliar: React.FC = () => {
         if (search.trim() === '') obtenerGrupos(currentPage);
         else buscarGrupos(search, currentPage);
         Swal.fire({ icon: 'success', title: 'Eliminado', text: 'El familiar fue eliminado correctamente.', timer: 1500, showConfirmButton: false });
-      } catch (error) {
+      } catch (error: any) {
         console.error('Error al eliminar familiar:', error);
-        Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo eliminar el familiar.' });
+        const backendMessage = error?.response?.data?.message || error?.response?.data || 'No se pudo eliminar el familiar.';
+        Swal.fire({ icon: 'error', title: 'Error', text: backendMessage });
       }
     }
   };

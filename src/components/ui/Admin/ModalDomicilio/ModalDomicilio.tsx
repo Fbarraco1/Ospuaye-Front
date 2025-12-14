@@ -154,9 +154,10 @@ export const ModalDomicilio: React.FC<ModalDomicilioProps> = ({ modo = 'crear', 
       onDomicilioAdded?.();
       navigate('/domicilio');
 
-    } catch (e) {
+    } catch (e: any) {
       console.error('Error guardando domicilio', e);
-      Swal.fire('Error', 'No se pudo guardar el domicilio', 'error');
+      const backendMessage = e?.response?.data?.message || e?.response?.data || 'No se pudo guardar el domicilio';
+      Swal.fire('Error', backendMessage, 'error');
     }
   };
 

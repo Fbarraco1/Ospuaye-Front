@@ -125,9 +125,10 @@ const ModalGrupoFamiliar: React.FC<{ modo?: 'editar' | 'crear'; onGrupoFamiliarA
 
       Swal.fire({ icon: 'success', title: 'Grupo familiar creado', timer: 1500, showConfirmButton: false });
 
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
-      Swal.fire("Error", "No se pudo crear el grupo familiar", "error");
+      const backendMessage = error?.response?.data?.message || error?.response?.data || "No se pudo crear el grupo familiar";
+      Swal.fire("Error", backendMessage, "error");
     }
   };
 
@@ -153,9 +154,10 @@ const ModalGrupoFamiliar: React.FC<{ modo?: 'editar' | 'crear'; onGrupoFamiliarA
 
       Swal.fire({ icon: 'success', title: 'Grupo familiar editado', timer: 1500, showConfirmButton: false });
 
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
-      Swal.fire("Error", "No se pudo editar el grupo familiar", "error");
+      const backendMessage = error?.response?.data?.message || error?.response?.data || "No se pudo editar el grupo familiar";
+      Swal.fire("Error", backendMessage, "error");
     }
   };
 

@@ -72,13 +72,21 @@ const ModalRol: React.FC<ModalRolProps> = ({ modo = 'crear', onRolAdded }) => {
         timer: 2000,
         showConfirmButton: false
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('error:', error);
+
+      // 👉 Tomamos el mensaje real del backend
+      const backendMessage =
+        error?.response?.data?.message ||
+        error?.response?.data ||
+        'No se pudo crear el rol.';
+
       Swal.fire({
         icon: 'error',
         title: 'Error',
-        text: 'No se pudo crear el rol.',
+        text: backendMessage,
       });
+
       throw error;
     }
   };
@@ -103,13 +111,21 @@ const ModalRol: React.FC<ModalRolProps> = ({ modo = 'crear', onRolAdded }) => {
         timer: 2000,
         showConfirmButton: false
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('error:', error);
+
+      // 👉 Tomamos el mensaje real del backend
+      const backendMessage =
+        error?.response?.data?.message ||
+        error?.response?.data ||
+        'No se pudo editar el rol.';
+
       Swal.fire({
         icon: 'error',
         title: 'Error',
-        text: 'No se pudo editar el rol.',
+        text: backendMessage,
       });
+
       throw error;
     }
   };

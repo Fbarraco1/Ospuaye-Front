@@ -85,12 +85,13 @@ export const Pedido: React.FC = () => {
               timer: 1500,
               showConfirmButton: false
             });          
-            } catch (error) {
+            } catch (error: any) {
             console.error('Error al eliminar Pedido:', error);
+            const backendMessage = error?.response?.data?.message || error?.response?.data || 'No se pudo eliminar el pedido.';
             Swal.fire({
               icon: 'error',
               title: 'Error',
-              text: 'No se pudo eliminar el pedido.',
+              text: backendMessage,
             });     
           }
       }

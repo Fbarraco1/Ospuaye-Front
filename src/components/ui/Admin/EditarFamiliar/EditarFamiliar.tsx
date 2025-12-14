@@ -64,9 +64,10 @@ const EditarFamiliar: React.FC = () => {
       });
       if (response.status < 200 || response.status >= 300) throw new Error('Error al actualizar familiar');
       Swal.fire({ icon: 'success', title: 'Familiar actualizado', timer: 1500, showConfirmButton: false });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error al actualizar familiar:', error);
-      Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo actualizar el familiar.' });
+      const backendMessage = error?.response?.data?.message || error?.response?.data || 'No se pudo actualizar el familiar.';
+      Swal.fire({ icon: 'error', title: 'Error', text: backendMessage });
     }
   };
 

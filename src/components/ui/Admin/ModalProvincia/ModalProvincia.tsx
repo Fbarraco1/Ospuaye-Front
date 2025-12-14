@@ -92,8 +92,11 @@ const ModalProvincia: React.FC<{ modo?: 'editar' | 'crear'; onProvinciaAdded?: (
 
       if (onProvinciaAdded) onProvinciaAdded();
       navigate('/provincia');
-    } catch (error) {
-      Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo guardar la provincia.' });
+    } catch (error: any) {
+      console.error('error:', error);
+      const backendMessage = error?.response?.data?.message || error?.response?.data || 'No se pudo guardar la provincia.';
+      Swal.fire({ icon: 'error', title: 'Error', text: backendMessage });
+      throw error;
     }
   };
 

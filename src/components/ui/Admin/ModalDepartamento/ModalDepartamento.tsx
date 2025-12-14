@@ -99,13 +99,21 @@ export const ModalDepartamento: React.FC<ModalDepartamentoProps> = ({
         timer: 2000,
         showConfirmButton: false,
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('error:', error);
+
+      // 👉 Tomamos el mensaje real del backend
+      const backendMessage =
+        error?.response?.data?.message ||
+        error?.response?.data ||
+        'No se pudo crear el departamento.';
+
       Swal.fire({
         icon: 'error',
         title: 'Error',
-        text: 'No se pudo crear el departamento.',
+        text: backendMessage,
       });
+
       throw error;
     }
   };
@@ -138,13 +146,21 @@ export const ModalDepartamento: React.FC<ModalDepartamentoProps> = ({
         timer: 2000,
         showConfirmButton: false,
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('error:', error);
+
+      // 👉 Tomamos el mensaje real del backend
+      const backendMessage =
+        error?.response?.data?.message ||
+        error?.response?.data ||
+        'No se pudo editar el departamento.';
+
       Swal.fire({
         icon: 'error',
         title: 'Error',
-        text: 'No se pudo editar el departamento.',
+        text: backendMessage,
       });
+
       throw error;
     }
   };

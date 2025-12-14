@@ -111,12 +111,13 @@ const ModalUsuario: React.FC<ModalUsuarioProps> = ({  onUserAdded, modo = 'crear
           timer: 2000,
           showConfirmButton: false
         });
-      } catch (error) {
+      } catch (error: any) {
         console.error('error:', error);
+        const backendMessage = error?.response?.data?.message || error?.response?.data || 'No se pudo editar el usuario.';
         Swal.fire({
           icon: 'error',
           title: 'Error',
-          text: 'No se pudo editar el usuario.',
+          text: backendMessage,
         });
       }
     }
@@ -145,12 +146,13 @@ const ModalUsuario: React.FC<ModalUsuarioProps> = ({  onUserAdded, modo = 'crear
         timer: 2000,
         showConfirmButton: false
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('error:', error);
+      const backendMessage = error?.response?.data?.message || error?.response?.data || 'No se pudo crear el usuario.';
       Swal.fire({
         icon: 'error',
         title: 'Error',
-        text: 'No se pudo crear el usuario.',
+        text: backendMessage,
       });
     }
   }

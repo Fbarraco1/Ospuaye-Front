@@ -82,12 +82,13 @@ export const PedidoMedicoOrtop: React.FC = () => {
       });
 
       obtenerPedidos();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error al tomar pedido:', error);
+      const backendMessage = error?.response?.data?.message || error?.response?.data || 'No se pudo tomar el pedido.';
       Swal.fire({
         icon: 'error',
         title: 'Error',
-        text: 'No se pudo tomar el pedido.',
+        text: backendMessage,
       });
     }
   };

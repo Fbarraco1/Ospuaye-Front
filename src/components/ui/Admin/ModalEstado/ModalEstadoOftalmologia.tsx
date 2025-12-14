@@ -54,11 +54,12 @@ export const ModalEstadoOftalmologia: React.FC<ModalEstadoProps> = ({
             });
             onChangeEstado(nuevoEstado);
             onClose();
-        } catch (error) {
+        } catch (error: any) {
+            const backendMessage = error?.response?.data?.message || error?.response?.data || 'No se pudo cambiar el estado del pedido.';
             Swal.fire({
                 icon: 'error',
                 title: 'Error',
-                text: 'No se pudo cambiar el estado del pedido.'
+                text: backendMessage
             });
         }
     };

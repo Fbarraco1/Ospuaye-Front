@@ -37,11 +37,12 @@ export const GestionDeCuenta = () => {
         }
       );
       setBeneficiario(response.data);
-    } catch (error) {
+    } catch (error: any) {
+      const backendMessage = error?.response?.data?.message || error?.response?.data || "No se pudieron cargar los datos del beneficiario.";
       Swal.fire({
         icon: "error",
         title: "Error",
-        text: "No se pudieron cargar los datos del beneficiario.",
+        text: backendMessage,
       });
     } finally {
       setLoading(false);
@@ -78,11 +79,12 @@ export const GestionDeCuenta = () => {
         timer: 2000,
         showConfirmButton: false,
       });
-    } catch (error) {
+    } catch (error: any) {
+      const backendMessage = error?.response?.data?.message || error?.response?.data || "No se pudieron actualizar los datos.";
       Swal.fire({
         icon: "error",
         title: "Error",
-        text: "No se pudieron actualizar los datos.",
+        text: backendMessage,
       });
     }
   };

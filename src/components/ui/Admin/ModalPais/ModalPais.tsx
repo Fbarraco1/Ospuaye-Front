@@ -35,35 +35,48 @@ const ModalPais: React.FC<ModalPaisProps> = ({ modo = 'crear', onPaisesAdded }) 
   };
 
   const createPais = async (nombreVal: string) => {
-    try {
-      const response = await axios.post(
-        `${database}/api/paises/crear`,
-        { nombre: nombreVal },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      if (response.status < 200 || response.status >= 300) throw new Error('Error al crear Pais');
-      Swal.fire({
-        icon: 'success',
-        title: 'Pais creado',
-        text: 'El pais se creó correctamente.',
-        timer: 2000,
-        showConfirmButton: false
-      });
-    } catch (error) {
-      console.error('error:', error);
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'No se pudo crear el pais.',
-      });
-      throw error;
-    }
-  };
+  try {
+    const response = await axios.post(
+      `${database}/api/paises/crear`,
+      { nombre: nombreVal },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    if (response.status < 200 || response.status >= 300)
+      throw new Error('Error al crear Pais');
+
+    Swal.fire({
+      icon: 'success',
+      title: 'País creado',
+      text: 'El país se creó correctamente.',
+      timer: 2000,
+      showConfirmButton: false,
+    });
+
+  } catch (error: any) {
+    console.error('error:', error);
+
+    // 👉 Tomamos el mensaje real del backend
+    const backendMessage =
+      error?.response?.data?.message ||
+      error?.response?.data ||
+      'No se pudo crear el país.';
+
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: backendMessage,
+    });
+
+    throw error;
+  }
+};
+
 
   const updatePais = async (idNum: number, nombreVal: string) => {
     try {
@@ -85,13 +98,21 @@ const ModalPais: React.FC<ModalPaisProps> = ({ modo = 'crear', onPaisesAdded }) 
         timer: 2000,
         showConfirmButton: false
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('error:', error);
+
+      // 👉 Tomamos el mensaje real del backend
+      const backendMessage =
+        error?.response?.data?.message ||
+        error?.response?.data ||
+        'No se pudo editar el pais.';
+
       Swal.fire({
         icon: 'error',
         title: 'Error',
-        text: 'No se pudo editar el pais.',
+        text: backendMessage,
       });
+
       throw error;
     }
   };

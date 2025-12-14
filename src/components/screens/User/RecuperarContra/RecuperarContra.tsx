@@ -61,12 +61,13 @@ export default function RecuperarContra() {
       setNueva("");
       setRepetirNueva("");
     } catch (err: any) {
+      const backendMessage = err?.response?.data?.message || err?.response?.data || err.message || "Error al actualizar la contraseña.";
       Swal.fire({
         icon: "error",
         title: "Error",
-        text: err.message || "Error al actualizar la contraseña.",
+        text: backendMessage,
       });
-      setMensaje(err.message || "Error al actualizar la contraseña.");
+      setMensaje(backendMessage);
     }
     setLoading(false);
   };

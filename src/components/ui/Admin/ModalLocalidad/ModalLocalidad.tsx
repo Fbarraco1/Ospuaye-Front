@@ -118,8 +118,11 @@ export const ModalLocalidad: React.FC<{ modo?: 'editar' | 'crear'; onLocalidadAd
 
       if (onLocalidadAdded) onLocalidadAdded();
       navigate('/localidad');
-    } catch (error) {
-      Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo guardar la localidad.' });
+    } catch (error: any) {
+      console.error('error:', error);
+      const backendMessage = error?.response?.data?.message || error?.response?.data || 'No se pudo guardar la localidad.';
+      Swal.fire({ icon: 'error', title: 'Error', text: backendMessage });
+      throw error;
     }
   };
 

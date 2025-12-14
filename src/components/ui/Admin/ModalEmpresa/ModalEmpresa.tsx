@@ -90,13 +90,21 @@ const ModalEmpresa: React.FC<{ modo?: 'editar' | 'crear'; onEmpresaAdded?: () =>
         timer: 2000,
         showConfirmButton: false
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('error:', error);
+
+      // 👉 Tomamos el mensaje real del backend
+      const backendMessage =
+        error?.response?.data?.message ||
+        error?.response?.data ||
+        'No se pudo crear la empresa.';
+
       Swal.fire({
         icon: 'error',
         title: 'Error',
-        text: 'No se pudo crear la empresa.',
+        text: backendMessage,
       });
+
       throw error;
     }
   };
@@ -121,13 +129,21 @@ const ModalEmpresa: React.FC<{ modo?: 'editar' | 'crear'; onEmpresaAdded?: () =>
         timer: 2000,
         showConfirmButton: false
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('error:', error);
+
+      // 👉 Tomamos el mensaje real del backend
+      const backendMessage =
+        error?.response?.data?.message ||
+        error?.response?.data ||
+        'No se pudo editar la empresa.';
+
       Swal.fire({
         icon: 'error',
         title: 'Error',
-        text: 'No se pudo editar la empresa.',
+        text: backendMessage,
       });
+
       throw error;
     }
   };

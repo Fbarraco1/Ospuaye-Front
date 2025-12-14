@@ -55,13 +55,21 @@ const ModalArea: React.FC<ModalAreaProps> = ({ modo = 'crear', onAreaAdded }) =>
         timer: 2000,
         showConfirmButton: false
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('error:', error);
+
+      // 👉 Tomamos el mensaje real del backend
+      const backendMessage =
+        error?.response?.data?.message ||
+        error?.response?.data ||
+        'No se pudo crear el area.';
+
       Swal.fire({
         icon: 'error',
         title: 'Error',
-        text: 'No se pudo crear el area.',
+        text: backendMessage,
       });
+
       throw error;
     }
   }
@@ -86,13 +94,21 @@ const ModalArea: React.FC<ModalAreaProps> = ({ modo = 'crear', onAreaAdded }) =>
         timer: 2000,
         showConfirmButton: false
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('error:', error);
+
+      // 👉 Tomamos el mensaje real del backend
+      const backendMessage =
+        error?.response?.data?.message ||
+        error?.response?.data ||
+        'No se pudo editar el area.';
+
       Swal.fire({
         icon: 'error',
         title: 'Error',
-        text: 'No se pudo editar el area.',
+        text: backendMessage,
       });
+
       throw error;
     }
   }

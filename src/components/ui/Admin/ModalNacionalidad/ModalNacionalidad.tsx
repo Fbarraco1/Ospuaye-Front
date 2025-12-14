@@ -43,9 +43,21 @@ const ModalNacionalidad: React.FC<{ modo?: 'editar' | 'crear'; onNacionalidadAdd
       );
       if (response.status < 200 || response.status >= 300) throw new Error('Error al crear Nacionalidad');
       Swal.fire({ icon: 'success', title: 'Nacionalidad creada', timer: 1500, showConfirmButton: false });
-    } catch (error) {
+    } catch (error: any) {
       console.error('error:', error);
-      Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo crear la nacionalidad.' });
+
+      // 👉 Tomamos el mensaje real del backend
+      const backendMessage =
+        error?.response?.data?.message ||
+        error?.response?.data ||
+        'No se pudo crear la nacionalidad.';
+
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: backendMessage,
+      });
+
       throw error;
     }
   };
@@ -64,9 +76,21 @@ const ModalNacionalidad: React.FC<{ modo?: 'editar' | 'crear'; onNacionalidadAdd
       );
       if (response.status < 200 || response.status >= 300) throw new Error('Error al editar Nacionalidad');
       Swal.fire({ icon: 'success', title: 'Nacionalidad editada', timer: 1500, showConfirmButton: false });
-    } catch (error) {
+    } catch (error: any) {
       console.error('error:', error);
-      Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo editar la nacionalidad.' });
+
+      // 👉 Tomamos el mensaje real del backend
+      const backendMessage =
+        error?.response?.data?.message ||
+        error?.response?.data ||
+        'No se pudo editar la nacionalidad.';
+
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: backendMessage,
+      });
+
       throw error;
     }
   };

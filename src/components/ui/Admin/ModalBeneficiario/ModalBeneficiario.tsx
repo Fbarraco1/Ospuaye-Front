@@ -119,7 +119,7 @@ const ModalBeneficiario: React.FC<{ modo?: 'editar' | 'crear', onBeneficiarioAdd
   const createBene = async () => {
     await axios.post(`${database}/api/auth/register/beneficiario`, {
       nombre, apellido, email, contrasena, dni, cuil, telefono, afiliadoSindical, esJubilado
-    });
+    }, { headers: { Authorization: `Bearer ${token}` } });
   };
 
   // ---------------------- SUBMIT ----------------------
@@ -140,8 +140,9 @@ const ModalBeneficiario: React.FC<{ modo?: 'editar' | 'crear', onBeneficiarioAdd
       if (onBeneficiarioAdded) onBeneficiarioAdded();
       navigate('/beneficiarios');
 
-    } catch {
-      Swal.fire('Error', 'No se pudo guardar el beneficiario', 'error');
+    } catch (error: any) {
+      const backendMessage = error?.response?.data?.message || error?.response?.data || 'No se pudo guardar el beneficiario';
+      Swal.fire('Error', backendMessage, 'error');
     }
   };
 

@@ -36,11 +36,12 @@ export const GestionDeCuentaMedico = () => {
         }
       );
       setMedico(response.data);
-    } catch (error) {
+    } catch (error: any) {
+      const backendMessage = error?.response?.data?.message || error?.response?.data || "No se pudieron cargar los datos del medico.";
       Swal.fire({
         icon: "error",
         title: "Error",
-        text: "No se pudieron cargar los datos del medico.",
+        text: backendMessage,
       });
     } finally {
       setLoading(false);
@@ -78,11 +79,12 @@ export const GestionDeCuentaMedico = () => {
         timer: 2000,
         showConfirmButton: false,
       });
-    } catch (error) {
+    } catch (error: any) {
+      const backendMessage = error?.response?.data?.message || error?.response?.data || "No se pudieron actualizar los datos.";
       Swal.fire({
         icon: "error",
         title: "Error",
-        text: "No se pudieron actualizar los datos.",
+        text: backendMessage,
       });
     }
   };
