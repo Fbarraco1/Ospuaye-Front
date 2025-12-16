@@ -133,6 +133,26 @@ export const PedidoMedicoOrtop: React.FC = () => {
     if (currentPage < totalPages) setCurrentPage((prev) => prev + 1);
   };
 
+  const formatFecha = (fecha?: string) => {
+    if (!fecha) return '-';
+    if (fecha.includes('-')) {
+      const parts = fecha.split('-').map(p => p.trim());
+      if (parts.length === 3) {
+        if (parts[0].length === 4) {
+          const d = new Date(fecha);
+          return isNaN(d.getTime()) ? fecha : d.toLocaleDateString('es-AR');
+        } else if (parts[2].length === 4) {
+          const [day, month, year] = parts;
+          const iso = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+          const d = new Date(iso);
+          return isNaN(d.getTime()) ? fecha : d.toLocaleDateString('es-AR');
+        }
+      }
+    }
+    const d = new Date(fecha);
+    return isNaN(d.getTime()) ? fecha : d.toLocaleDateString('es-AR');
+  };
+
   return (
     <div>
     <div className="breadcrumbs overlay">
@@ -192,7 +212,7 @@ export const PedidoMedicoOrtop: React.FC = () => {
               <td>{p.telefono}</td>
               <td>{p.empresa}</td>
               <td>{p.delegacion}</td>
-              <td>{new Date(p.fechaIngreso).toLocaleDateString()}</td>
+              <td>{formatFecha(p.fechaIngreso)}</td>
               <td>{p.estado}</td>
               <td>{p.pedidoTipo}</td>
               <td>{p.activo ? 'Sí' : 'No'}</td>

@@ -46,6 +46,31 @@ const HistorialMovimiento: React.FC<Props> = ({ isOpen, pedidoId, onClose }) => 
     fetchHistorial();
   }, [isOpen, pedidoId]);
 
+  const formatFecha = (fecha?: string) => {
+    if (!fecha) return '-';
+    try {
+      let f = fecha;
+      if (f.includes('T')) f = f.split('T')[0];
+      const parts = f.split('-').map(p => p.trim());
+      if (parts.length === 3) {
+        // yyyy-MM-dd
+        if (parts[0].length === 4) {
+          const [y, m, d] = parts;
+          return new Date(`${y}-${m}-${d}`).toLocaleDateString('es-AR');
+        }
+        // dd-MM-yyyy
+        if (parts[2].length === 4) {
+          const [day, month, year] = parts;
+          return new Date(`${year}-${month}-${day}`).toLocaleDateString('es-AR');
+        }
+      }
+    } catch (e) {
+      // fallback
+    }
+    const d = new Date(fecha);
+    return isNaN(d.getTime()) ? '-' : d.toLocaleDateString('es-AR');
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -71,7 +96,7 @@ const HistorialMovimiento: React.FC<Props> = ({ isOpen, pedidoId, onClose }) => 
                 {historial.length > 0 ? (
                   historial.map((m) => (
                     <tr key={m.id}>
-                      <td>{new Date(m.fecha).toLocaleString()}</td>
+                      <td>{formatFecha(m.fecha)}</td>
                       <td>{m.comentario || 'Sin comentario'}</td>
                       <td>{m.usuario?.email || 'Desconocido'}</td>
                     </tr>

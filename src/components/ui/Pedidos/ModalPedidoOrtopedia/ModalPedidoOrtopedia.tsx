@@ -129,6 +129,29 @@ const ModalPedidoOrtopedia: React.FC<{ modo?: 'editar' | 'crear', onPedidoAdded?
     }
   };
 
+  const normalizeDateForInput = (fecha?: string) => {
+    if (!fecha) return '';
+    if (fecha.includes('T')) fecha = fecha.split('T')[0];
+    const parts = fecha.split('-').map(p => p.trim());
+    if (parts.length !== 3) return '';
+    if (parts[0].length === 4) {
+      const [y, m, d] = parts;
+      return `${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
+    }
+    if (parts[2].length === 4) {
+      const [day, month, year] = parts;
+      return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+    }
+    const date = new Date(fecha);
+    if (!isNaN(date.getTime())) {
+      const y = date.getFullYear();
+      const m = String(date.getMonth() + 1).padStart(2, '0');
+      const d = String(date.getDate()).padStart(2, '0');
+      return `${y}-${m}-${d}`;
+    }
+    return '';
+  };
+
   /* =======================
      VALIDACIONES
   ======================= */
@@ -217,18 +240,8 @@ const ModalPedidoOrtopedia: React.FC<{ modo?: 'editar' | 'crear', onPedidoAdded?
     setMotivoConsulta(pedido.motivoConsulta || '');
     setRecetaMedica(!!pedido.recetaMedica);
     
-    // ✅ Convertir fecha de dd-MM-yyyy a yyyy-MM-dd para el input
-    if (pedido.fechaRevision) {
-      const partes = pedido.fechaRevision.split('-');
-      if (partes.length === 3) {
-        const [day, month, year] = partes;
-        setFechaRevision(`${year}-${month}-${day}`);
-      } else {
-        setFechaRevision('');
-      }
-    } else {
-      setFechaRevision('');
-    }
+    // Normalizar la fecha para el input[type=date]
+    setFechaRevision(normalizeDateForInput(pedido.fechaRevision));
     
     setObservacionMedico(pedido.observacionMedico || '');
     setGrupoFamiliarId(pedido.grupoFamiliar?.id?.toString() || '');

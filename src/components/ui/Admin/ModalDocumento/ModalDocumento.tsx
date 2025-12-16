@@ -53,6 +53,23 @@ const ModalDocumento: React.FC<Props> = ({ isOpen, pedidoId, onClose }) => {
     }
   };
 
+  const formatFecha = (fecha?: string) => {
+    if (!fecha) return '-';
+    try {
+      const parts = fecha.split('-');
+      if (parts.length === 3) {
+        // backend suele enviar dd-MM-yyyy -> convertir a yyyy-MM-dd
+        const normalized = parts.reverse().join('-');
+        const d = new Date(normalized);
+        return isNaN(d.getTime()) ? '-' : d.toLocaleDateString('es-AR');
+      }
+    } catch (e) {
+      // ignore and fallback
+    }
+    const d = new Date(fecha);
+    return isNaN(d.getTime()) ? '-' : d.toLocaleDateString('es-AR');
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -83,7 +100,7 @@ const ModalDocumento: React.FC<Props> = ({ isOpen, pedidoId, onClose }) => {
               {documentos.map((doc) => (
                 <tr key={doc.id}>
                   <td>{doc.nombreArchivo}</td>
-                  <td>{new Date(doc.fechaSubida).toLocaleString('es-AR')}</td>
+                  <td>{formatFecha(doc.fechaSubida)}</td>
                   <td>{doc.observacion || 'Sin observación'}</td>
                   <td>{doc.subidoPor || 'Desconocido'}</td>
                   <td>
