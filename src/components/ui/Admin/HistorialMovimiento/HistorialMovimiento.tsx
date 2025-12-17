@@ -89,7 +89,6 @@ const HistorialMovimiento: React.FC<Props> = ({ isOpen, pedidoId, onClose }) => 
                 <tr>
                   <th>Fecha</th>
                   <th>Comentario</th>
-                  <th>Usuario</th>
                 </tr>
               </thead>
               <tbody>
@@ -98,7 +97,6 @@ const HistorialMovimiento: React.FC<Props> = ({ isOpen, pedidoId, onClose }) => 
                     <tr key={m.id}>
                       <td>{formatFecha(m.fecha)}</td>
                       <td>{m.comentario || 'Sin comentario'}</td>
-                      <td>{m.usuario?.email || 'Desconocido'}</td>
                     </tr>
                   ))
                 ) : (

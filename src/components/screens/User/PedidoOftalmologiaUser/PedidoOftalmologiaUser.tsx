@@ -94,6 +94,34 @@ export const PedidoOftalmologiaUser: React.FC = () => {
     if (currentPage < totalPages) setCurrentPage((prev) => prev + 1);
   };
 
+  const formatFecha = (fecha?: string) => {
+    if (!fecha) return '-';
+    try {
+      let f = fecha;
+      if (f.includes('T')) f = f.split('T')[0];
+      const parts = f.split('-').map(p => p.trim());
+      if (parts.length === 3) {
+        // yyyy-MM-dd
+        if (parts[0].length === 4) {
+          const [y, m, d] = parts;
+          const dObj = new Date(`${y}-${m}-${d}`);
+          return isNaN(dObj.getTime()) ? '-' : dObj.toLocaleDateString('es-AR');
+        }
+        // dd-MM-yyyy
+        if (parts[2].length === 4) {
+          const [day, month, year] = parts;
+          const iso = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+          const dObj = new Date(iso);
+          return isNaN(dObj.getTime()) ? '-' : dObj.toLocaleDateString('es-AR');
+        }
+      }
+    } catch (e) {
+      // fallback
+    }
+    const d = new Date(fecha);
+    return isNaN(d.getTime()) ? '-' : d.toLocaleDateString('es-AR');
+  };
+
   return (
     <div>
     <div className="breadcrumbs overlay">
@@ -145,7 +173,7 @@ export const PedidoOftalmologiaUser: React.FC = () => {
               <td>{p.id}</td>
               <td>{p.nombre}</td>
               <td>{p.dni}</td>
-              <td>{new Date(p.fechaIngreso).toLocaleDateString()}</td>
+              <td>{formatFecha(p.fechaIngreso)}</td>
               <td>{p.estado}</td>
               <td>{p.medico?.matricula}</td>
               <td className={styles.actions}>

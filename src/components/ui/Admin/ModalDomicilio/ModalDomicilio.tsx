@@ -36,7 +36,7 @@ export const ModalDomicilio: React.FC<ModalDomicilioProps> = ({ modo = 'crear', 
   const [localidadesFiltradas, setLocalidadesFiltradas] = useState<Localidad[]>([]);
   const [localidadSeleccionada, setLocalidadSeleccionada] = useState<number>(0);
 
-  const [tipo, setTipo] = useState<
+  const [tipoDomicilio, setTipoDomicilio] = useState<
     'DOMICILIO_COMPLETO' | 'DOMICILIO_RURAL' | 'Sin definir'
   >('Sin definir');
 
@@ -87,7 +87,7 @@ export const ModalDomicilio: React.FC<ModalDomicilioProps> = ({ modo = 'crear', 
         setSearchLocalidad(d.localidad.nombre);
       }
 
-      setTipo(d.tipo || 'Sin definir');
+      setTipoDomicilio(d.tipoDomicilio || 'Sin definir');
 
     } catch (e) {
       console.error('Error cargando domicilio', e);
@@ -118,7 +118,7 @@ export const ModalDomicilio: React.FC<ModalDomicilioProps> = ({ modo = 'crear', 
             referencia,
             activo: true,
             localidad: { id: localidadSeleccionada },
-            tipo,
+            tipoDomicilio,
           },
           {
             headers: {
@@ -139,7 +139,7 @@ export const ModalDomicilio: React.FC<ModalDomicilioProps> = ({ modo = 'crear', 
             casaDepartamento,
             referencia,
             localidad: { id: localidadSeleccionada },
-            tipo,
+            tipoDomicilio,
           },
           {
             headers: {
@@ -163,8 +163,9 @@ export const ModalDomicilio: React.FC<ModalDomicilioProps> = ({ modo = 'crear', 
 
   return (
     <div className={styles.container}>
-      <button onClick={() => navigate('/domicilio')}>Volver</button>
-
+      <button type="button" onClick={() => navigate('/domicilio')} style={{ marginBottom: 10 }}>
+        Volver
+      </button>
       <div className={styles.modal}>
         <h2>{modo === 'editar' ? 'Editar Domicilio' : 'Agregar Domicilio'}</h2>
 
@@ -241,8 +242,8 @@ export const ModalDomicilio: React.FC<ModalDomicilioProps> = ({ modo = 'crear', 
 
           <label>Tipo:</label>
           <select
-            value={tipo}
-            onChange={(e) => setTipo(e.target.value as any)}
+            value={tipoDomicilio}
+            onChange={(e) => setTipoDomicilio(e.target.value as any)}
             required
           >
             <option value="Sin definir" disabled>Seleccione un Tipo</option>
