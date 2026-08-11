@@ -4,7 +4,7 @@ Aplicación web de gestión de reintegros para la **Obra Social de los Profesion
 
 El sistema permite a los **afiliados** cargar y consultar solicitudes de reintegro (Oftalmología y Ortopedia), a los **médicos auditores** evaluarlas, y al **personal administrativo** gestionar el proceso completo, incluyendo el padrón de afiliados y grupos familiares.
 
-Este repositorio contiene el **frontend** de la aplicación. El backend (API REST) se encuentra en un repositorio separado.
+Este repositorio contiene el **frontend** de la aplicación. Consume la API REST expuesta por el [backend de OSPUAYE](https://github.com/Juani17/backendPasantias), desarrollado en Java con Spring Boot.
 
 ---
 
@@ -19,13 +19,20 @@ Este repositorio contiene el **frontend** de la aplicación. El backend (API RES
 
 ---
 
-## 👥 Roles del sistema
+## 👥 Roles y accesos
 
-| Rol | Funcionalidad principal |
-|---|---|
-| **Afiliado** | Registro/login, carga de solicitudes de reintegro, subida de documentación, consulta de historial y estado de trámites. |
-| **Médico Auditor** | Revisión de solicitudes pendientes, evaluación de documentación, aprobación/rechazo médico. |
-| **Administrador** | Gestión de usuarios, beneficiarios, médicos, empresas, domicilios, grupos familiares y aprobación final de reintegros. |
+| Funcionalidad | Afiliado | Médico Auditor | Administrador |
+|---|:---:|:---:|:---:|
+| Registro / Login | ✔️ | ✔️ | ✔️ |
+| Carga de reintegros | ✔️ | ❌ | ✔️ |
+| Subida de documentación | ✔️ | ✔️ (solo lectura) | ✔️ |
+| Evaluación médica | ❌ | ✔️ | ❌ |
+| Cambio de estado (auditoría) | ❌ | ✔️ | ❌ |
+| Aprobación final del reintegro | ❌ | ❌ | ✔️ |
+| Registro de pago | ❌ | ❌ | ✔️ |
+| Consulta de historial | ✔️ | ✔️ (solo pedidos asignados) | ✔️ |
+
+> Tabla de accesos idéntica a la implementada del lado del backend, para asegurar consistencia entre ambos repositorios.
 
 ---
 
@@ -35,7 +42,7 @@ Antes de comenzar, asegurate de tener instalado:
 
 - [Node.js](https://nodejs.org/) (versión 18 o superior recomendada)
 - [npm](https://www.npmjs.com/) (incluido con Node.js)
-- Acceso a una instancia del **backend de OSPUAYE** corriendo (local o desplegado), ya que el frontend consume su API REST.
+- El **[backend de OSPUAYE](https://github.com/Juani17/backendPasantias)** corriendo (local o desplegado), ya que el frontend depende de su API REST para funcionar. Ver las instrucciones de instalación en ese repositorio.
 
 ---
 
@@ -56,10 +63,10 @@ Antes de comenzar, asegurate de tener instalado:
 
 3. **Configurar la conexión con el backend**
 
-   Verificar/crear el archivo de variables de entorno (`.env`) con la URL base de la API, por ejemplo:
+   Crear un archivo `.env` en la raíz del proyecto con la URL base de la API. Por defecto, el backend corre en el puerto `8080` (según su configuración en `application.properties`):
 
    ```env
-   VITE_API_URL=http://localhost:9000
+   VITE_API_URL=http://localhost:8080
    ```
 
 4. **Ejecutar el servidor de desarrollo**
@@ -71,6 +78,8 @@ Antes de comenzar, asegurate de tener instalado:
 5. **Abrir la aplicación**
 
    Acceder desde el navegador a la URL que indique la consola (por defecto suele ser `http://localhost:5173`).
+
+> ⚠️ Si el backend no está corriendo o la URL configurada en `VITE_API_URL` no coincide con su puerto, el frontend no podrá autenticar usuarios ni cargar datos.
 
 ---
 
@@ -94,12 +103,20 @@ npm run preview
 
 ## 🏗️ Arquitectura
 
-El frontend forma parte de una arquitectura **cliente-servidor basada en API REST**:
+El frontend forma parte de una arquitectura **cliente-servidor basada en API REST**, en conjunto con el backend:
 
 - El **cliente** (esta aplicación) gestiona la interacción con el usuario y realiza solicitudes HTTP a la API.
-- El **servidor** (backend en Java + Spring Boot) procesa la lógica de negocio, gestiona la persistencia en MySQL y expone los endpoints REST.
+- El **servidor** ([backend en Java + Spring Boot](https://github.com/Juani17/backendPasantias)) procesa la lógica de negocio, gestiona la persistencia en MySQL y expone los endpoints REST consumidos aquí.
 
 Esta separación permite escalabilidad, mantenibilidad y una clara división de responsabilidades entre las capas del sistema.
+
+### Flujo de una solicitud de reintegro (visualizado en el frontend)
+
+```
+Solicitado → Pendiente de Revisión Médica → En Revisión Médica → 
+Observado (opcional) → Pendiente de Revisión Administrativa → 
+Aprobado / Rechazado → Pagado
+```
 
 ---
 
@@ -124,7 +141,7 @@ El sistema fue desplegado en un entorno productivo utilizando:
 
 - **Servidor:** DonWeb (IaaS sobre Ubuntu Linux)
 - **Contenerización:** Docker
-- **Base de datos:** MySQL
+- **Base de datos:** MySQL (consumida por el backend)
 
 ---
 
@@ -138,6 +155,12 @@ Proyecto desarrollado en el marco de la Práctica Profesionalizante — UTN Facu
 - **Ing. Diego Cornejo** — Scrum Master
 
 Metodología de trabajo: **Scrum**, con sprints de 2 semanas, tablero Kanban en Trello y estimaciones mediante Planning Poker.
+
+---
+
+## 🔗 Repositorios relacionados
+
+- Backend: [backendPasantias](https://github.com/Juani17/backendPasantias)
 
 ---
 
